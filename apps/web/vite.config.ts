@@ -8,6 +8,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port,
+    // design-system CSS lives at the repo root, outside apps/web
+    fs: { allow: ['../..'] },
   },
   preview: {
     port,
