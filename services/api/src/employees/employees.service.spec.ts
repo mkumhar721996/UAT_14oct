@@ -1,4 +1,4 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { FakeDataSource } from '../../test/support/fake-data-source';
 import { EmployeesService } from './employees.service';
@@ -100,6 +100,24 @@ describe('EmployeesService', () => {
     locks.length = 0;
     await svc.approveChangeRequest(tenantId, req.id, 'hr');
     expect(locks).toEqual(['pessimistic_write', 'pessimistic_write']);
+  });
+
+  it('maps a racing duplicate pending request (DB unique violation) to a conflict', async () => {
+    const ds = new FakeDataSource();
+    const svc = new EmployeesService(ds as any);
+    const { id: eid } = await svc.createEmployee(tenantId, { fullName: 'R', startDate: '2026-01-01' });
+    const repo = ds.getRepository(PendingChangeRequest);
+    const originalSave = repo.save.bind(repo);
+    repo.save = (row: any) => {
+      repo.save = originalSave;
+      const err = Object.assign(new Error('duplicate key value violates unique constraint "uq_pending_change_requests_open"'), {
+        code: '23505',
+      });
+      throw err;
+    };
+    await expect(
+      svc.submitChangeRequest(tenantId, eid, { field: 'jobTitle', requestedValue: 'Lead', effectiveDate: '2026-02-01' }),
+    ).rejects.toBeInstanceOf(ConflictException);
   });
 
   it('rejecting a request changes nothing', async () => {

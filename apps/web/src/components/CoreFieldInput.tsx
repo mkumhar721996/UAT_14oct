@@ -19,10 +19,12 @@ export function CoreFieldInput({
 }) {
   if (field === 'department' || field === 'contractType') {
     const options = field === 'department' ? DEPARTMENTS : CONTRACT_TYPES
+    const isKnownValue = value === '' || (options as string[]).includes(value)
     return (
       <select className="select" id={id} value={value} onChange={(e) => onChange(e.target.value)}>
         {allowUnset && <option value="">Not set</option>}
         {!allowUnset && <option value="">Select…</option>}
+        {!isKnownValue && <option value={value}>{value}</option>}
         {options.map((o) => (
           <option key={o} value={o}>
             {o}

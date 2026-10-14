@@ -19,6 +19,11 @@ function normalise(field: CoreField, v: string | number | null | undefined): str
   return field === 'salary' ? Number(v) : String(v);
 }
 
+/** Postgres' unique_violation code, raised by uq_pending_change_requests_open under a race. */
+function isUniqueViolation(err: unknown): boolean {
+  return typeof err === 'object' && err !== null && (err as { code?: string }).code === '23505';
+}
+
 @Injectable()
 export class EmployeesService {
   constructor(private readonly dataSource: DataSource) {}
@@ -137,22 +142,32 @@ export class EmployeesService {
     if (dto.field === 'salary' && !(Number(dto.requestedValue) >= 0)) {
       throw new BadRequestException('requestedValue must be a non-negative number for salary');
     }
-    const repo = this.dataSource.getRepository(PendingChangeRequest);
-    const open = await repo.find({ where: { tenantId, employeeId, field: dto.field, status: 'pending' } });
-    if (open.length > 0) throw new ConflictException(`A ${dto.field} change is already awaiting approval`);
-    return repo.save(
-      repo.create({
-        tenantId,
-        employeeId,
-        field: dto.field,
-        requestedValue: dto.requestedValue.trim(),
-        effectiveDate: dto.effectiveDate,
-        note: dto.note?.trim() || null,
-        status: 'pending',
-        resolvedAt: null,
-        resolvedBy: null,
-      }),
-    );
+    const conflictMessage = `A ${dto.field} change is already awaiting approval`;
+    return this.dataSource.transaction(async (m) => {
+      const repo = m.getRepository(PendingChangeRequest);
+      const open = await repo.find({ where: { tenantId, employeeId, field: dto.field, status: 'pending' } });
+      if (open.length > 0) throw new ConflictException(conflictMessage);
+      try {
+        return await repo.save(
+          repo.create({
+            tenantId,
+            employeeId,
+            field: dto.field,
+            requestedValue: dto.requestedValue.trim(),
+            effectiveDate: dto.effectiveDate,
+            note: dto.note?.trim() || null,
+            status: 'pending',
+            resolvedAt: null,
+            resolvedBy: null,
+          }),
+        );
+      } catch (err) {
+        // Guards the race the find-then-save above can't: concurrent submits for the
+        // same (tenant, employee, field) are serialised by uq_pending_change_requests_open.
+        if (isUniqueViolation(err)) throw new ConflictException(conflictMessage);
+        throw err;
+      }
+    });
   }
 
   async listPendingRequests(tenantId: string, employeeId?: string): Promise<PendingChangeRequest[]> {
