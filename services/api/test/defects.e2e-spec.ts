@@ -62,4 +62,12 @@ describe('Defects (e2e)', () => {
     expect((await http().post('/defects').set('Authorization', nonReporter).send({})).status).toBe(403);
     await http().post('/defects').send(validBody).expect(401);
   });
+
+  it('a Reporter cannot read the employee directory, profiles or history', async () => {
+    const hr = `Bearer ${tokenFor({ sub: 'hr-1', role: 'hr_admin' })}`;
+    const { body: e } = await http().post('/employees').set('Authorization', hr).send({ fullName: 'Target', startDate: '2026-01-01' });
+    await http().get('/employees').set('Authorization', reporter).expect(403);
+    await http().get(`/employees/${e.id}`).set('Authorization', reporter).expect(403);
+    await http().get(`/employees/${e.id}/history`).set('Authorization', reporter).expect(403);
+  });
 });

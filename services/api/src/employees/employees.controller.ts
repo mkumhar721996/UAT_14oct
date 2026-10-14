@@ -33,6 +33,7 @@ export class EmployeesController {
   }
 
   @Get()
+  @Roles('hr_admin', 'employee')
   async list(@CurrentUser() user: AuthUser) {
     return (await this.employees.listEmployees(user.tenantId)).map((e) => present(user, e));
   }
@@ -63,6 +64,7 @@ export class EmployeesController {
   }
 
   @Get(':id')
+  @Roles('hr_admin', 'employee')
   async get(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string) {
     return present(user, await this.employees.getEmployee(user.tenantId, id));
   }
@@ -74,6 +76,7 @@ export class EmployeesController {
   }
 
   @Get(':id/history')
+  @Roles('hr_admin', 'employee')
   async history(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string): Promise<EmploymentHistoryEntry[]> {
     const rows = await this.employees.getHistory(user.tenantId, id);
     return canSeePrivate(user, id) ? rows : rows.filter((h) => h.field !== 'salary');

@@ -1,5 +1,4 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
 import { Banner } from '../components/Banner'
 import { Layout } from '../components/Layout'
 import { useToast } from '../components/Toast'
@@ -265,9 +264,18 @@ export default function ReportDefectPage() {
             <button type="submit" className="btn btn-primary" disabled={saving}>
               {saving ? 'Submitting…' : 'Submit defect report'}
             </button>
-            <Link className="btn btn-secondary" to="/employees">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => {
+                setDraft(EMPTY)
+                setMissing([])
+                setDenied(false)
+                setServerError(null)
+              }}
+            >
               Cancel
-            </Link>
+            </button>
           </div>
         </form>
       </div>
