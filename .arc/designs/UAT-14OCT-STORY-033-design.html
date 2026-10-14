@@ -1,0 +1,875 @@
+<!doctype html>
+<!--
+  UAT-14OCT-STORY-033: Defect Creation
+  App nav: left sidebar (Defects) + top bar — same console pattern as the rest of this product.
+  Standalone, self-contained prototype. All data lives in the DEFECT_FIXTURES script block and
+  is mutated only in memory (no network, no localStorage).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Defect Creation — Design Prototype</title>
+<style>
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-fg: #1e293b; /** Primary text color on light surfaces */
+  --color-bg: #ffffff; /** Default page/app background */
+  --color-bg-subtle: #f8fafc; /** Secondary surface used for panels and alternating rows */
+  --color-primary: #2563eb; /** Brand/action color for primary buttons and links */
+  --color-primary-hover: #1d4ed8; /** Hover state for primary actions */
+  --color-primary-fg: #ffffff; /** Text/icon color on top of primary-colored surfaces */
+  --color-border: #e2e8f0; /** Default border color for inputs, cards and dividers */
+  --color-fg-muted: #67748b; /** Secondary text color for captions and helper text */
+  --color-success: #16985c; /** Positive status and success chip color */
+  --color-success-bg: #e1f6e8; /** Background for success chips */
+  --color-danger: #db2727; /** Destructive action and error status color */
+  --color-danger-bg: #fde5e5; /** Background for danger/error chips */
+  --color-warning: #b47406; /** Warning status color */
+  --color-warning-bg: #fef3d6; /** Background for warning chips */
+  --font-family-base: Inter, ui-sans-serif, system-ui, sans-serif; /** Default UI typeface */
+  --font-family-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace; /** Monospace typeface for code and identifiers */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --line-height-base: 1.5; /** Default line-height multiplier for body text */
+  --font-size-sm: 12px; /** Helper text, captions, chip labels */
+  --font-size-md: 14px; /** Default body and control text */
+  --font-size-lg: 18px; /** Section headings */
+  --space-1: 4px; /** Tightest spacing, icon-to-label gaps */
+  --space-2: 8px; /** Compact spacing inside controls */
+  --space-3: 12px; /** Default spacing between stacked elements */
+  --space-4: 16px; /** Section and card padding */
+  --radius-sm: 4px; /** Chips and small controls */
+  --radius-md: 6px; /** Buttons and inputs */
+  --radius-lg: 10px; /** Cards and panels */
+  --shadow-card: 0px 1px 3px 0px rgb(11.76% 16.08% 23.14% / 0.08); /** Resting elevation for cards */
+  --border-default: 1px solid rgb(88.63% 90.98% 94.12%); /** Default 1px hairline border */
+  --button-primary-background: var(--color-primary);
+  --button-primary-background-hover: var(--color-primary-hover);
+  --button-primary-foreground: var(--color-primary-fg);
+  --button-primary-radius: var(--radius-md);
+  --button-primary-padding-y: var(--space-2);
+  --button-primary-padding-x: var(--space-4);
+  --button-secondary-background: var(--color-bg);
+  --button-secondary-foreground: var(--color-fg);
+  --button-secondary-border: var(--color-border);
+  --card-default-background: var(--color-bg);
+  --card-default-border: var(--color-border);
+  --card-default-radius: var(--radius-lg);
+  --card-default-padding: var(--space-4);
+}
+
+</style>
+<style>
+/* Layout primitives */
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-base);
+}
+
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--color-bg-subtle);
+  border-right: 1px solid var(--color-border);
+  padding: var(--space-4);
+}
+
+.sidebar-link {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-fg-muted);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.sidebar-link:hover {
+  background: var(--color-border);
+  color: var(--color-fg);
+}
+
+.sidebar-link.is-active {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1;
+  padding: var(--space-4);
+}
+
+/* Typography */
+
+.heading-lg {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.text-muted {
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+  border-radius: var(--button-primary-radius);
+  padding: var(--button-primary-padding-y) var(--button-primary-padding-x);
+}
+
+.btn-primary:hover {
+  background: var(--button-primary-background-hover);
+}
+
+.btn-secondary {
+  background: var(--button-secondary-background);
+  color: var(--button-secondary-foreground);
+  border: 1px solid var(--button-secondary-border);
+}
+
+.btn-secondary:hover {
+  background: var(--color-bg-subtle);
+}
+
+/* Cards */
+
+.card {
+  background: var(--card-default-background);
+  border: 1px solid var(--card-default-border);
+  border-radius: var(--card-default-radius);
+  padding: var(--card-default-padding);
+  box-shadow: var(--shadow-card);
+}
+
+.card-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.card-body {
+  font-size: var(--font-size-md);
+  color: var(--color-fg-muted);
+}
+
+/* Chips */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+}
+
+.chip-success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.chip-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.chip-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+/* Form controls */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.field-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-fg);
+}
+
+.input,
+.select,
+.textarea {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  color: var(--color-fg);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+/* Table */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-md);
+}
+
+.table th {
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+</style>
+<style>
+  /* ---- Page-level additions, composed only from design-system tokens ---- */
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--color-bg-subtle); }
+  .screen { display: none; }
+  .app-shell { min-height: calc(100vh - 46px); }
+  :focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+  .sidebar-section-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: var(--space-2) var(--space-3) var(--space-1);
+  }
+  .sidebar-link { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+  .sidebar-badge {
+    background: var(--color-primary);
+    color: var(--color-primary-fg);
+    font-size: 11px;
+    font-weight: var(--font-weight-semibold);
+    border-radius: 999px;
+    padding: 0 6px;
+    min-width: 18px;
+    text-align: center;
+    line-height: 18px;
+  }
+  .sidebar-link.is-active .sidebar-badge { background: var(--color-primary-fg); color: var(--color-primary); }
+
+  .topbar-title { display: flex; flex-direction: column; gap: 2px; }
+  .topbar-title h1 { margin: 0; font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); }
+  .topbar-actions { display: flex; align-items: center; gap: var(--space-3); }
+  .crumb { font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+  .crumb a { color: var(--color-fg-muted); text-decoration: none; cursor: pointer; }
+  .crumb a:hover { color: var(--color-primary); text-decoration: underline; }
+  .crumb .sep { margin: 0 var(--space-1); }
+
+  .role-switcher { display: flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+  .role-switcher select.select { padding: var(--space-1) var(--space-2); font-size: var(--font-size-sm); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 var(--space-4); }
+  @media (max-width: 860px) { .grid-2 { grid-template-columns: 1fr; } .app-shell { flex-direction: column; } .sidebar { width: auto; display: flex; gap: var(--space-2); overflow-x: auto; } }
+
+  .required-mark { color: var(--color-danger); margin-left: 2px; }
+  .field-hint { font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+  .field-error { font-size: var(--font-size-sm); color: var(--color-danger); margin-top: 2px; }
+  .input.has-error, .select.has-error, .textarea.has-error { border-color: var(--color-danger); }
+
+  .banner { display: flex; gap: var(--space-2); align-items: flex-start; padding: var(--space-3); border-radius: var(--radius-md); font-size: var(--font-size-md); margin-bottom: var(--space-3); }
+  .banner strong { display: block; margin-bottom: 2px; }
+  .banner-danger { background: var(--color-danger-bg); color: var(--color-danger); }
+  .banner-warning { background: var(--color-warning-bg); color: var(--color-warning); }
+  .banner-success { background: var(--color-success-bg); color: var(--color-success); }
+  .banner-icon { font-weight: var(--font-weight-semibold); }
+
+  /* Status chip: "New" is a neutral baseline state, not success/warning/danger, so it gets its
+     own quiet treatment rather than diluting the reserved status colors. */
+  .chip-neutral { background: var(--color-bg-subtle); color: var(--color-fg-muted); border: 1px solid var(--color-border); }
+
+  /* Severity is risk level, not job/queue status, so it is deliberately NOT rendered with the
+     reserved chip-success/warning/danger classes (those are reserved for status). Each level
+     pairs a distinct icon with its label so meaning never depends on color alone. */
+  .severity-tag { display: inline-flex; align-items: center; gap: var(--space-1); font-weight: var(--font-weight-medium); font-size: var(--font-size-sm); white-space: nowrap; }
+  .sev-critical { color: var(--color-danger); }
+  .sev-high { color: var(--color-warning); }
+  .sev-medium { color: var(--color-fg); }
+  .sev-low { color: var(--color-fg-muted); }
+
+  .readonly-row { display: flex; justify-content: space-between; align-items: flex-start; padding: var(--space-2) 0; border-bottom: 1px solid var(--color-border); gap: var(--space-4); }
+  .readonly-row:last-child { border-bottom: none; }
+  .readonly-label { color: var(--color-fg-muted); font-size: var(--font-size-sm); flex-shrink: 0; width: 180px; }
+  .readonly-value { font-weight: var(--font-weight-medium); text-align: right; white-space: pre-line; }
+  .readonly-value.mono { font-family: var(--font-family-mono); }
+  .readonly-value.muted { color: var(--color-fg-muted); font-weight: var(--font-weight-regular); font-style: italic; }
+
+  .skeleton { background: linear-gradient(90deg, var(--color-border) 25%, var(--color-bg-subtle) 37%, var(--color-border) 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; border-radius: var(--radius-sm); }
+  @keyframes shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+  @media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
+  .skeleton-row td { padding: var(--space-3); }
+  .skeleton-line { height: 14px; }
+
+  .empty-state { text-align: center; padding: 48px var(--space-4); color: var(--color-fg-muted); }
+  .empty-state .glyph { font-size: 28px; margin-bottom: var(--space-2); }
+
+  .search-row { display: flex; gap: var(--space-2); margin-bottom: var(--space-3); align-items: center; }
+  .search-row .input { max-width: 280px; }
+
+  .toast-wrap { position: fixed; bottom: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: var(--space-2); }
+  .toast { min-width: 260px; max-width: 360px; padding: var(--space-3); border-radius: var(--radius-md); box-shadow: var(--shadow-card); font-size: var(--font-size-md); background: var(--color-bg); border: 1px solid var(--color-border); border-left: 4px solid var(--color-success); opacity: 0; transform: translateY(8px); transition: opacity 200ms ease-out, transform 200ms ease-out; }
+  .toast.toast-danger { border-left-color: var(--color-danger); }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+</style>
+</head>
+<body>
+
+<!-- Reviewer bar -->
+<div id="review-bar" style="position:fixed;top:0;left:0;right:0;z-index:9999;
+  display:flex;align-items:center;gap:10px;padding:8px 16px;
+  background:var(--color-bg);border-bottom:1px solid var(--color-border);font-size:13px;font-family:var(--font-family-base)">
+  <span style="font-family:var(--font-family-mono);color:var(--color-fg-muted)">UAT-14OCT-STORY-033</span>
+  <button id="prev-btn">← Prev</button>
+  <span id="screen-label" style="flex:1;text-align:center;font-weight:600;color:var(--color-fg)"></span>
+  <button id="next-btn">Next →</button>
+</div>
+<div style="height:46px"></div><!-- spacer -->
+<style>#review-bar button { background:none; border:none; color:var(--color-primary); cursor:pointer; font-size:13px; font-family:var(--font-family-base); padding:4px 8px; }
+#review-bar button:hover { text-decoration: underline; }</style>
+
+<div id="screens">
+
+<!-- ============================================================ -->
+<!-- Screen 1: Defects -->
+<!-- Notes:
+     - Gives the new-defect form somewhere to launch from and somewhere to land after creation.
+     - "+ Report defect" is the one primary action; always enabled here (role gating is proven
+       at submit time on Screen 2, per AC6) but a note explains why a non-Reporter's submission
+       will be refused.
+     - States: loading skeleton -> success table -> empty (search, no matches) -> error
+       (demo link) -> partial (filtered search)
+     - Severity uses an icon + label, never color alone; Status uses a neutral chip since "New"
+       is a baseline state, not a success/warning/danger signal.
+-->
+<div class="screen" data-name="Defects">
+  <div class="app-shell">
+    <nav class="sidebar" id="sidebar-list"></nav>
+    <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+      <div class="topbar">
+        <div class="topbar-title">
+          <h1>Defects</h1>
+          <span class="crumb">QA triage board</span>
+        </div>
+        <div class="topbar-actions">
+          <div class="role-switcher">
+            <label for="role-select-1">Signed in as</label>
+            <select class="select" id="role-select-1">
+              <option value="reporter">Jordan Blake (Reporter)</option>
+              <option value="viewer">Sam Ortiz (QA Engineer, no Reporter role)</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="btn-new-defect">+ Report defect</button>
+        </div>
+      </div>
+      <div class="content">
+        <div id="list-role-note"></div>
+        <div class="search-row">
+          <input class="input" id="list-search" type="text" placeholder="Search by title or defect ID" aria-label="Search defects" />
+          <button class="btn btn-secondary" id="btn-simulate-error" title="Design-review only">Simulate load error</button>
+        </div>
+        <div class="card" style="padding:0; overflow:hidden;">
+          <table class="table" id="list-table">
+            <thead>
+              <tr><th>Defect ID</th><th>Title</th><th>Severity</th><th>Status</th><th>Reported by</th><th>Created</th></tr>
+            </thead>
+            <tbody id="list-rows"></tbody>
+          </table>
+          <div id="list-empty" style="display:none;"></div>
+          <div id="list-error" style="display:none; padding: var(--space-4);"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- Screen 2: Report a Defect -->
+<!-- Notes:
+     - Required: Title, Description, Severity, Steps to reproduce (AC1, AC2). Each left empty
+       is rejected individually with its own named message (AC2), and the user's other entries
+       are preserved — nothing is cleared or re-rendered away.
+     - Severity select lists exactly Critical / High / Medium / Low (AC4).
+     - Optional: Expected result, Actual result, Environment/build version — all three can stay
+       empty and the defect still saves (AC3).
+     - Authorization is checked before field validation: a non-Reporter's submission is always
+       refused with an authorization error, regardless of what they filled in (AC6).
+     - On success, the record is shown immediately with Status: New (AC5), including "Not set"
+       for any optional field left blank.
+-->
+<div class="screen" data-name="Report a Defect">
+  <div class="app-shell">
+    <nav class="sidebar" id="sidebar-new"></nav>
+    <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+      <div class="topbar">
+        <div class="topbar-title">
+          <h1>Report a defect</h1>
+          <span class="crumb"><a data-nav="0">Defects</a><span class="sep">/</span>New</span>
+        </div>
+        <div class="topbar-actions">
+          <div class="role-switcher">
+            <label for="role-select-2">Signed in as</label>
+            <select class="select" id="role-select-2">
+              <option value="reporter">Jordan Blake (Reporter)</option>
+              <option value="viewer">Sam Ortiz (QA Engineer, no Reporter role)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="content" id="new-defect-content"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /#screens -->
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+/* ============================================================
+   Fixture data — everything lives in memory for this prototype
+   ============================================================ */
+const DEFECT_FIXTURES = {
+  defects: [
+    {
+      id: 'DEF-241', title: 'Checkout button unresponsive on Safari', severity: 'Critical', status: 'New',
+      reporter: 'Jordan Blake', createdAt: '2026-10-13T09:15:00',
+      description: 'Tapping "Place order" does nothing in Safari on iOS; no error and no network request fires.',
+      steps: '1. Add any item to the cart\n2. Go to checkout\n3. Fill in payment details\n4. Tap "Place order" on Safari iOS',
+      expected: 'The order is placed and the confirmation screen appears.',
+      actual: 'Nothing happens. No error message, no loading state.',
+      environment: 'iOS 17.4, Safari, production'
+    },
+    {
+      id: 'DEF-238', title: 'Search results pagination skips page 2', severity: 'Medium', status: 'In triage',
+      reporter: 'Priya Shah', createdAt: '2026-10-10T14:02:00',
+      description: 'Clicking "Next" from page 1 of search results jumps straight to page 3.',
+      steps: '1. Search for "invoice"\n2. Click "Next" on the results list',
+      expected: '', actual: '', environment: ''
+    },
+    {
+      id: 'DEF-230', title: 'Export CSV missing header row', severity: 'Low', status: 'Resolved',
+      reporter: 'Marcus Webb', createdAt: '2026-10-02T11:40:00',
+      description: 'CSV export from the Reports page has no column headers, just raw data.',
+      steps: '1. Go to Reports\n2. Export as CSV\n3. Open the file',
+      expected: 'The first row contains column names.',
+      actual: 'The first row is already data.',
+      environment: 'Chrome 128, staging'
+    }
+  ],
+  nextIdNumber: 242
+};
+
+const SEVERITIES = [
+  { value: 'Critical', icon: '⛔', cls: 'sev-critical' },
+  { value: 'High', icon: '▲', cls: 'sev-high' },
+  { value: 'Medium', icon: '◆', cls: 'sev-medium' },
+  { value: 'Low', icon: '▽', cls: 'sev-low' }
+];
+
+const REQUIRED_FIELDS = [
+  { key: 'title', label: 'Title', message: 'Enter a title for the defect.' },
+  { key: 'description', label: 'Description', message: 'Describe the defect.' },
+  { key: 'severity', label: 'Severity', message: 'Choose a severity.' },
+  { key: 'steps', label: 'Steps to reproduce', message: 'Describe the steps to reproduce the defect.' }
+];
+
+let state = { role: 'reporter' };
+
+/* ---------- helpers ---------- */
+function $(id) { return document.getElementById(id); }
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function fmtDateTime(iso) { const d = new Date(iso); return d.toLocaleString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); }
+function severityMeta(value) { return SEVERITIES.find(s => s.value === value) || SEVERITIES[2]; }
+function severityTag(value) {
+  const s = severityMeta(value);
+  return `<span class="severity-tag ${s.cls}"><span aria-hidden="true">${s.icon}</span>${s.value}</span>`;
+}
+function statusChip(value) {
+  return `<span class="chip chip-neutral">${escapeHtml(value)}</span>`;
+}
+function reporterName(role) { return role === 'reporter' ? 'Jordan Blake' : 'Sam Ortiz'; }
+
+function showToast(message, type) {
+  const wrap = $('toast-wrap');
+  const el = document.createElement('div');
+  el.className = 'toast' + (type === 'danger' ? ' toast-danger' : '');
+  el.textContent = message;
+  wrap.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 220); }, 3200);
+}
+
+function sidebarHtml(role) {
+  const newCount = DEFECT_FIXTURES.defects.filter(d => d.status === 'New').length;
+  const badge = newCount > 0 ? `<span class="sidebar-badge">${newCount}</span>` : '';
+  return `
+    <div class="sidebar-section-label">QA Tracker</div>
+    <a class="sidebar-link is-active" data-nav="0">Defects${badge}</a>
+  `;
+}
+
+/* ============================================================
+   Screen navigation (reviewer bar)
+   ============================================================ */
+const screens = Array.from(document.querySelectorAll('.screen'));
+let cur = 0;
+function show(i) {
+  cur = Math.max(0, Math.min(screens.length - 1, i));
+  screens.forEach((s, j) => s.style.display = j === cur ? 'block' : 'none');
+  document.getElementById('screen-label').textContent = `${cur + 1} / ${screens.length}: ${screens[cur].dataset.name}`;
+  window.scrollTo(0, 0);
+}
+document.getElementById('prev-btn').onclick = () => show(cur - 1);
+document.getElementById('next-btn').onclick = () => show(cur + 1);
+document.addEventListener('keydown', e => {
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+  if (e.key === 'ArrowRight') show(cur + 1);
+  if (e.key === 'ArrowLeft') show(cur - 1);
+});
+document.addEventListener('click', e => {
+  const nav = e.target.closest('[data-nav]');
+  if (nav) { show(parseInt(nav.dataset.nav, 10)); }
+});
+
+/* ============================================================
+   Role switcher (syncs the two selects that appear per screen)
+   ============================================================ */
+function syncRoleSelects() {
+  ['role-select-1', 'role-select-2'].forEach(id => { const el = $(id); if (el) el.value = state.role; });
+}
+['role-select-1', 'role-select-2'].forEach(id => {
+  document.addEventListener('change', e => {
+    if (e.target.id === id) { state.role = e.target.value; syncRoleSelects(); renderList(false); resetNewDefectForm(); }
+  });
+});
+
+/* ============================================================
+   Screen 1: Defects list
+   ============================================================ */
+let listFilter = '';
+function renderList(loading) {
+  $('sidebar-list').innerHTML = sidebarHtml(state.role);
+  $('list-role-note').innerHTML = state.role !== 'reporter'
+    ? `<div class="banner banner-warning"><span class="banner-icon">&#9888;</span><div><strong>You're signed in without the Reporter role</strong>You can browse defects, but submitting a new one will be refused. Switch to Jordan Blake above to report a defect.</div></div>`
+    : '';
+
+  $('list-error').style.display = 'none';
+  const tbody = $('list-rows');
+  const table = $('list-table');
+
+  if (loading) {
+    table.style.display = '';
+    $('list-empty').style.display = 'none';
+    tbody.innerHTML = '<!-- State: loading -->' + Array.from({ length: 3 }).map(() => `
+      <tr class="skeleton-row">
+        <td><div class="skeleton skeleton-line" style="width:70px"></div></td>
+        <td><div class="skeleton skeleton-line" style="width:220px"></div></td>
+        <td><div class="skeleton skeleton-line" style="width:80px"></div></td>
+        <td><div class="skeleton skeleton-line" style="width:70px"></div></td>
+        <td><div class="skeleton skeleton-line" style="width:110px"></div></td>
+        <td><div class="skeleton skeleton-line" style="width:120px"></div></td>
+      </tr>`).join('');
+    return;
+  }
+
+  const q = listFilter.trim().toLowerCase();
+  const rows = DEFECT_FIXTURES.defects.filter(d =>
+    !q || d.title.toLowerCase().includes(q) || d.id.toLowerCase().includes(q)
+  );
+
+  if (rows.length === 0) {
+    table.style.display = 'none';
+    $('list-empty').style.display = 'block';
+    $('list-empty').innerHTML = `
+      <!-- State: empty -->
+      <div class="empty-state">
+        <div class="glyph">&#128269;</div>
+        <p><strong>No defects match "${escapeHtml(listFilter)}"</strong></p>
+        <p class="text-muted">Try a different title or defect ID, or report a new defect.</p>
+      </div>`;
+    return;
+  }
+
+  table.style.display = '';
+  $('list-empty').style.display = 'none';
+  tbody.innerHTML = (q ? '<!-- State: partial (filtered) -->' : '<!-- State: success -->') + rows.map(d => `
+    <tr>
+      <td style="font-family:var(--font-family-mono)">${d.id}</td>
+      <td>${escapeHtml(d.title)}</td>
+      <td>${severityTag(d.severity)}</td>
+      <td>${statusChip(d.status)}</td>
+      <td>${escapeHtml(d.reporter)}</td>
+      <td class="text-muted">${fmtDateTime(d.createdAt)}</td>
+    </tr>`).join('');
+}
+
+$('list-search').addEventListener('input', e => { listFilter = e.target.value; renderList(false); });
+
+$('btn-new-defect').addEventListener('click', () => { resetNewDefectForm(); show(1); });
+
+$('btn-simulate-error').addEventListener('click', () => {
+  $('list-table').style.display = 'none';
+  $('list-empty').style.display = 'none';
+  const err = $('list-error');
+  err.style.display = 'block';
+  err.innerHTML = `
+    <!-- State: error -->
+    <div class="banner banner-danger" style="margin:0;">
+      <span class="banner-icon">&#9888;</span>
+      <div><strong>Couldn't load defects</strong>The defect service didn't respond in time. Check your connection and try again.</div>
+    </div>
+    <div style="margin-top:var(--space-3)"><button class="btn btn-secondary" id="btn-retry-list">Retry</button></div>`;
+  $('btn-retry-list').addEventListener('click', () => renderList(false));
+});
+
+/* ============================================================
+   Screen 2: Report a Defect
+   ============================================================ */
+let newDefectDraft = {};
+function resetNewDefectForm() {
+  newDefectDraft = { title: '', description: '', severity: '', steps: '', expected: '', actual: '', environment: '' };
+  renderNewDefectScreen();
+}
+
+function renderNewDefectScreen(savedDefect) {
+  $('sidebar-new').innerHTML = sidebarHtml(state.role);
+  const root = $('new-defect-content');
+  const isReporter = state.role === 'reporter';
+
+  if (savedDefect) {
+    root.innerHTML = successStateHtml(savedDefect);
+    $('btn-view-in-list').addEventListener('click', () => { renderList(false); show(0); });
+    $('btn-report-another').addEventListener('click', () => resetNewDefectForm());
+    return;
+  }
+
+  const roleNote = !isReporter
+    ? `<div class="banner banner-warning"><span class="banner-icon">&#9888;</span><div><strong>Submitting will be refused</strong>You're signed in as ${escapeHtml(reporterName(state.role))}, who doesn't have the Reporter role. You can fill in the form, but it won't be saved.</div></div>`
+    : '';
+
+  root.innerHTML = `
+    <!-- State: ${isReporter ? 'pristine' : 'limited-access'} -->
+    ${roleNote}
+    <div id="new-defect-summary-error" aria-live="assertive" role="alert"></div>
+    <div class="card" style="max-width:720px;">
+      <h3 class="card-title">Defect details</h3>
+      <p class="card-body" style="margin-top:-6px;">Title, description, severity and steps to reproduce are required so QA can triage this defect.</p>
+      <form id="new-defect-form" novalidate>
+        <div class="field">
+          <label class="field-label" for="nd-title">Title<span class="required-mark">*</span></label>
+          <input class="input" id="nd-title" type="text" placeholder="e.g. Checkout button unresponsive on Safari" value="${escapeHtml(newDefectDraft.title || '')}" aria-describedby="err-title" />
+          <div class="field-error" id="err-title" style="display:none;"></div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="nd-description">Description<span class="required-mark">*</span></label>
+          <textarea class="textarea" id="nd-description" placeholder="What's wrong, and where does it happen?" aria-describedby="err-description">${escapeHtml(newDefectDraft.description || '')}</textarea>
+          <div class="field-error" id="err-description" style="display:none;"></div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="nd-severity">Severity<span class="required-mark">*</span></label>
+          <select class="select" id="nd-severity" aria-describedby="err-severity">
+            <option value="">Select severity</option>
+            ${SEVERITIES.map(s => `<option value="${s.value}" ${newDefectDraft.severity === s.value ? 'selected' : ''}>${s.value}</option>`).join('')}
+          </select>
+          <div class="field-error" id="err-severity" style="display:none;"></div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="nd-steps">Steps to reproduce<span class="required-mark">*</span></label>
+          <textarea class="textarea" id="nd-steps" placeholder="1. ...&#10;2. ...&#10;3. ..." aria-describedby="err-steps">${escapeHtml(newDefectDraft.steps || '')}</textarea>
+          <div class="field-error" id="err-steps" style="display:none;"></div>
+        </div>
+
+        <h3 class="card-title" style="margin-top:var(--space-4);">Additional details</h3>
+        <p class="field-hint" style="margin-top:-6px; margin-bottom:var(--space-3);">Optional — the defect can be created without these.</p>
+        <div class="grid-2">
+          <div class="field">
+            <label class="field-label" for="nd-expected">Expected result</label>
+            <textarea class="textarea" id="nd-expected" placeholder="What should happen instead?">${escapeHtml(newDefectDraft.expected || '')}</textarea>
+          </div>
+          <div class="field">
+            <label class="field-label" for="nd-actual">Actual result</label>
+            <textarea class="textarea" id="nd-actual" placeholder="What actually happens?">${escapeHtml(newDefectDraft.actual || '')}</textarea>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="nd-environment">Environment / build version</label>
+          <input class="input" id="nd-environment" type="text" placeholder="e.g. iOS 17.4, Safari, build 4.12.0" value="${escapeHtml(newDefectDraft.environment || '')}" />
+        </div>
+
+        <div style="display:flex; gap:var(--space-2); margin-top:var(--space-2);">
+          <button type="submit" class="btn btn-primary" id="btn-submit-defect">Submit defect report</button>
+          <button type="button" class="btn btn-secondary" data-nav="0">Cancel</button>
+        </div>
+      </form>
+    </div>`;
+
+  $('new-defect-form').addEventListener('submit', onSubmitNewDefect);
+}
+
+function successStateHtml(d) {
+  const optionalRow = (label, value) => `
+    <div class="readonly-row"><span class="readonly-label">${label}</span><span class="readonly-value${value ? '' : ' muted'}">${value ? escapeHtml(value) : 'Not set'}</span></div>`;
+  return `
+    <!-- State: success -->
+    <div class="banner banner-success"><span class="banner-icon">&#10003;</span><div><strong>Defect created</strong>Defect <span style="font-family:var(--font-family-mono)">${d.id}</span> was logged and is ready for QA to triage.</div></div>
+    <div class="card" style="max-width:720px;">
+      <h3 class="card-title">${escapeHtml(d.title)}</h3>
+      <div class="readonly-row"><span class="readonly-label">Defect ID</span><span class="readonly-value mono">${d.id}</span></div>
+      <div class="readonly-row"><span class="readonly-label">Status</span><span class="readonly-value">${statusChip(d.status)}</span></div>
+      <div class="readonly-row"><span class="readonly-label">Severity</span><span class="readonly-value">${severityTag(d.severity)}</span></div>
+      <div class="readonly-row"><span class="readonly-label">Reported by</span><span class="readonly-value">${escapeHtml(d.reporter)}</span></div>
+      <div class="readonly-row"><span class="readonly-label">Created</span><span class="readonly-value">${fmtDateTime(d.createdAt)}</span></div>
+      <div class="readonly-row"><span class="readonly-label">Description</span><span class="readonly-value">${escapeHtml(d.description)}</span></div>
+      <div class="readonly-row"><span class="readonly-label">Steps to reproduce</span><span class="readonly-value">${escapeHtml(d.steps)}</span></div>
+      ${optionalRow('Expected result', d.expected)}
+      ${optionalRow('Actual result', d.actual)}
+      ${optionalRow('Environment / build version', d.environment)}
+      <div style="margin-top:var(--space-4); display:flex; gap:var(--space-2);">
+        <button class="btn btn-primary" id="btn-view-in-list">View in Defects list</button>
+        <button class="btn btn-secondary" id="btn-report-another">+ Report another defect</button>
+      </div>
+    </div>`;
+}
+
+async function onSubmitNewDefect(e) {
+  e.preventDefault();
+
+  /* State: unauthorized — authorization is checked before any field validation (AC6) */
+  if (state.role !== 'reporter') {
+    $('new-defect-summary-error').innerHTML = `
+      <!-- State: unauthorized -->
+      <div class="banner banner-danger"><span class="banner-icon">&#9888;</span><div><strong>You don't have permission to do that</strong>Reporting a defect requires the Reporter role. Ask a Reporter to submit this defect, or switch roles above.</div></div>`;
+    showToast("Submission refused — Reporter role required.", 'danger');
+    return;
+  }
+
+  const values = {
+    title: $('nd-title').value.trim(),
+    description: $('nd-description').value.trim(),
+    severity: $('nd-severity').value,
+    steps: $('nd-steps').value.trim(),
+    expected: $('nd-expected').value.trim(),
+    actual: $('nd-actual').value.trim(),
+    environment: $('nd-environment').value.trim()
+  };
+  newDefectDraft = values;
+
+  REQUIRED_FIELDS.forEach(f => {
+    $('nd-' + f.key).classList.remove('has-error');
+    $('err-' + f.key).style.display = 'none';
+  });
+
+  /* State: validation-error — each missing required field is named individually (AC2) */
+  const missing = REQUIRED_FIELDS.filter(f => !values[f.key]);
+  if (missing.length > 0) {
+    missing.forEach(f => {
+      $('nd-' + f.key).classList.add('has-error');
+      const errEl = $('err-' + f.key);
+      errEl.textContent = f.message;
+      errEl.style.display = 'block';
+    });
+    const names = missing.map(f => f.label).join(', ');
+    $('new-defect-summary-error').innerHTML = `
+      <!-- State: validation-error -->
+      <div class="banner banner-danger"><span class="banner-icon">&#9888;</span><div><strong>Can't submit this defect</strong>Missing required field${missing.length > 1 ? 's' : ''}: ${escapeHtml(names)}.</div></div>`;
+    $('nd-' + missing[0].key).focus();
+    return;
+  }
+
+  $('new-defect-summary-error').innerHTML = '';
+
+  /* State: submitting */
+  const btn = $('btn-submit-defect');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  await wait(300);
+
+  /* State: success — status is New (AC5); blank optional fields are allowed (AC3) */
+  const id = 'DEF-' + (DEFECT_FIXTURES.nextIdNumber++);
+  const newDefect = {
+    id, title: values.title, severity: values.severity, status: 'New',
+    reporter: reporterName(state.role), createdAt: new Date().toISOString(),
+    description: values.description, steps: values.steps,
+    expected: values.expected, actual: values.actual, environment: values.environment
+  };
+  DEFECT_FIXTURES.defects.unshift(newDefect);
+
+  btn.disabled = false; btn.textContent = 'Submit defect report';
+  renderNewDefectScreen(newDefect);
+  renderList(false);
+  showToast(`Defect ${id} created with status New.`);
+}
+
+/* ============================================================
+   Initial render
+   ============================================================ */
+renderList(true);
+setTimeout(() => renderList(false), 260);
+resetNewDefectForm();
+show(0);
+</script>
+</body>
+</html>
+
+<!-- arc:css-inlined -->
