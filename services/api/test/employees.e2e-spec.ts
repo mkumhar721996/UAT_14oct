@@ -131,6 +131,13 @@ describe('Employees (e2e)', () => {
       expect(list.body.find((x: any) => x.id === e.id).status).toBe('terminated');
     });
 
+    it('records status transitions for audit without surfacing them in the core-field history view', async () => {
+      const { body: e } = await create({ fullName: 'Audited', startDate: '2026-01-01' });
+      await status(e.id, 'on_leave').expect(200);
+      const history = await http().get(`/employees/${e.id}/history`).set('Authorization', hr);
+      expect(history.body.find((h: any) => h.field === 'status')).toBeUndefined();
+    });
+
     it('AC1: rejects a status outside the three allowed values', async () => {
       const { body: e } = await create({ fullName: 'Bogus', startDate: '2026-01-01' });
       await status(e.id, 'bogus').expect(400);

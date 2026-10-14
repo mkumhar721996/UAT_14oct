@@ -143,6 +143,18 @@ export class EmployeesService {
       const employee = await this.loadEmployee(m, tenantId, id, true);
       this.assertNotTerminated(employee);
       if (employee.status === status) return employee;
+      const history = m.getRepository(EmploymentHistoryEntry);
+      await history.save(
+        history.create({
+          tenantId,
+          employeeId: employee.id,
+          field: 'status',
+          previousValue: employee.status,
+          newValue: status,
+          effectiveDate: new Date().toISOString().slice(0, 10),
+          recordedBy,
+        }),
+      );
       employee.status = status;
       return m.getRepository(Employee).save(employee);
     });

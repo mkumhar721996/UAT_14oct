@@ -148,6 +148,20 @@ describe('EmployeesService lifecycle status', () => {
     expect((await service.getEmployee(tenantId, id)).status).toBe('active');
   });
 
+  it('records a status transition in the employment history with the recording actor', async () => {
+    const before = await service.getHistory(tenantId, id);
+    await service.setStatus(tenantId, id, 'on_leave', 'hr-sub');
+    const history = await service.getHistory(tenantId, id);
+    expect(history).toHaveLength(before.length + 1);
+    expect(history.at(-1)).toMatchObject({ field: 'status', previousValue: 'active', newValue: 'on_leave', recordedBy: 'hr-sub' });
+  });
+
+  it('does not record history for a same-value status transition', async () => {
+    const before = await service.getHistory(tenantId, id);
+    await service.setStatus(tenantId, id, 'active');
+    expect(await service.getHistory(tenantId, id)).toHaveLength(before.length);
+  });
+
   it('AC4/AC13: terminates an active employee, and an on_leave one', async () => {
     expect((await service.setStatus(tenantId, id, 'terminated')).status).toBe('terminated');
     const { id: other } = await service.createEmployee(tenantId, { fullName: 'B', startDate: '2026-01-01' });

@@ -118,7 +118,7 @@ export default function EmployeeProfileDetailPage() {
                   ))}
                 </select>
               ) : (
-                <span className="readonly-value">{EMPLOYEE_STATUS_LABELS[employee.status]}</span>
+                <span className="readonly-value" id="employee-status">{EMPLOYEE_STATUS_LABELS[employee.status]}</span>
               )}
             </div>
             {employee.personalEmail !== undefined && (

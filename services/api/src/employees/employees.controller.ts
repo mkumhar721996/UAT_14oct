@@ -87,9 +87,10 @@ export class EmployeesController {
     return this.employees.rehireEmployee(user.tenantId, id, dto, user.sub);
   }
 
+  // Status transitions are recorded for audit but kept out of the core-field history view.
   @Get(':id/history')
   async history(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string): Promise<EmploymentHistoryEntry[]> {
-    const rows = await this.employees.getHistory(user.tenantId, id);
+    const rows = (await this.employees.getHistory(user.tenantId, id)).filter((h) => h.field !== 'status');
     return canSeePrivate(user, id) ? rows : rows.filter((h) => h.field !== 'salary');
   }
 }
