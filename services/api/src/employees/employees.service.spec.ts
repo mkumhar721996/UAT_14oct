@@ -176,6 +176,17 @@ describe('EmployeesService lifecycle status', () => {
     await expect(service.recordLeaveDecision(tenantId, id, 'approved')).rejects.toBeInstanceOf(ConflictException);
   });
 
+  it('AC7: terminated records also reject contact updates, change requests and change-request approval', async () => {
+    const req = await service.submitChangeRequest(tenantId, id, { field: 'jobTitle', requestedValue: 'Lead', effectiveDate: '2026-02-01' });
+    await service.setStatus(tenantId, id, 'terminated');
+    await expect(service.updateOwnContact(tenantId, id, { phone: '555-0100' })).rejects.toBeInstanceOf(ConflictException);
+    await expect(
+      service.submitChangeRequest(tenantId, id, { field: 'department', requestedValue: 'Sales', effectiveDate: '2026-02-01' }),
+    ).rejects.toBeInstanceOf(ConflictException);
+    await expect(service.approveChangeRequest(tenantId, req.id, 'hr-sub')).rejects.toBeInstanceOf(ConflictException);
+    expect(await service.getEmployee(tenantId, id)).toMatchObject({ jobTitle: 'Designer', phone: null });
+  });
+
   it('AC9: a terminated record keeps its data', async () => {
     await service.setStatus(tenantId, id, 'terminated');
     expect(await service.getEmployee(tenantId, id)).toMatchObject({ fullName: 'Jordan Lee', jobTitle: 'Designer', salary: 90000 });

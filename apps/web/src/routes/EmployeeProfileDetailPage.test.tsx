@@ -100,7 +100,7 @@ describe('EmployeeProfileDetailPage', () => {
       fireEvent.change(select, { target: { value: 'active' } })
       expect(select.value).toBe('active')
       expect(screen.queryByText(/couldn't/i)).not.toBeInTheDocument()
-      expect(api.mock.calls.filter(([, init]) => init?.method === 'PATCH').length).toBeLessThanOrEqual(1)
+      expect(api.mock.calls.filter(([, init]) => init?.method === 'PATCH').length).toBe(0)
     })
 
     it('AC8/AC9: a terminated employee shows no edit control, a rehire link, and keeps its data', async () => {

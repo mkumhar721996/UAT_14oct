@@ -164,10 +164,13 @@ export class EmployeesService {
   }
 
   async updateOwnContact(tenantId: string, employeeId: string, dto: UpdateContactDto): Promise<Employee> {
-    const employee = await this.getEmployee(tenantId, employeeId);
-    if (dto.personalEmail !== undefined) employee.personalEmail = toText(dto.personalEmail);
-    if (dto.phone !== undefined) employee.phone = toText(dto.phone);
-    return this.dataSource.getRepository(Employee).save(employee);
+    return this.dataSource.transaction(async (m) => {
+      const employee = await this.loadEmployee(m, tenantId, employeeId, true);
+      this.assertNotTerminated(employee);
+      if (dto.personalEmail !== undefined) employee.personalEmail = toText(dto.personalEmail);
+      if (dto.phone !== undefined) employee.phone = toText(dto.phone);
+      return m.getRepository(Employee).save(employee);
+    });
   }
 
   async getHistory(tenantId: string, employeeId: string): Promise<EmploymentHistoryEntry[]> {
@@ -180,7 +183,7 @@ export class EmployeesService {
   }
 
   async submitChangeRequest(tenantId: string, employeeId: string, dto: CreateChangeRequestDto): Promise<PendingChangeRequest> {
-    await this.getEmployee(tenantId, employeeId);
+    this.assertNotTerminated(await this.getEmployee(tenantId, employeeId));
     if (dto.field === 'salary' && !(Number(dto.requestedValue) >= 0)) {
       throw new BadRequestException('requestedValue must be a non-negative number for salary');
     }
@@ -230,6 +233,7 @@ export class EmployeesService {
     return this.dataSource.transaction(async (m) => {
       const req = await this.getOpenRequest(m, tenantId, requestId);
       const employee = await this.loadEmployee(m, tenantId, req.employeeId, true);
+      this.assertNotTerminated(employee);
       const field = req.field as CoreField;
       await this.applyCoreChange(m, tenantId, employee, field, normalise(field, req.requestedValue), req.effectiveDate, approverSub);
       req.status = 'approved';
