@@ -31,3 +31,18 @@ export interface ChangeRequest {
   note: string | null
   submittedAt: string
 }
+
+export type DefectSeverity = 'Critical' | 'High' | 'Medium' | 'Low'
+
+export interface Defect {
+  id: string
+  title: string
+  description: string
+  severity: DefectSeverity
+  stepsToReproduce: string
+  expectedResult: string | null
+  actualResult: string | null
+  environment: string | null
+  status: string
+  createdAt: string
+}
