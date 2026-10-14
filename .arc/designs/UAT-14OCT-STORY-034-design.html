@@ -1,0 +1,1111 @@
+<!doctype html>
+<!--
+  Work item: UAT-14OCT-STORY-034 — Defect Detail View & Edit
+  App nav: persistent left sidebar (Defects · Projects · Settings) + top bar for page title and
+  contextual actions, per this product's operator-console navigation pattern. Flat two-level
+  hierarchy: sidebar section -> page. No bottom nav, no flyouts.
+
+  This prototype intentionally does NOT model status transitions/workflow actions (owned by a
+  separate story) and does not model project/workspace visibility rules (owned by Project &
+  Workspace Organization). A persona switcher simulates the different signed-in users named in
+  the acceptance criteria so a reviewer can see every permission state without a real backend.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>UAT-14OCT-STORY-034 — Defect Detail View &amp; Edit</title>
+<style>
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-fg: #1e293b; /** Primary text color on light surfaces */
+  --color-bg: #ffffff; /** Default page/app background */
+  --color-bg-subtle: #f8fafc; /** Secondary surface used for panels and alternating rows */
+  --color-primary: #2563eb; /** Brand/action color for primary buttons and links */
+  --color-primary-hover: #1d4ed8; /** Hover state for primary actions */
+  --color-primary-fg: #ffffff; /** Text/icon color on top of primary-colored surfaces */
+  --color-border: #e2e8f0; /** Default border color for inputs, cards and dividers */
+  --color-fg-muted: #67748b; /** Secondary text color for captions and helper text */
+  --color-success: #16985c; /** Positive status and success chip color */
+  --color-success-bg: #e1f6e8; /** Background for success chips */
+  --color-danger: #db2727; /** Destructive action and error status color */
+  --color-danger-bg: #fde5e5; /** Background for danger/error chips */
+  --color-warning: #b47406; /** Warning status color */
+  --color-warning-bg: #fef3d6; /** Background for warning chips */
+  --font-family-base: Inter, ui-sans-serif, system-ui, sans-serif; /** Default UI typeface */
+  --font-family-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace; /** Monospace typeface for code and identifiers */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --line-height-base: 1.5; /** Default line-height multiplier for body text */
+  --font-size-sm: 12px; /** Helper text, captions, chip labels */
+  --font-size-md: 14px; /** Default body and control text */
+  --font-size-lg: 18px; /** Section headings */
+  --space-1: 4px; /** Tightest spacing, icon-to-label gaps */
+  --space-2: 8px; /** Compact spacing inside controls */
+  --space-3: 12px; /** Default spacing between stacked elements */
+  --space-4: 16px; /** Section and card padding */
+  --radius-sm: 4px; /** Chips and small controls */
+  --radius-md: 6px; /** Buttons and inputs */
+  --radius-lg: 10px; /** Cards and panels */
+  --shadow-card: 0px 1px 3px 0px rgb(11.76% 16.08% 23.14% / 0.08); /** Resting elevation for cards */
+  --border-default: 1px solid rgb(88.63% 90.98% 94.12%); /** Default 1px hairline border */
+  --button-primary-background: var(--color-primary);
+  --button-primary-background-hover: var(--color-primary-hover);
+  --button-primary-foreground: var(--color-primary-fg);
+  --button-primary-radius: var(--radius-md);
+  --button-primary-padding-y: var(--space-2);
+  --button-primary-padding-x: var(--space-4);
+  --button-secondary-background: var(--color-bg);
+  --button-secondary-foreground: var(--color-fg);
+  --button-secondary-border: var(--color-border);
+  --card-default-background: var(--color-bg);
+  --card-default-border: var(--color-border);
+  --card-default-radius: var(--radius-lg);
+  --card-default-padding: var(--space-4);
+}
+
+</style>
+<style>
+/* Layout primitives */
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-base);
+}
+
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--color-bg-subtle);
+  border-right: 1px solid var(--color-border);
+  padding: var(--space-4);
+}
+
+.sidebar-link {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-fg-muted);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.sidebar-link:hover {
+  background: var(--color-border);
+  color: var(--color-fg);
+}
+
+.sidebar-link.is-active {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1;
+  padding: var(--space-4);
+}
+
+/* Typography */
+
+.heading-lg {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.text-muted {
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+  border-radius: var(--button-primary-radius);
+  padding: var(--button-primary-padding-y) var(--button-primary-padding-x);
+}
+
+.btn-primary:hover {
+  background: var(--button-primary-background-hover);
+}
+
+.btn-secondary {
+  background: var(--button-secondary-background);
+  color: var(--button-secondary-foreground);
+  border: 1px solid var(--button-secondary-border);
+}
+
+.btn-secondary:hover {
+  background: var(--color-bg-subtle);
+}
+
+/* Cards */
+
+.card {
+  background: var(--card-default-background);
+  border: 1px solid var(--card-default-border);
+  border-radius: var(--card-default-radius);
+  padding: var(--card-default-padding);
+  box-shadow: var(--shadow-card);
+}
+
+.card-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.card-body {
+  font-size: var(--font-size-md);
+  color: var(--color-fg-muted);
+}
+
+/* Chips */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+}
+
+.chip-success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.chip-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.chip-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+/* Form controls */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.field-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-fg);
+}
+
+.input,
+.select,
+.textarea {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  color: var(--color-fg);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+/* Table */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-md);
+}
+
+.table th {
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+</style>
+<style>
+  /* Page-specific styles. Uses design-system tokens exclusively — no hardcoded values. */
+
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+
+  .app-shell { min-height: 100vh; }
+
+  .topbar-title { display: flex; flex-direction: column; gap: 2px; }
+  .topbar-crumb { font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+  .topbar-heading { font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); color: var(--color-fg); }
+  .topbar-actions { display: flex; gap: var(--space-2); align-items: center; }
+
+  .content { max-width: 960px; }
+
+  /* Neutral status chip — composed only from existing tokens, since chip-success/warning/danger
+     don't cover every defect status and guidelines reserve color chips for status use only. */
+  .chip-neutral { background: var(--color-bg-subtle); color: var(--color-fg-muted); border: 1px solid var(--color-border); }
+
+  .persona-bar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3);
+    padding: var(--space-3); margin-bottom: var(--space-4);
+    background: var(--color-bg-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-md);
+  }
+  .persona-bar label { font-size: var(--font-size-sm); color: var(--color-fg-muted); font-weight: var(--font-weight-medium); }
+  .persona-bar select { font-family: var(--font-family-base); font-size: var(--font-size-md); color: var(--color-fg);
+    background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); }
+
+  .detail-header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-4); flex-wrap: wrap; }
+  .detail-id { font-family: var(--font-family-mono); font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+  .detail-title { font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); color: var(--color-fg); margin: var(--space-1) 0; }
+  .detail-status-row { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-1); }
+
+  .detail-grid { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-4); align-items: start; }
+  @media (max-width: 860px) { .detail-grid { grid-template-columns: 1fr; } }
+
+  .block-title { font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--color-fg-muted);
+    text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 var(--space-2) 0; }
+
+  .readable-block { font-size: var(--font-size-md); color: var(--color-fg); white-space: pre-line; line-height: var(--line-height-base); margin: 0 0 var(--space-4) 0; }
+
+  .field-readonly { display: flex; flex-direction: column; gap: 2px; padding: var(--space-2) 0; border-bottom: 1px solid var(--color-border); }
+  .field-readonly:last-child { border-bottom: none; }
+  .field-readonly-label { font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+  .field-readonly-value { font-size: var(--font-size-md); color: var(--color-fg); font-weight: var(--font-weight-medium); }
+
+  .lock-note {
+    display: flex; align-items: flex-start; gap: var(--space-2);
+    background: var(--color-bg-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-md);
+    padding: var(--space-3); font-size: var(--font-size-sm); color: var(--color-fg-muted); margin-bottom: var(--space-3);
+  }
+
+  .alert { display: flex; align-items: flex-start; gap: var(--space-2); border-radius: var(--radius-md); padding: var(--space-3); margin-bottom: var(--space-4); font-size: var(--font-size-md); }
+  /* Text stays color-fg (not color-danger/color-success) to keep 4.5:1 contrast on the tinted
+     background at this font size; the icon + colored border carry the status instead. */
+  .alert-error { background: var(--color-danger-bg); border: 1px solid var(--color-danger); }
+  .alert-error strong { color: var(--color-fg); }
+  .alert-success { background: var(--color-success-bg); border: 1px solid var(--color-success); }
+  .alert-success strong { color: var(--color-fg); }
+  .alert-body { color: var(--color-fg); }
+
+  .skeleton { background: linear-gradient(90deg, var(--color-bg-subtle) 25%, var(--color-border) 37%, var(--color-bg-subtle) 63%);
+    background-size: 400% 100%; border-radius: var(--radius-sm); animation: shimmer 1.4s ease infinite; }
+  @media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
+  @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
+
+  .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    gap: var(--space-2); padding: 64px var(--space-4); color: var(--color-fg-muted); }
+  .empty-state-icon { font-size: 32px; }
+
+  .form-row { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); flex-wrap: wrap; }
+
+  textarea.input-locked, input.input-locked {
+    background: var(--color-bg-subtle); color: var(--color-fg-muted); cursor: not-allowed;
+  }
+
+  .form-actions { display: flex; gap: var(--space-2); margin-top: var(--space-4); }
+
+  a.link { color: var(--color-primary); text-decoration: none; font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); }
+  a.link:hover { text-decoration: underline; }
+  a.link:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--color-primary); outline-offset: 2px;
+  }
+
+  .sidebar-footer { margin-top: auto; padding-top: var(--space-4); font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+  .sidebar { display: flex; flex-direction: column; }
+
+  @media (max-width: 1024px) {
+    .app-shell { flex-direction: column; }
+    .sidebar { display: none; }
+    .mobile-nav { display: flex !important; }
+  }
+  .mobile-nav { display: none; gap: var(--space-3); padding: var(--space-2) var(--space-4); background: var(--color-bg-subtle);
+    border-bottom: 1px solid var(--color-border); font-size: var(--font-size-sm); }
+  .mobile-nav a { color: var(--color-fg-muted); text-decoration: none; }
+  .mobile-nav a.is-active { color: var(--color-primary); font-weight: var(--font-weight-semibold); }
+</style>
+</head>
+<body>
+
+<!-- Fixture data: inline JSON, parsed at load time. No network calls, no real persistence. -->
+<script type="application/json" id="fixture-data">
+{
+  "defects": {
+    "DEF-1042": {
+      "id": "DEF-1042",
+      "title": "Export button freezes report page on large datasets",
+      "description": "When exporting a report with more than 5,000 rows to CSV, the Export button spins indefinitely and the page becomes unresponsive. Users have to refresh the tab to recover.",
+      "reproSteps": "1. Sign in as a Workspace Admin.\n2. Open Reports > Monthly Usage.\n3. Set the date range to the last 12 months (approx. 8,200 rows).\n4. Click Export > CSV.\n5. Observe the Export button spinner never stops and the page stops responding to clicks.",
+      "severity": "Medium",
+      "priority": "Not yet triaged",
+      "type": "Functional",
+      "status": "New",
+      "assignee": "Unassigned",
+      "reporter": "Jordan Lee",
+      "environment": "Staging / Firefox 130 / macOS 14",
+      "createdAt": "Oct 10, 2026, 9:14 AM",
+      "updatedAt": "Oct 10, 2026, 9:14 AM"
+    },
+    "DEF-1038": {
+      "id": "DEF-1038",
+      "title": "Dashboard widgets take 8+ seconds to load for workspaces with 50+ queues",
+      "description": "The queue-health dashboard takes 8-12 seconds to render for workspaces with more than 50 active queues, well past the 2 second target in the performance budget.",
+      "reproSteps": "1. Sign in to a workspace with 50 or more active queues.\n2. Open Dashboard > Queue health.\n3. Start a timer when the page begins loading.\n4. Stop the timer once all widgets finish rendering.\n5. Observe the load time is 8-12 seconds instead of the expected under 2 seconds.",
+      "severity": "High",
+      "priority": "P2 — High",
+      "type": "Performance",
+      "status": "Triaged",
+      "assignee": "Sam Okafor",
+      "reporter": "Priya Shah",
+      "environment": "Production / Chrome 128 / Windows 11",
+      "createdAt": "Oct 6, 2026, 2:47 PM",
+      "updatedAt": "Oct 12, 2026, 11:03 AM"
+    }
+  },
+  "personas": {
+    "reporter-new": { "label": "Jordan Lee — Reporter", "role": "reporter", "defectId": "DEF-1042" },
+    "reporter-triaged": { "label": "Priya Shah — Reporter", "role": "reporter", "defectId": "DEF-1038" },
+    "admin": { "label": "Morgan Diaz — Admin", "role": "admin", "defectId": "DEF-1038" },
+    "other": { "label": "Alex Chen — QA Engineer", "role": "other", "defectId": "DEF-1038" }
+  }
+}
+</script>
+
+<!-- Reviewer bar -->
+<div id="review-bar" style="position:fixed;top:0;left:0;right:0;z-index:9999;
+  display:flex;align-items:center;gap:10px;padding:8px 16px;
+  background:var(--color-bg);border-bottom:1px solid var(--color-border);font-size:13px;font-family:var(--font-family-base)">
+  <span style="font-family:var(--font-family-mono);color:var(--color-fg-muted)">UAT-14OCT-STORY-034</span>
+  <button id="prev-btn" style="color:var(--color-primary);background:none;border:none;cursor:pointer;font-weight:600">← Prev</button>
+  <span id="screen-label" style="flex:1;text-align:center;font-weight:600;color:var(--color-fg)"></span>
+  <button id="next-btn" style="color:var(--color-primary);background:none;border:none;cursor:pointer;font-weight:600">Next →</button>
+</div>
+<div style="height:46px"></div><!-- spacer -->
+
+<div id="screens">
+
+<!-- Screen: Defects list
+     Notes:
+       - Entry point only; this story covers the detail/edit view, not the list or its filters.
+       - "View" opens the detail screen with a persona preset matching a realistic path into it.
+-->
+<!-- State: list / success -->
+<div class="screen" data-name="Defects">
+  <div class="app-shell">
+    <nav class="sidebar">
+      <a class="sidebar-link is-active" href="#">Defects</a>
+      <a class="sidebar-link" href="#">Projects</a>
+      <a class="sidebar-link" href="#">Settings</a>
+      <div class="sidebar-footer">Signed in as<br><strong style="color:var(--color-fg)">Jordan Lee</strong></div>
+    </nav>
+    <div style="flex:1; display:flex; flex-direction:column;">
+      <div class="mobile-nav"><a class="is-active" href="#">Defects</a><a href="#">Projects</a><a href="#">Settings</a></div>
+      <div class="topbar">
+        <div class="topbar-title"><span class="topbar-heading">Defects</span></div>
+      </div>
+      <div class="content">
+        <table class="table">
+          <thead>
+            <tr><th>ID</th><th>Title</th><th>Status</th><th>Severity</th><th>Reporter</th><th>Assignee</th><th>Updated</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="detail-id">DEF-1042</td>
+              <td>Export button freezes report page on large datasets</td>
+              <td><span class="chip chip-neutral">New</span></td>
+              <td>Medium</td>
+              <td>Jordan Lee</td>
+              <td>Unassigned</td>
+              <td>Oct 10, 2026</td>
+              <td><a class="link" href="#" onclick="event.preventDefault(); openFromList('reporter-new');">View</a></td>
+            </tr>
+            <tr>
+              <td class="detail-id">DEF-1038</td>
+              <td>Dashboard widgets take 8+ seconds to load for workspaces with 50+ queues</td>
+              <td><span class="chip chip-warning">Triaged</span></td>
+              <td>High</td>
+              <td>Priya Shah</td>
+              <td>Sam Okafor</td>
+              <td>Oct 12, 2026</td>
+              <td><a class="link" href="#" onclick="event.preventDefault(); openFromList('admin');">View</a></td>
+            </tr>
+            <tr>
+              <td class="detail-id">DEF-1031</td>
+              <td>Notification emails show the wrong workspace name</td>
+              <td><span class="chip chip-success">Resolved</span></td>
+              <td>Low</td>
+              <td>Dana Price</td>
+              <td>Sam Okafor</td>
+              <td>Oct 8, 2026</td>
+              <td><span class="text-muted">—</span></td>
+            </tr>
+            <tr>
+              <td class="detail-id">DEF-1029</td>
+              <td>Sidebar scroll position resets after navigating back</td>
+              <td><span class="chip chip-neutral">Closed</span></td>
+              <td>Low</td>
+              <td>Dana Price</td>
+              <td>Unassigned</td>
+              <td>Oct 3, 2026</td>
+              <td><span class="text-muted">—</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen: Defect Detail — Loading
+     Notes:
+       - Skeleton placeholders mirror the final layout (header, meta panel, description, steps)
+         so content doesn't jump into place once it arrives.
+-->
+<!-- State: loading -->
+<div class="screen" data-name="Defect Detail — Loading">
+  <div class="app-shell">
+    <nav class="sidebar">
+      <a class="sidebar-link is-active" href="#">Defects</a>
+      <a class="sidebar-link" href="#">Projects</a>
+      <a class="sidebar-link" href="#">Settings</a>
+    </nav>
+    <div style="flex:1; display:flex; flex-direction:column;">
+      <div class="mobile-nav"><a class="is-active" href="#">Defects</a><a href="#">Projects</a><a href="#">Settings</a></div>
+      <div class="topbar">
+        <div class="topbar-title"><span class="topbar-crumb">Defects</span><span class="topbar-heading">Loading…</span></div>
+      </div>
+      <div class="content">
+        <div class="skeleton" style="height:14px;width:90px;margin-bottom:10px;"></div>
+        <div class="skeleton" style="height:22px;width:60%;margin-bottom:20px;"></div>
+        <div class="detail-grid">
+          <div>
+            <div class="skeleton" style="height:12px;width:120px;margin-bottom:10px;"></div>
+            <div class="skeleton" style="height:16px;width:100%;margin-bottom:6px;"></div>
+            <div class="skeleton" style="height:16px;width:95%;margin-bottom:6px;"></div>
+            <div class="skeleton" style="height:16px;width:80%;margin-bottom:20px;"></div>
+            <div class="skeleton" style="height:12px;width:160px;margin-bottom:10px;"></div>
+            <div class="skeleton" style="height:16px;width:100%;margin-bottom:6px;"></div>
+            <div class="skeleton" style="height:16px;width:90%;"></div>
+          </div>
+          <div class="card">
+            <div class="skeleton" style="height:14px;width:100%;margin-bottom:12px;"></div>
+            <div class="skeleton" style="height:14px;width:100%;margin-bottom:12px;"></div>
+            <div class="skeleton" style="height:14px;width:100%;margin-bottom:12px;"></div>
+            <div class="skeleton" style="height:14px;width:100%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen: Defect Detail — Not found
+     Notes:
+       - Covers a defect that no longer exists or the signed-in user can't reach, without
+         re-defining visibility rules (owned by Project & Workspace Organization).
+-->
+<!-- State: error -->
+<div class="screen" data-name="Defect Detail — Not found">
+  <div class="app-shell">
+    <nav class="sidebar">
+      <a class="sidebar-link is-active" href="#">Defects</a>
+      <a class="sidebar-link" href="#">Projects</a>
+      <a class="sidebar-link" href="#">Settings</a>
+    </nav>
+    <div style="flex:1; display:flex; flex-direction:column;">
+      <div class="mobile-nav"><a class="is-active" href="#">Defects</a><a href="#">Projects</a><a href="#">Settings</a></div>
+      <div class="topbar">
+        <div class="topbar-title"><span class="topbar-crumb">Defects</span><span class="topbar-heading">DEF-9999</span></div>
+      </div>
+      <div class="content">
+        <div class="empty-state">
+          <div class="empty-state-icon">⚠</div>
+          <h2 class="heading-lg" style="margin:0;color:var(--color-fg)">We couldn't load this defect</h2>
+          <p style="max-width:52ch">DEF-9999 may have been deleted, or you may not have access to its project. Try again, or go back to the defects list.</p>
+          <div class="form-row" style="justify-content:center;margin-top:var(--space-2)">
+            <button class="btn btn-secondary">Try again</button>
+            <a class="link" href="#" onclick="event.preventDefault(); goTo('Defects');">← Back to Defects</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen: Defect Detail — View
+     Notes:
+       - AC1: every field, current status and assignee are always shown, for any persona.
+       - Persona switcher simulates "signed in as" so a reviewer can see every permission state
+         without a real auth backend. Admin additionally gets a defect selector to show the
+         same view working at any status (AC4 context).
+       - "Edit defect" routes to the matching edit screen per persona/status; for a user who is
+         neither Reporter nor Admin, it routes straight to the refusal screen (AC6).
+-->
+<!-- State: success -->
+<div class="screen" data-name="Defect Detail — View">
+  <div class="app-shell">
+    <nav class="sidebar">
+      <a class="sidebar-link is-active" href="#">Defects</a>
+      <a class="sidebar-link" href="#">Projects</a>
+      <a class="sidebar-link" href="#">Settings</a>
+    </nav>
+    <div style="flex:1; display:flex; flex-direction:column;">
+      <div class="mobile-nav"><a class="is-active" href="#">Defects</a><a href="#">Projects</a><a href="#">Settings</a></div>
+      <div class="topbar">
+        <div class="topbar-title"><span class="topbar-crumb">Defects</span><span class="topbar-heading" id="detail-topbar-title">Defect detail</span></div>
+        <div class="topbar-actions">
+          <button id="detail-edit-btn" class="btn btn-primary">Edit defect</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="persona-bar">
+          <label for="persona-select">Viewing as</label>
+          <select id="persona-select" onchange="onPersonaChange()">
+            <option value="reporter-new">Jordan Lee — Reporter (defect not yet triaged)</option>
+            <option value="reporter-triaged">Priya Shah — Reporter (defect has entered Triaged)</option>
+            <option value="admin">Morgan Diaz — Admin</option>
+            <option value="other">Alex Chen — QA Engineer (not Reporter, not Admin)</option>
+          </select>
+          <span id="admin-defect-row" style="display:none;align-items:center;gap:var(--space-2)">
+            <label for="admin-defect-select">Defect</label>
+            <select id="admin-defect-select" onchange="renderDetail()">
+              <option value="DEF-1042">DEF-1042 (New)</option>
+              <option value="DEF-1038" selected>DEF-1038 (Triaged)</option>
+            </select>
+          </span>
+        </div>
+
+        <div id="unauthorized-alert" class="alert alert-error" style="display:none">
+          <span>⚠</span>
+          <span class="alert-body"><strong>You can't edit this defect.</strong> Only its Reporter or an Admin can make changes. You can still view the full record below.</span>
+        </div>
+
+        <div id="detail-root"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen: Edit Defect — Reporter (Pre-Triage)
+     Notes:
+       - AC2: Reporter can change description and reproduction details before Triaged, and the
+         saved values show immediately. Every other field is read-only for the Reporter at any
+         status — this story scopes Reporter edits to description + reproduction details only.
+-->
+<!-- State: edit form / editable -->
+<div class="screen" data-name="Edit Defect — Reporter (Pre-Triage)">
+  <div class="app-shell">
+    <nav class="sidebar">
+      <a class="sidebar-link is-active" href="#">Defects</a>
+      <a class="sidebar-link" href="#">Projects</a>
+      <a class="sidebar-link" href="#">Settings</a>
+    </nav>
+    <div style="flex:1; display:flex; flex-direction:column;">
+      <div class="mobile-nav"><a class="is-active" href="#">Defects</a><a href="#">Projects</a><a href="#">Settings</a></div>
+      <div class="topbar">
+        <div class="topbar-title"><span class="topbar-crumb">Defects / DEF-1042</span><span class="topbar-heading">Edit defect</span></div>
+        <div class="topbar-actions">
+          <a class="link" href="#" onclick="event.preventDefault(); goTo('Defect Detail — View');">← Back to defect</a>
+        </div>
+      </div>
+      <div class="content">
+        <div id="rn-saved-banner" class="alert alert-success" style="display:none">
+          <span>✓</span>
+          <span class="alert-body" id="rn-saved-text"></span>
+        </div>
+        <div class="detail-grid">
+          <div>
+            <h3 class="block-title">Description</h3>
+            <textarea id="rn-description" class="textarea" style="width:100%;min-height:110px"></textarea>
+            <h3 class="block-title" style="margin-top:var(--space-4)">Reproduction details</h3>
+            <textarea id="rn-repro" class="textarea" style="width:100%;min-height:140px"></textarea>
+            <div class="form-actions">
+              <button id="rn-save-btn" class="btn btn-primary" onclick="saveReporterNew()">Save changes</button>
+              <button class="btn btn-secondary" onclick="goTo('Defect Detail — View')">Cancel</button>
+            </div>
+          </div>
+          <div class="card">
+            <h3 class="block-title" style="margin-top:0">Not editable by Reporter</h3>
+            <div class="field-readonly"><span class="field-readonly-label">Status</span><span class="field-readonly-value"><span class="chip chip-neutral">New</span></span></div>
+            <div class="field-readonly"><span class="field-readonly-label">Severity</span><span class="field-readonly-value">Medium</span></div>
+            <div class="field-readonly"><span class="field-readonly-label">Priority</span><span class="field-readonly-value">Not yet triaged</span></div>
+            <div class="field-readonly"><span class="field-readonly-label">Type</span><span class="field-readonly-value">Functional</span></div>
+            <div class="field-readonly"><span class="field-readonly-label">Assignee</span><span class="field-readonly-value">Unassigned</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen: Edit Defect — Reporter (Triaged)
+     Notes:
+       - AC3: once a defect has entered Triaged, the Reporter's description and reproduction
+         details become read-only. Fields are disabled (not just visually styled) so no attempt
+         to type can change them, and the reason is stated plainly next to each field.
+-->
+<!-- State: edit form / locked -->
+<div class="screen" data-name="Edit Defect — Reporter (Triaged)">
+  <div class="app-shell">
+    <nav class="sidebar">
+      <a class="sidebar-link is-active" href="#">Defects</a>
+      <a class="sidebar-link" href="#">Projects</a>
+      <a class="sidebar-link" href="#">Settings</a>
+    </nav>
+    <div style="flex:1; display:flex; flex-direction:column;">
+      <div class="mobile-nav"><a class="is-active" href="#">Defects</a><a href="#">Projects</a><a href="#">Settings</a></div>
+      <div class="topbar">
+        <div class="topbar-title"><span class="topbar-crumb">Defects / DEF-1038</span><span class="topbar-heading">Edit defect</span></div>
+        <div class="topbar-actions">
+          <a class="link" href="#" onclick="event.preventDefault(); goTo('Defect Detail — View');">← Back to defect</a>
+        </div>
+      </div>
+      <div class="content">
+        <div class="detail-grid">
+          <div>
+            <div class="lock-note">
+              <span>🔒</span>
+              <span>This defect has entered Triaged. As its Reporter, you can no longer change the description or reproduction details — only an Admin can now.</span>
+            </div>
+            <h3 class="block-title">Description</h3>
+            <textarea class="textarea input-locked" style="width:100%;min-height:110px" disabled>The queue-health dashboard takes 8-12 seconds to render for workspaces with more than 50 active queues, well past the 2 second target in the performance budget.</textarea>
+            <h3 class="block-title" style="margin-top:var(--space-4)">Reproduction details</h3>
+            <textarea class="textarea input-locked" style="width:100%;min-height:140px" disabled>1. Sign in to a workspace with 50 or more active queues.
+2. Open Dashboard > Queue health.
+3. Start a timer when the page begins loading.
+4. Stop the timer once all widgets finish rendering.
+5. Observe the load time is 8-12 seconds instead of the expected under 2 seconds.</textarea>
+            <div class="form-actions">
+              <button class="btn btn-secondary" onclick="goTo('Defect Detail — View')">Back to defect</button>
+            </div>
+          </div>
+          <div class="card">
+            <h3 class="block-title" style="margin-top:0">Not editable by Reporter</h3>
+            <div class="field-readonly"><span class="field-readonly-label">Status</span><span class="field-readonly-value"><span class="chip chip-warning">Triaged</span></span></div>
+            <div class="field-readonly"><span class="field-readonly-label">Severity</span><span class="field-readonly-value">High</span></div>
+            <div class="field-readonly"><span class="field-readonly-label">Priority</span><span class="field-readonly-value">P2 — High</span></div>
+            <div class="field-readonly"><span class="field-readonly-label">Type</span><span class="field-readonly-value">Performance</span></div>
+            <div class="field-readonly"><span class="field-readonly-label">Assignee</span><span class="field-readonly-value">Sam Okafor</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen: Edit Defect — Admin
+     Notes:
+       - AC4: severity is editable at any status — switch the defect selector to DEF-1042 (New)
+         to confirm it works pre-triage too.
+       - AC5: description and reproduction details are editable once a defect has entered
+         Triaged (shown here by default on DEF-1038).
+       - AC7: on a Triaged defect with a priority already set, changing severity and saving
+         leaves priority unchanged — the success message says so explicitly.
+       - AC8: no status control appears anywhere on this form; status is shown as plain text.
+-->
+<!-- State: edit form / admin -->
+<div class="screen" data-name="Edit Defect — Admin">
+  <div class="app-shell">
+    <nav class="sidebar">
+      <a class="sidebar-link is-active" href="#">Defects</a>
+      <a class="sidebar-link" href="#">Projects</a>
+      <a class="sidebar-link" href="#">Settings</a>
+    </nav>
+    <div style="flex:1; display:flex; flex-direction:column;">
+      <div class="mobile-nav"><a class="is-active" href="#">Defects</a><a href="#">Projects</a><a href="#">Settings</a></div>
+      <div class="topbar">
+        <div class="topbar-title"><span class="topbar-crumb">Defects</span><span class="topbar-heading" id="admin-edit-heading">Edit defect</span></div>
+        <div class="topbar-actions">
+          <a class="link" href="#" onclick="event.preventDefault(); goTo('Defect Detail — View');">← Back to defect</a>
+        </div>
+      </div>
+      <div class="content">
+        <div class="persona-bar">
+          <label for="admin-edit-defect-select">Editing</label>
+          <select id="admin-edit-defect-select" onchange="onAdminEditDefectChange(this.value)">
+            <option value="DEF-1042">DEF-1042 — Export button freezes report page (New)</option>
+            <option value="DEF-1038" selected>DEF-1038 — Dashboard widgets slow to load (Triaged)</option>
+          </select>
+        </div>
+        <div id="admin-saved-banner" class="alert alert-success" style="display:none">
+          <span>✓</span>
+          <span class="alert-body" id="admin-saved-text"></span>
+        </div>
+        <div class="detail-grid">
+          <div>
+            <div class="field">
+              <label class="field-label">Title</label>
+              <input id="admin-title" class="input" type="text" />
+            </div>
+            <h3 class="block-title">Description</h3>
+            <textarea id="admin-description" class="textarea" style="width:100%;min-height:90px"></textarea>
+            <h3 class="block-title" style="margin-top:var(--space-4)">Reproduction details</h3>
+            <textarea id="admin-repro" class="textarea" style="width:100%;min-height:130px"></textarea>
+            <div class="form-actions">
+              <button id="admin-save-btn" class="btn btn-primary" onclick="saveAdminEdit()">Save changes</button>
+              <button class="btn btn-secondary" onclick="goTo('Defect Detail — View')">Cancel</button>
+            </div>
+          </div>
+          <div class="card">
+            <h3 class="block-title" style="margin-top:0">Classification</h3>
+            <div class="field">
+              <label class="field-label">Severity</label>
+              <select id="admin-severity" class="select">
+                <option>Critical</option>
+                <option>High</option>
+                <option>Medium</option>
+                <option>Low</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="field-label">Defect type</label>
+              <select id="admin-type" class="select">
+                <option>Functional</option>
+                <option>Performance</option>
+                <option>UI/Visual</option>
+                <option>Data</option>
+                <option>Security</option>
+              </select>
+            </div>
+            <div class="field-readonly">
+              <span class="field-readonly-label">Priority</span>
+              <span class="field-readonly-value" id="admin-priority-value">—</span>
+            </div>
+            <p class="text-muted" style="margin:0 0 var(--space-3) 0">Priority is set when a defect is triaged and isn't recalculated when severity changes.</p>
+            <div class="field-readonly">
+              <span class="field-readonly-label">Status</span>
+              <span class="field-readonly-value" id="admin-status-value">—</span>
+            </div>
+            <p class="text-muted" style="margin:0 0 var(--space-3) 0">Status changes happen through the defect's workflow actions, not from this form.</p>
+            <div class="field-readonly">
+              <span class="field-readonly-label">Assignee</span>
+              <span class="field-readonly-value" id="admin-assignee-value">—</span>
+            </div>
+            <div class="field-readonly">
+              <span class="field-readonly-label">Reporter</span>
+              <span class="field-readonly-value" id="admin-reporter-value">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen: Edit refused — Unauthorized
+     Notes:
+       - AC6: a signed-in user who is neither Reporter nor Admin is refused with a clear
+         authorization error if they attempt to edit — shown here as the direct result of
+         following an edit link/URL while not permitted.
+-->
+<!-- State: error / refused -->
+<div class="screen" data-name="Edit refused — Unauthorized">
+  <div class="app-shell">
+    <nav class="sidebar">
+      <a class="sidebar-link is-active" href="#">Defects</a>
+      <a class="sidebar-link" href="#">Projects</a>
+      <a class="sidebar-link" href="#">Settings</a>
+    </nav>
+    <div style="flex:1; display:flex; flex-direction:column;">
+      <div class="mobile-nav"><a class="is-active" href="#">Defects</a><a href="#">Projects</a><a href="#">Settings</a></div>
+      <div class="topbar">
+        <div class="topbar-title"><span class="topbar-crumb">Defects / DEF-1038</span><span class="topbar-heading">Edit defect</span></div>
+      </div>
+      <div class="content">
+        <div class="empty-state">
+          <div class="empty-state-icon">⛔</div>
+          <h2 class="heading-lg" style="margin:0;color:var(--color-fg)">You don't have permission to edit this defect</h2>
+          <p style="max-width:52ch">Alex Chen is signed in as a QA Engineer — not this defect's Reporter and not an Admin. Only the Reporter or an Admin can change DEF-1038.</p>
+          <div class="form-row" style="justify-content:center;margin-top:var(--space-2)">
+            <a class="link" href="#" onclick="event.preventDefault(); goTo('Defect Detail — View');">← Back to defect (view only)</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+  const FIXTURES = JSON.parse(document.getElementById('fixture-data').textContent);
+  const DEFECTS = FIXTURES.defects;
+  const PERSONAS = FIXTURES.personas;
+  const STATUS_CHIP = { 'New': 'chip-neutral', 'Triaged': 'chip-warning', 'In Progress': 'chip-warning', 'Resolved': 'chip-success', 'Closed': 'chip-neutral' };
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function fieldRow(label, value) {
+    return '<div class="field-readonly"><span class="field-readonly-label">' + label + '</span><span class="field-readonly-value">' + value + '</span></div>';
+  }
+
+  function currentPersonaKey() {
+    return document.getElementById('persona-select').value;
+  }
+
+  function renderDetail() {
+    const personaKey = currentPersonaKey();
+    const persona = PERSONAS[personaKey];
+    document.getElementById('unauthorized-alert').style.display = 'none';
+
+    let defectId = persona.defectId;
+    if (personaKey === 'admin') {
+      defectId = document.getElementById('admin-defect-select').value;
+    }
+    const d = DEFECTS[defectId];
+    const statusClass = STATUS_CHIP[d.status] || 'chip-neutral';
+
+    document.getElementById('detail-topbar-title').textContent = d.id + ' — ' + d.title;
+
+    document.getElementById('detail-root').innerHTML =
+      '<div class="detail-header">' +
+        '<div>' +
+          '<div class="detail-id">' + d.id + '</div>' +
+          '<div class="detail-title">' + escapeHtml(d.title) + '</div>' +
+          '<div class="detail-status-row"><span class="chip ' + statusClass + '">' + d.status + '</span>' +
+            '<span class="text-muted">Assignee: ' + escapeHtml(d.assignee) + '</span></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="detail-grid">' +
+        '<div>' +
+          '<h3 class="block-title">Description</h3>' +
+          '<p class="readable-block">' + escapeHtml(d.description) + '</p>' +
+          '<h3 class="block-title">Reproduction details</h3>' +
+          '<p class="readable-block">' + escapeHtml(d.reproSteps) + '</p>' +
+        '</div>' +
+        '<div class="card">' +
+          '<h3 class="block-title" style="margin-top:0">Record</h3>' +
+          fieldRow('Severity', d.severity) +
+          fieldRow('Priority', d.priority) +
+          fieldRow('Type', d.type) +
+          fieldRow('Assignee', escapeHtml(d.assignee)) +
+          fieldRow('Reporter', escapeHtml(d.reporter)) +
+          fieldRow('Environment', escapeHtml(d.environment)) +
+          fieldRow('Created', d.createdAt) +
+          fieldRow('Last updated', d.updatedAt) +
+        '</div>' +
+      '</div>';
+
+    const editBtn = document.getElementById('detail-edit-btn');
+    editBtn.textContent = 'Edit defect';
+    editBtn.onclick = function () { handleEditClick(personaKey, defectId); };
+  }
+
+  function onPersonaChange() {
+    const personaKey = currentPersonaKey();
+    document.getElementById('admin-defect-row').style.display = personaKey === 'admin' ? 'inline-flex' : 'none';
+    renderDetail();
+  }
+
+  function handleEditClick(personaKey, defectId) {
+    const persona = PERSONAS[personaKey];
+    const d = DEFECTS[defectId];
+    if (persona.role === 'other') {
+      document.getElementById('unauthorized-alert').style.display = 'flex';
+      goTo('Edit refused — Unauthorized');
+      return;
+    }
+    if (persona.role === 'reporter') {
+      if (d.status === 'New') {
+        prepareReporterNewForm();
+        goTo('Edit Defect — Reporter (Pre-Triage)');
+      } else {
+        goTo('Edit Defect — Reporter (Triaged)');
+      }
+      return;
+    }
+    if (persona.role === 'admin') {
+      document.getElementById('admin-edit-defect-select').value = defectId;
+      onAdminEditDefectChange(defectId);
+      goTo('Edit Defect — Admin');
+    }
+  }
+
+  function openFromList(personaKey) {
+    document.getElementById('persona-select').value = personaKey;
+    onPersonaChange();
+    goTo('Defect Detail — View');
+  }
+
+  // --- Reporter (Pre-Triage) edit form: AC2 ---
+  function prepareReporterNewForm() {
+    const d = DEFECTS['DEF-1042'];
+    document.getElementById('rn-description').value = d.description;
+    document.getElementById('rn-repro').value = d.reproSteps;
+    document.getElementById('rn-saved-banner').style.display = 'none';
+    document.getElementById('rn-save-btn').disabled = false;
+    document.getElementById('rn-save-btn').textContent = 'Save changes';
+  }
+
+  function saveReporterNew() {
+    const btn = document.getElementById('rn-save-btn');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    setTimeout(function () {
+      const d = DEFECTS['DEF-1042'];
+      const newDescription = document.getElementById('rn-description').value;
+      const newRepro = document.getElementById('rn-repro').value;
+      const changed = [];
+      if (newDescription !== d.description) changed.push('description');
+      if (newRepro !== d.reproSteps) changed.push('reproduction details');
+      d.description = newDescription;
+      d.reproSteps = newRepro;
+      d.updatedAt = 'Just now';
+      btn.disabled = false;
+      btn.textContent = 'Save changes';
+      const banner = document.getElementById('rn-saved-banner');
+      const verb = changed.length > 1 ? 'are' : 'is';
+      document.getElementById('rn-saved-text').textContent = changed.length
+        ? 'Saved. The ' + changed.join(' and ') + ' shown above ' + verb + ' now part of DEF-1042’s record.'
+        : 'Saved. No changes were made.';
+      banner.style.display = 'flex';
+    }, 300);
+  }
+
+  // --- Admin edit form: AC4, AC5, AC7, AC8 ---
+  function onAdminEditDefectChange(defectId) {
+    const d = DEFECTS[defectId];
+    document.getElementById('admin-edit-heading').textContent = 'Edit defect — ' + d.id;
+    document.getElementById('admin-title').value = d.title;
+    document.getElementById('admin-description').value = d.description;
+    document.getElementById('admin-repro').value = d.reproSteps;
+    document.getElementById('admin-severity').value = d.severity;
+    document.getElementById('admin-type').value = d.type;
+    document.getElementById('admin-priority-value').textContent = d.priority;
+    document.getElementById('admin-status-value').innerHTML = '<span class="chip ' + (STATUS_CHIP[d.status] || 'chip-neutral') + '">' + d.status + '</span>';
+    document.getElementById('admin-assignee-value').textContent = d.assignee;
+    document.getElementById('admin-reporter-value').textContent = d.reporter;
+    document.getElementById('admin-saved-banner').style.display = 'none';
+  }
+
+  function saveAdminEdit() {
+    const btn = document.getElementById('admin-save-btn');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    setTimeout(function () {
+      const defectId = document.getElementById('admin-edit-defect-select').value;
+      const d = DEFECTS[defectId];
+      const newTitle = document.getElementById('admin-title').value;
+      const newDescription = document.getElementById('admin-description').value;
+      const newRepro = document.getElementById('admin-repro').value;
+      const newSeverity = document.getElementById('admin-severity').value;
+      const newType = document.getElementById('admin-type').value;
+
+      const messages = [];
+      if (newTitle !== d.title) messages.push('Title updated.');
+      if (newDescription !== d.description) messages.push('Description updated.');
+      if (newRepro !== d.reproSteps) messages.push('Reproduction details updated.');
+      if (newType !== d.type) messages.push('Defect type updated.');
+      if (newSeverity !== d.severity) {
+        let m = 'Severity updated to "' + newSeverity + '".';
+        if (d.status !== 'New' && d.priority !== 'Not yet triaged') {
+          m += ' Priority remains "' + d.priority + '" — it isn’t recalculated automatically.';
+        }
+        messages.push(m);
+      }
+
+      d.title = newTitle;
+      d.description = newDescription;
+      d.reproSteps = newRepro;
+      d.severity = newSeverity;
+      d.type = newType;
+      d.updatedAt = 'Just now';
+
+      btn.disabled = false;
+      btn.textContent = 'Save changes';
+      const banner = document.getElementById('admin-saved-banner');
+      document.getElementById('admin-saved-text').textContent = messages.length ? messages.join(' ') : 'Saved. No changes were made.';
+      banner.style.display = 'flex';
+    }, 300);
+  }
+
+  function goTo(name) {
+    const idx = screens.findIndex(function (s) { return s.dataset.name === name; });
+    if (idx >= 0) show(idx);
+  }
+
+  // Initial renders
+  renderDetail();
+  onAdminEditDefectChange('DEF-1038');
+</script>
+
+<script>
+const screens = Array.from(document.querySelectorAll('.screen'));
+let cur = 0;
+function show(i) {
+  cur = Math.max(0, Math.min(screens.length - 1, i));
+  screens.forEach((s, j) => s.style.display = j === cur ? 'block' : 'none');
+  document.getElementById('screen-label').textContent =
+    `${cur + 1} / ${screens.length}: ${screens[cur].dataset.name}`;
+}
+document.getElementById('prev-btn').onclick = () => show(cur - 1);
+document.getElementById('next-btn').onclick = () => show(cur + 1);
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') show(cur + 1);
+  if (e.key === 'ArrowLeft') show(cur - 1);
+});
+show(0);
+</script>
+
+</body>
+</html>
+
+<!-- arc:css-inlined -->
