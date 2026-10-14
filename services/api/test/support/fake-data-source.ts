@@ -26,6 +26,10 @@ class FakeRepository {
     return this.rows.filter((r) => matches(r, opts.where)).map((r) => ({ ...r }));
   }
 
+  async delete(where: Row): Promise<void> {
+    this.rows = this.rows.filter((r) => !matches(r, where));
+  }
+
   async findOne(opts: { where?: Row }): Promise<Row | null> {
     const found = this.rows.find((r) => matches(r, opts.where));
     return found ? { ...found } : null;

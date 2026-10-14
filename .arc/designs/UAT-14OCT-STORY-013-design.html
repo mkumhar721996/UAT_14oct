@@ -1,0 +1,1185 @@
+<!doctype html>
+<!--
+  UAT-14OCT-STORY-013 — Org Structure & Reporting Lines
+  Standalone design prototype. No live backend: all data lives in an inline
+  fixture and is persisted to localStorage so a page reload demonstrates
+  AC9 (saved hierarchy/managers survive reload) for real, in the browser.
+
+  App nav: sidebar — Department Tree · Employees & Managers · Org Chart · My Department
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>UAT-14OCT-STORY-013 — Org Structure & Reporting Lines</title>
+<style>
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-fg: #1e293b; /** Primary text color on light surfaces */
+  --color-bg: #ffffff; /** Default page/app background */
+  --color-bg-subtle: #f8fafc; /** Secondary surface used for panels and alternating rows */
+  --color-primary: #2563eb; /** Brand/action color for primary buttons and links */
+  --color-primary-hover: #1d4ed8; /** Hover state for primary actions */
+  --color-primary-fg: #ffffff; /** Text/icon color on top of primary-colored surfaces */
+  --color-border: #e2e8f0; /** Default border color for inputs, cards and dividers */
+  --color-fg-muted: #67748b; /** Secondary text color for captions and helper text */
+  --color-success: #16985c; /** Positive status and success chip color */
+  --color-success-bg: #e1f6e8; /** Background for success chips */
+  --color-danger: #db2727; /** Destructive action and error status color */
+  --color-danger-bg: #fde5e5; /** Background for danger/error chips */
+  --color-warning: #b47406; /** Warning status color */
+  --color-warning-bg: #fef3d6; /** Background for warning chips */
+  --font-family-base: Inter, ui-sans-serif, system-ui, sans-serif; /** Default UI typeface */
+  --font-family-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace; /** Monospace typeface for code and identifiers */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --line-height-base: 1.5; /** Default line-height multiplier for body text */
+  --font-size-sm: 12px; /** Helper text, captions, chip labels */
+  --font-size-md: 14px; /** Default body and control text */
+  --font-size-lg: 18px; /** Section headings */
+  --space-1: 4px; /** Tightest spacing, icon-to-label gaps */
+  --space-2: 8px; /** Compact spacing inside controls */
+  --space-3: 12px; /** Default spacing between stacked elements */
+  --space-4: 16px; /** Section and card padding */
+  --radius-sm: 4px; /** Chips and small controls */
+  --radius-md: 6px; /** Buttons and inputs */
+  --radius-lg: 10px; /** Cards and panels */
+  --shadow-card: 0px 1px 3px 0px rgb(11.76% 16.08% 23.14% / 0.08); /** Resting elevation for cards */
+  --border-default: 1px solid rgb(88.63% 90.98% 94.12%); /** Default 1px hairline border */
+  --button-primary-background: var(--color-primary);
+  --button-primary-background-hover: var(--color-primary-hover);
+  --button-primary-foreground: var(--color-primary-fg);
+  --button-primary-radius: var(--radius-md);
+  --button-primary-padding-y: var(--space-2);
+  --button-primary-padding-x: var(--space-4);
+  --button-secondary-background: var(--color-bg);
+  --button-secondary-foreground: var(--color-fg);
+  --button-secondary-border: var(--color-border);
+  --card-default-background: var(--color-bg);
+  --card-default-border: var(--color-border);
+  --card-default-radius: var(--radius-lg);
+  --card-default-padding: var(--space-4);
+}
+
+</style>
+<style>
+/* Layout primitives */
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-base);
+}
+
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--color-bg-subtle);
+  border-right: 1px solid var(--color-border);
+  padding: var(--space-4);
+}
+
+.sidebar-link {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-fg-muted);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.sidebar-link:hover {
+  background: var(--color-border);
+  color: var(--color-fg);
+}
+
+.sidebar-link.is-active {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1;
+  padding: var(--space-4);
+}
+
+/* Typography */
+
+.heading-lg {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.text-muted {
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+  border-radius: var(--button-primary-radius);
+  padding: var(--button-primary-padding-y) var(--button-primary-padding-x);
+}
+
+.btn-primary:hover {
+  background: var(--button-primary-background-hover);
+}
+
+.btn-secondary {
+  background: var(--button-secondary-background);
+  color: var(--button-secondary-foreground);
+  border: 1px solid var(--button-secondary-border);
+}
+
+.btn-secondary:hover {
+  background: var(--color-bg-subtle);
+}
+
+/* Cards */
+
+.card {
+  background: var(--card-default-background);
+  border: 1px solid var(--card-default-border);
+  border-radius: var(--card-default-radius);
+  padding: var(--card-default-padding);
+  box-shadow: var(--shadow-card);
+}
+
+.card-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.card-body {
+  font-size: var(--font-size-md);
+  color: var(--color-fg-muted);
+}
+
+/* Chips */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+}
+
+.chip-success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.chip-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.chip-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+/* Form controls */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.field-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-fg);
+}
+
+.input,
+.select,
+.textarea {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  color: var(--color-fg);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+/* Table */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-md);
+}
+
+.table th {
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+</style>
+<style>
+  /* Page-specific styles only. All values reference design-system tokens;
+     no literal colours/spacing/radii are introduced. */
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--color-bg); }
+
+  #screens { position: relative; }
+  .screen { display: none; }
+
+  /* ---- App shell per screen ---- */
+  .app-shell { min-height: calc(100vh - 46px); }
+  .sidebar-title {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 var(--space-3) 0;
+    padding: 0 var(--space-3);
+  }
+  .sidebar-link { cursor: pointer; margin-bottom: var(--space-1); }
+  .main-col { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  .mobile-nav { display: none; gap: var(--space-2); padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--color-border); overflow-x: auto; background: var(--color-bg-subtle); }
+  .mobile-nav a { font-size: var(--font-size-sm); color: var(--color-fg-muted); text-decoration: none; padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); white-space: nowrap; cursor: pointer; }
+  .mobile-nav a.is-active { background: var(--color-primary); color: var(--color-primary-fg); }
+
+  @media (max-width: 1024px) {
+    .sidebar { display: none; }
+    .mobile-nav { display: flex; }
+  }
+
+  .topbar-title { font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); margin: 0; }
+  .topbar-sub { font-size: var(--font-size-sm); color: var(--color-fg-muted); margin: 2px 0 0 0; }
+  .topbar-actions { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; }
+
+  .btn-sm { padding: var(--space-1) var(--space-2); font-size: var(--font-size-sm); }
+  .btn-danger { background: var(--color-danger); color: var(--color-primary-fg); border: 1px solid transparent; }
+  .btn-danger:hover { filter: brightness(0.92); }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .btn:focus-visible, .input:focus-visible, .select:focus-visible, .textarea:focus-visible, a:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 35%, transparent);
+  }
+
+  /* ---- Department tree ---- */
+  .org-tree, .org-tree ul, .org-children { list-style: none; margin: 0; padding: 0; }
+  .tree-children { margin: var(--space-1) 0 var(--space-1) var(--space-4); padding-left: var(--space-3); border-left: 1px solid var(--color-border); }
+  .tree-row {
+    display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;
+    padding: var(--space-2) var(--space-3); border-radius: var(--radius-md);
+  }
+  .tree-row:hover { background: var(--color-bg-subtle); }
+  .tree-name { font-weight: var(--font-weight-semibold); min-width: 160px; }
+  .tree-manager, .tree-count { color: var(--color-fg-muted); font-size: var(--font-size-sm); white-space: nowrap; }
+  .tree-actions { margin-left: auto; display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+  /* ---- Org chart ---- */
+  .org-card {
+    display: inline-flex; flex-direction: column; gap: 2px;
+    background: var(--card-default-background); border: 1px solid var(--card-default-border);
+    border-radius: var(--radius-md); padding: var(--space-2) var(--space-3);
+    box-shadow: var(--shadow-card); margin: var(--space-1) 0;
+  }
+  .org-card-name { font-weight: var(--font-weight-semibold); font-size: var(--font-size-md); }
+  .org-card-title { font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+  .org-card-dept { font-size: var(--font-size-sm); }
+
+  /* ---- Modals ---- */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 500;
+    background: color-mix(in srgb, var(--color-fg) 45%, transparent);
+    align-items: flex-start; justify-content: center; padding: 72px var(--space-4) var(--space-4);
+    overflow-y: auto;
+  }
+  .modal-overlay.is-open { display: flex; }
+  .modal {
+    background: var(--color-bg); border-radius: var(--radius-lg); border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card); width: 100%; max-width: 440px; padding: var(--space-4);
+    animation: modal-in 180ms ease-out;
+  }
+  @keyframes modal-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+  .modal h2 { font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); margin: 0 0 var(--space-3) 0; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4); }
+  .field-error { color: var(--color-danger); font-size: var(--font-size-sm); margin-top: 2px; display: none; }
+  .field-error.is-visible { display: block; }
+  .field-help { color: var(--color-fg-muted); font-size: var(--font-size-sm); margin-top: 2px; }
+  .input.has-error, .select.has-error { border-color: var(--color-danger); }
+
+  .banner {
+    display: flex; gap: var(--space-2); align-items: flex-start;
+    border-radius: var(--radius-md); padding: var(--space-3); font-size: var(--font-size-md);
+    margin-bottom: var(--space-3);
+  }
+  .banner-danger { background: var(--color-danger-bg); color: var(--color-danger); }
+  .banner-icon { font-weight: var(--font-weight-semibold); }
+
+  /* ---- Toast ---- */
+  #toast {
+    position: fixed; bottom: var(--space-4); right: var(--space-4); z-index: 600;
+    background: var(--color-success-bg); color: var(--color-success);
+    border-radius: var(--radius-md); padding: var(--space-3) var(--space-4);
+    font-size: var(--font-size-md); font-weight: var(--font-weight-medium);
+    box-shadow: var(--shadow-card); display: none; align-items: center; gap: var(--space-2);
+  }
+  #toast.is-visible { display: flex; }
+
+  .table-scroll { overflow-x: auto; }
+  .section-note { color: var(--color-fg-muted); font-size: var(--font-size-sm); margin-top: var(--space-3); }
+
+  .dept-group-heading { font-weight: var(--font-weight-semibold); margin: var(--space-4) 0 var(--space-2) 0; }
+  .dept-group-heading:first-child { margin-top: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Fixture data: inline JSON, parsed once on load -->
+<script type="application/json" id="fixture-data">
+{
+  "departments": [
+    { "id": "exec",        "name": "Executive",             "parentId": null,      "managerId": "dana" },
+    { "id": "eng",         "name": "Engineering",           "parentId": "exec",    "managerId": "priya" },
+    { "id": "platform",    "name": "Platform",              "parentId": "eng",     "managerId": "marcus" },
+    { "id": "mobile",      "name": "Mobile",                "parentId": "eng",     "managerId": "sofia" },
+    { "id": "product",     "name": "Product",               "parentId": "exec",    "managerId": "ethan" },
+    { "id": "peopleops",   "name": "People Operations",     "parentId": "exec",    "managerId": "grace" },
+    { "id": "talent",      "name": "Talent Acquisition",    "parentId": "peopleops", "managerId": "noah" },
+    { "id": "sharedsvc",   "name": "Shared Services",       "parentId": "exec",    "managerId": "rafael" },
+    { "id": "facilities",  "name": "Facilities",            "parentId": "sharedsvc", "managerId": "maria" },
+    { "id": "legacy",      "name": "Legacy Initiatives",    "parentId": "exec",    "managerId": "dana" }
+  ],
+  "employees": [
+    { "id": "dana",     "name": "Dana Whitfield",  "title": "Chief Executive Officer",         "deptId": "exec",       "managerId": null },
+    { "id": "priya",    "name": "Priya Natarajan", "title": "VP, Engineering",                 "deptId": "eng",        "managerId": "dana" },
+    { "id": "liam",     "name": "Liam Carter",     "title": "Staff Engineer",                  "deptId": "eng",        "managerId": "priya" },
+    { "id": "marcus",   "name": "Marcus Lee",      "title": "Engineering Manager, Platform",   "deptId": "platform",   "managerId": "priya" },
+    { "id": "chloe",    "name": "Chloe Tan",       "title": "Backend Engineer",                "deptId": "platform",   "managerId": "marcus" },
+    { "id": "lucas",    "name": "Lucas Mensah",    "title": "Backend Engineer",                "deptId": "platform",   "managerId": "marcus" },
+    { "id": "sofia",    "name": "Sofia Reyes",     "title": "Engineering Manager, Mobile",     "deptId": "mobile",     "managerId": "priya" },
+    { "id": "aiden",    "name": "Aiden Brooks",    "title": "iOS Engineer",                    "deptId": "mobile",     "managerId": "sofia" },
+    { "id": "ethan",    "name": "Ethan Brooks",    "title": "VP, Product",                     "deptId": "product",    "managerId": "dana" },
+    { "id": "maya",     "name": "Maya Singh",      "title": "Product Manager",                 "deptId": "product",    "managerId": "ethan" },
+    { "id": "grace",    "name": "Grace Oduya",     "title": "Head of People Operations",       "deptId": "peopleops",  "managerId": "dana" },
+    { "id": "olivia",   "name": "Olivia Ferreira", "title": "HR Business Partner",             "deptId": "peopleops",  "managerId": "grace" },
+    { "id": "noah",     "name": "Noah Castillo",   "title": "Talent Acquisition Lead",         "deptId": "talent",     "managerId": "grace" },
+    { "id": "isabella", "name": "Isabella Kim",    "title": "Recruiter",                       "deptId": "talent",     "managerId": "noah" },
+    { "id": "rafael",   "name": "Rafael Costa",    "title": "VP, Shared Services",             "deptId": "facilities", "managerId": "dana" },
+    { "id": "maria",    "name": "Maria Dubois",    "title": "Facilities Lead",                 "deptId": "facilities", "managerId": "rafael" }
+  ]
+}
+</script>
+
+<!-- Reviewer bar -->
+<div id="review-bar" style="position:fixed;top:0;left:0;right:0;z-index:9999;
+  display:flex;align-items:center;gap:10px;padding:8px 16px;
+  background:var(--color-bg);border-bottom:1px solid var(--color-border);font-size:13px;font-family:var(--font-family-base)">
+  <span style="font-family:var(--font-family-mono);color:var(--color-fg-muted)">UAT-14OCT-STORY-013</span>
+  <button id="prev-btn">← Prev</button>
+  <span id="screen-label" style="flex:1;text-align:center;font-weight:600;color:var(--color-fg)"></span>
+  <button id="next-btn">Next →</button>
+</div>
+<div style="height:46px"></div><!-- spacer -->
+
+<style>
+  #review-bar button { background: none; border: none; color: var(--color-primary); cursor: pointer; font-size: 13px; font-family: var(--font-family-base); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); }
+  #review-bar button:hover { background: var(--color-bg-subtle); }
+</style>
+
+<div id="screens">
+
+  <!-- Screen: Department Tree
+       Notes:
+         - "+ Add department" opens the create modal with no parent preselected (AC1).
+         - Each row's "Add sub-department" preselects that department as parent (AC2).
+         - "Edit" reuses the same modal for rename (AC3), manager change (AC5) and
+           re-parenting / move (AC10) — one form, one primary action. Try moving
+           "Engineering" to "Product": its employee (Liam Carter) and both
+           sub-departments (Platform, Mobile), with their own members, all move
+           with it to its new position in the tree.
+         - "Delete" opens a confirm dialog; if the department still has members or
+           sub-departments the dialog shows a blocking banner instead of a confirm
+           button (AC11, AC12). Once reassigned, delete succeeds (AC13).
+         - Try creating "Platform" under "Engineering" to see the duplicate-name
+           rejection (AC17); try saving with a blank name (AC16) or no manager (AC4).
+         - All changes save to localStorage, so reloading this file in the browser
+           re-renders the same tree, managers and assignments (AC9).
+  -->
+  <!-- State: Department Tree — loaded -->
+  <div class="screen" data-name="Department Tree">
+    <div class="app-shell" style="display:flex">
+      <nav class="sidebar">
+        <p class="sidebar-title">Org Structure</p>
+        <a class="sidebar-link is-active" data-goto="0">Department Tree</a>
+        <a class="sidebar-link" data-goto="1">Employees &amp; Managers</a>
+        <a class="sidebar-link" data-goto="2">Org Chart</a>
+        <a class="sidebar-link" data-goto="3">My Department</a>
+      </nav>
+      <div class="main-col">
+        <div class="mobile-nav">
+          <a class="is-active" data-goto="0">Department Tree</a>
+          <a data-goto="1">Employees &amp; Managers</a>
+          <a data-goto="2">Org Chart</a>
+          <a data-goto="3">My Department</a>
+        </div>
+        <div class="topbar">
+          <div>
+            <h1 class="topbar-title">Department tree</h1>
+            <p class="topbar-sub">Create, nest and rename departments. Each department has exactly one manager.</p>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-secondary btn-sm" onclick="resetDemoData()">Reset demo data</button>
+            <button class="btn btn-primary" onclick="openAddDeptModal(null)">+ Add department</button>
+          </div>
+        </div>
+        <div class="content">
+          <ul class="org-tree" id="deptTreeContainer"></ul>
+          <p class="section-note">Changes save automatically to this browser. Use "Reset demo data" to restore the original tree.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen: Employees & Managers
+       Notes:
+         - Every employee has exactly one manager; "Edit manager" opens a modal
+           with the current manager preselected.
+         - Reassigning an employee (e.g. Isabella Kim) to a new manager replaces
+           the old one entirely — the table shows only the new manager (AC6).
+         - Clearing the manager field and saving is rejected inline; the
+           employee's manager is left unchanged (AC7).
+  -->
+  <!-- State: Employees & Managers — loaded -->
+  <div class="screen" data-name="Employees & Managers">
+    <div class="app-shell" style="display:flex">
+      <nav class="sidebar">
+        <p class="sidebar-title">Org Structure</p>
+        <a class="sidebar-link" data-goto="0">Department Tree</a>
+        <a class="sidebar-link is-active" data-goto="1">Employees &amp; Managers</a>
+        <a class="sidebar-link" data-goto="2">Org Chart</a>
+        <a class="sidebar-link" data-goto="3">My Department</a>
+      </nav>
+      <div class="main-col">
+        <div class="mobile-nav">
+          <a data-goto="0">Department Tree</a>
+          <a class="is-active" data-goto="1">Employees &amp; Managers</a>
+          <a data-goto="2">Org Chart</a>
+          <a data-goto="3">My Department</a>
+        </div>
+        <div class="topbar">
+          <div>
+            <h1 class="topbar-title">Employees &amp; managers</h1>
+            <p class="topbar-sub">Assign each employee's single reporting manager.</p>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-secondary btn-sm" onclick="resetDemoData()">Reset demo data</button>
+          </div>
+        </div>
+        <div class="content">
+          <div class="table-scroll">
+            <table class="table">
+              <thead>
+                <tr><th>Employee</th><th>Title</th><th>Department</th><th>Manager</th><th></th></tr>
+              </thead>
+              <tbody id="employeeTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen: Org Chart
+       Notes:
+         - Read-only view built from each employee's manager field; every
+           employee renders as a card directly beneath their manager's card
+           (AC8). Dana Whitfield has no manager, so she is the chart's root.
+         - Reflects live state, so reassigning a manager on the Employees
+           screen moves that person's card in the chart immediately.
+  -->
+  <!-- State: Org Chart — loaded -->
+  <div class="screen" data-name="Org Chart">
+    <div class="app-shell" style="display:flex">
+      <nav class="sidebar">
+        <p class="sidebar-title">Org Structure</p>
+        <a class="sidebar-link" data-goto="0">Department Tree</a>
+        <a class="sidebar-link" data-goto="1">Employees &amp; Managers</a>
+        <a class="sidebar-link is-active" data-goto="2">Org Chart</a>
+        <a class="sidebar-link" data-goto="3">My Department</a>
+      </nav>
+      <div class="main-col">
+        <div class="mobile-nav">
+          <a data-goto="0">Department Tree</a>
+          <a data-goto="1">Employees &amp; Managers</a>
+          <a class="is-active" data-goto="2">Org Chart</a>
+          <a data-goto="3">My Department</a>
+        </div>
+        <div class="topbar">
+          <div>
+            <h1 class="topbar-title">Org chart</h1>
+            <p class="topbar-sub">Every employee appears as a direct report beneath their manager.</p>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-secondary btn-sm" onclick="resetDemoData()">Reset demo data</button>
+          </div>
+        </div>
+        <div class="content">
+          <ul class="org-tree" id="orgChartContainer"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen: My Department (Manager view)
+       Notes:
+         - Simulates what a Manager sees when viewing "their" department.
+         - The "Viewing as" selector swaps between department heads so a
+           reviewer can see the subtree rule apply to different managers.
+         - Shows every employee in the manager's department AND its nested
+           sub-departments (AC14) — e.g. Priya Natarajan sees Chloe Tan, who
+           sits two levels down in Platform. Employees outside that subtree,
+           like Maya Singh in Product, never appear (AC15).
+  -->
+  <!-- State: My Department — loaded -->
+  <div class="screen" data-name="My Department (Manager view)">
+    <div class="app-shell" style="display:flex">
+      <nav class="sidebar">
+        <p class="sidebar-title">Org Structure</p>
+        <a class="sidebar-link" data-goto="0">Department Tree</a>
+        <a class="sidebar-link" data-goto="1">Employees &amp; Managers</a>
+        <a class="sidebar-link" data-goto="2">Org Chart</a>
+        <a class="sidebar-link is-active" data-goto="3">My Department</a>
+      </nav>
+      <div class="main-col">
+        <div class="mobile-nav">
+          <a data-goto="0">Department Tree</a>
+          <a data-goto="1">Employees &amp; Managers</a>
+          <a data-goto="2">Org Chart</a>
+          <a class="is-active" data-goto="3">My Department</a>
+        </div>
+        <div class="topbar">
+          <div>
+            <h1 class="topbar-title">My department</h1>
+            <p class="topbar-sub">People in your department and every department nested beneath it.</p>
+          </div>
+          <div class="topbar-actions">
+            <div class="field" style="margin:0;min-width:220px">
+              <label class="field-label" for="myDeptManagerSelect">Viewing as</label>
+              <select class="select" id="myDeptManagerSelect" onchange="renderMyDepartment()"></select>
+            </div>
+          </div>
+        </div>
+        <div class="content" id="myDeptContainer"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Shared modal: Add / Edit department — states: create, edit, validation error, saving -->
+<div class="modal-overlay" id="deptModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="deptModalTitle">
+    <h2 id="deptModalTitle">Add department</h2>
+    <input type="hidden" id="deptEditingId" value="" />
+    <form onsubmit="handleSaveDept(event)">
+      <div class="field">
+        <label class="field-label" for="deptNameInput">Department name</label>
+        <input class="input" id="deptNameInput" type="text" placeholder="e.g. Data Platform" />
+        <span class="field-error" id="deptNameError"></span>
+      </div>
+      <div class="field">
+        <label class="field-label" for="deptParentSelect">Parent department</label>
+        <select class="select" id="deptParentSelect"></select>
+        <span class="field-help">Leave as "No parent" to place it at the top level of the tree.</span>
+      </div>
+      <div class="field">
+        <label class="field-label" for="deptManagerSelect">Manager</label>
+        <select class="select" id="deptManagerSelect">
+          <option value="">— Select a manager —</option>
+        </select>
+        <span class="field-help">Every department needs exactly one manager.</span>
+        <span class="field-error" id="deptManagerError"></span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('deptModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="deptSaveBtn">Save department</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Shared modal: Delete department — states: blocked, confirm, saving -->
+<div class="modal-overlay" id="deleteDeptModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="deleteDeptModalTitle">
+    <h2 id="deleteDeptModalTitle">Delete department</h2>
+    <div id="deleteDeptBody"></div>
+    <div class="modal-footer" id="deleteDeptFooter"></div>
+  </div>
+</div>
+
+<!-- Shared modal: Edit employee manager — states: edit, validation error, saving -->
+<div class="modal-overlay" id="editManagerModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editManagerModalTitle">
+    <h2 id="editManagerModalTitle">Edit manager</h2>
+    <input type="hidden" id="editManagerEmpId" value="" />
+    <form onsubmit="handleSaveManager(event)">
+      <p class="field-help" id="editManagerCurrent" style="margin-bottom:var(--space-3)"></p>
+      <div class="field">
+        <label class="field-label" for="editManagerSelect">New manager</label>
+        <select class="select" id="editManagerSelect">
+          <option value="">— Select a manager —</option>
+        </select>
+        <span class="field-error" id="editManagerError"></span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('editManagerModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="editManagerSaveBtn">Save manager</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  const STORAGE_KEY = 'uat013-org-structure-prototype';
+  const DEFAULT_DATA = JSON.parse(document.getElementById('fixture-data').textContent);
+
+  let state = loadState();
+  let lastFocused = null;
+  let toastTimer = null;
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) { /* fall through to defaults */ }
+    return JSON.parse(JSON.stringify(DEFAULT_DATA));
+  }
+
+  function persist() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  window.resetDemoData = function () {
+    localStorage.removeItem(STORAGE_KEY);
+    state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    renderAll();
+    showToast('Demo data reset.');
+  };
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function getDeptById(id) { return state.departments.find(function (d) { return d.id === id; }); }
+  function getEmpById(id) { return state.employees.find(function (e) { return e.id === id; }); }
+  function getChildren(deptId) { return state.departments.filter(function (d) { return d.parentId === deptId; }); }
+  function getRootDepts() { return state.departments.filter(function (d) { return !d.parentId; }); }
+  function getDirectEmployees(deptId) { return state.employees.filter(function (e) { return e.deptId === deptId; }); }
+
+  function getDescendantDeptIds(deptId) {
+    const ids = [];
+    getChildren(deptId).forEach(function (c) {
+      ids.push(c.id);
+      ids.push.apply(ids, getDescendantDeptIds(c.id));
+    });
+    return ids;
+  }
+
+  function getSubtreeDeptIds(deptId) { return [deptId].concat(getDescendantDeptIds(deptId)); }
+
+  function getAllReportIds(empId) {
+    const ids = [];
+    state.employees.filter(function (e) { return e.managerId === empId; }).forEach(function (r) {
+      ids.push(r.id);
+      ids.push.apply(ids, getAllReportIds(r.id));
+    });
+    return ids;
+  }
+
+  function sortedEmployees() {
+    return state.employees.slice().sort(function (a, b) { return a.name.localeCompare(b.name); });
+  }
+
+  // ---------- Toast ----------
+  function showToast(message) {
+    const el = document.getElementById('toast');
+    el.textContent = message;
+    el.classList.add('is-visible');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('is-visible'); }, 2200);
+  }
+
+  // ---------- Modal helpers ----------
+  window.closeModal = function (id) {
+    document.getElementById(id).classList.remove('is-open');
+    if (lastFocused) { lastFocused.focus(); lastFocused = null; }
+  };
+
+  function openModal(id) {
+    lastFocused = document.activeElement;
+    const el = document.getElementById(id);
+    el.classList.add('is-open');
+    const focusable = el.querySelector('input, select, textarea');
+    if (focusable) focusable.focus();
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay.is-open').forEach(function (o) {
+        window.closeModal(o.id);
+      });
+    }
+  });
+
+  function withSaving(btn, fn) {
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    setTimeout(function () {
+      fn();
+      btn.disabled = false;
+      btn.textContent = original;
+    }, 300);
+  }
+
+  // ---------- Department modal ----------
+  window.openAddDeptModal = function (parentId) {
+    document.getElementById('deptModalTitle').textContent = 'Add department';
+    document.getElementById('deptEditingId').value = '';
+    document.getElementById('deptNameInput').value = '';
+    populateParentSelect(null, parentId || '');
+    populateManagerSelect('deptManagerSelect', null);
+    clearDeptErrors();
+    openModal('deptModal');
+  };
+
+  window.openEditDeptModal = function (deptId) {
+    const dept = getDeptById(deptId);
+    document.getElementById('deptModalTitle').textContent = 'Edit department';
+    document.getElementById('deptEditingId').value = dept.id;
+    document.getElementById('deptNameInput').value = dept.name;
+    populateParentSelect(dept.id, dept.parentId || '');
+    populateManagerSelect('deptManagerSelect', dept.managerId);
+    clearDeptErrors();
+    openModal('deptModal');
+  };
+
+  function populateParentSelect(editingDeptId, selectedParentId) {
+    const excluded = editingDeptId ? [editingDeptId].concat(getDescendantDeptIds(editingDeptId)) : [];
+    const select = document.getElementById('deptParentSelect');
+    const options = ['<option value="">No parent (top level)</option>'];
+    state.departments
+      .filter(function (d) { return excluded.indexOf(d.id) === -1; })
+      .sort(function (a, b) { return a.name.localeCompare(b.name); })
+      .forEach(function (d) {
+        options.push('<option value="' + d.id + '"' + (d.id === selectedParentId ? ' selected' : '') + '>' + escapeHtml(d.name) + '</option>');
+      });
+    select.innerHTML = options.join('');
+    select.value = selectedParentId || '';
+  }
+
+  function populateManagerSelect(selectId, selectedManagerId) {
+    const select = document.getElementById(selectId);
+    const options = ['<option value="">— Select a manager —</option>'];
+    sortedEmployees().forEach(function (e) {
+      options.push('<option value="' + e.id + '">' + escapeHtml(e.name) + ' — ' + escapeHtml(e.title) + '</option>');
+    });
+    select.innerHTML = options.join('');
+    select.value = selectedManagerId || '';
+  }
+
+  function clearDeptErrors() {
+    ['deptNameError', 'deptManagerError'].forEach(function (id) {
+      const el = document.getElementById(id);
+      el.textContent = '';
+      el.classList.remove('is-visible');
+    });
+    document.getElementById('deptNameInput').classList.remove('has-error');
+    document.getElementById('deptManagerSelect').classList.remove('has-error');
+  }
+
+  function showFieldError(fieldId, inputId, message) {
+    const el = document.getElementById(fieldId);
+    el.textContent = message;
+    el.classList.add('is-visible');
+    if (inputId) document.getElementById(inputId).classList.add('has-error');
+  }
+
+  function validateDept(name, parentId, managerId, editingId) {
+    const errors = {};
+    const trimmed = name.trim();
+    if (!trimmed) {
+      errors.name = 'Enter a department name.';
+    } else {
+      const dup = state.departments.some(function (d) {
+        return d.id !== editingId &&
+          (d.parentId || null) === (parentId || null) &&
+          d.name.trim().toLowerCase() === trimmed.toLowerCase();
+      });
+      if (dup) {
+        const parentName = parentId ? getDeptById(parentId).name : 'the top level';
+        errors.name = 'A department named "' + trimmed + '" already exists under ' + parentName + '. Choose a different name.';
+      }
+    }
+    if (!managerId) {
+      errors.manager = 'Select a manager for this department.';
+    }
+    return errors;
+  }
+
+  window.handleSaveDept = function (event) {
+    event.preventDefault();
+    clearDeptErrors();
+    const editingId = document.getElementById('deptEditingId').value || null;
+    const name = document.getElementById('deptNameInput').value;
+    const parentId = document.getElementById('deptParentSelect').value || null;
+    const managerId = document.getElementById('deptManagerSelect').value || null;
+
+    const errors = validateDept(name, parentId, managerId, editingId);
+    if (errors.name) showFieldError('deptNameError', 'deptNameInput', errors.name);
+    if (errors.manager) showFieldError('deptManagerError', 'deptManagerSelect', errors.manager);
+    if (errors.name || errors.manager) return;
+
+    const btn = document.getElementById('deptSaveBtn');
+    withSaving(btn, function () {
+      if (editingId) {
+        const dept = getDeptById(editingId);
+        dept.name = name.trim();
+        dept.parentId = parentId;
+        dept.managerId = managerId;
+      } else {
+        state.departments.push({ id: 'dept-' + Date.now(), name: name.trim(), parentId: parentId, managerId: managerId });
+      }
+      persist();
+      renderAll();
+      window.closeModal('deptModal');
+      showToast(editingId ? 'Department updated.' : '"' + name.trim() + '" added to the tree.');
+    });
+  };
+
+  // ---------- Delete department modal ----------
+  window.openDeleteDeptModal = function (deptId) {
+    const dept = getDeptById(deptId);
+    const members = getDirectEmployees(deptId);
+    const children = getChildren(deptId);
+    const body = document.getElementById('deleteDeptBody');
+    const footer = document.getElementById('deleteDeptFooter');
+
+    if (members.length || children.length) {
+      const reasons = [];
+      if (members.length) reasons.push(members.length + ' ' + (members.length === 1 ? 'employee' : 'employees'));
+      if (children.length) reasons.push(children.length + ' ' + (children.length === 1 ? 'sub-department' : 'sub-departments'));
+      body.innerHTML =
+        '<div class="banner banner-danger"><span class="banner-icon">⚠</span>' +
+        '<span>Can\'t delete "' + escapeHtml(dept.name) + '". Reassign its ' + reasons.join(' and ') +
+        ' to another department before deleting it.</span></div>';
+      footer.innerHTML = '<button type="button" class="btn btn-secondary" onclick="closeModal(\'deleteDeptModal\')">Close</button>';
+    } else {
+      body.innerHTML = '<p>Delete "' + escapeHtml(dept.name) + '"? This can\'t be undone.</p>';
+      footer.innerHTML =
+        '<button type="button" class="btn btn-secondary" onclick="closeModal(\'deleteDeptModal\')">Cancel</button>' +
+        '<button type="button" class="btn btn-danger" id="deptDeleteConfirmBtn">Delete department</button>';
+      document.getElementById('deptDeleteConfirmBtn').onclick = function () {
+        const btn = this;
+        withSaving(btn, function () {
+          state.departments = state.departments.filter(function (d) { return d.id !== deptId; });
+          persist();
+          renderAll();
+          window.closeModal('deleteDeptModal');
+          showToast('"' + dept.name + '" deleted.');
+        });
+      };
+    }
+    openModal('deleteDeptModal');
+  };
+
+  // ---------- Employee manager modal ----------
+  window.openEditManagerModal = function (empId) {
+    const emp = getEmpById(empId);
+    const currentManager = emp.managerId ? getEmpById(emp.managerId) : null;
+    document.getElementById('editManagerEmpId').value = empId;
+    document.getElementById('editManagerModalTitle').textContent = 'Edit manager for ' + emp.name;
+    document.getElementById('editManagerCurrent').textContent =
+      currentManager ? 'Current manager: ' + currentManager.name : 'Current manager: none';
+
+    const excluded = [empId].concat(getAllReportIds(empId));
+    const select = document.getElementById('editManagerSelect');
+    const options = ['<option value="">— Select a manager —</option>'];
+    sortedEmployees()
+      .filter(function (e) { return excluded.indexOf(e.id) === -1; })
+      .forEach(function (e) {
+        options.push('<option value="' + e.id + '">' + escapeHtml(e.name) + ' — ' + escapeHtml(e.title) + '</option>');
+      });
+    select.innerHTML = options.join('');
+    select.value = emp.managerId || '';
+
+    const errEl = document.getElementById('editManagerError');
+    errEl.textContent = '';
+    errEl.classList.remove('is-visible');
+    select.classList.remove('has-error');
+
+    openModal('editManagerModal');
+  };
+
+  window.handleSaveManager = function (event) {
+    event.preventDefault();
+    const empId = document.getElementById('editManagerEmpId').value;
+    const newManagerId = document.getElementById('editManagerSelect').value || null;
+    const errEl = document.getElementById('editManagerError');
+    const select = document.getElementById('editManagerSelect');
+
+    if (!newManagerId) {
+      errEl.textContent = 'Select a manager for this employee.';
+      errEl.classList.add('is-visible');
+      select.classList.add('has-error');
+      return;
+    }
+    errEl.textContent = '';
+    errEl.classList.remove('is-visible');
+    select.classList.remove('has-error');
+
+    const btn = document.getElementById('editManagerSaveBtn');
+    withSaving(btn, function () {
+      const emp = getEmpById(empId);
+      emp.managerId = newManagerId;
+      persist();
+      renderAll();
+      window.closeModal('editManagerModal');
+      showToast(emp.name + "'s manager updated to " + getEmpById(newManagerId).name + '.');
+    });
+  };
+
+  // ---------- Rendering ----------
+  function renderDeptNode(dept, depth) {
+    const manager = getEmpById(dept.managerId);
+    const directCount = getDirectEmployees(dept.id).length;
+    const children = getChildren(dept.id).sort(function (a, b) { return a.name.localeCompare(b.name); });
+    let html = '<li class="tree-node">' +
+      '<div class="tree-row">' +
+        '<span class="tree-name">' + escapeHtml(dept.name) + '</span>' +
+        '<span class="tree-manager">Managed by ' + (manager ? escapeHtml(manager.name) : '—') + '</span>' +
+        '<span class="tree-count">' + directCount + ' ' + (directCount === 1 ? 'person' : 'people') + '</span>' +
+        '<span class="tree-actions">' +
+          '<button class="btn btn-secondary btn-sm" onclick="openAddDeptModal(\'' + dept.id + '\')">Add sub-department</button>' +
+          '<button class="btn btn-secondary btn-sm" onclick="openEditDeptModal(\'' + dept.id + '\')">Edit</button>' +
+          '<button class="btn btn-secondary btn-sm" onclick="openDeleteDeptModal(\'' + dept.id + '\')">Delete</button>' +
+        '</span>' +
+      '</div>';
+    if (children.length) {
+      html += '<ul class="tree-children">' + children.map(function (c) { return renderDeptNode(c, depth + 1); }).join('') + '</ul>';
+    }
+    html += '</li>';
+    return html;
+  }
+
+  function renderDeptTree() {
+    const roots = getRootDepts().sort(function (a, b) { return a.name.localeCompare(b.name); });
+    document.getElementById('deptTreeContainer').innerHTML = roots.map(function (d) { return renderDeptNode(d, 0); }).join('');
+  }
+
+  function renderEmployeeTable() {
+    const rows = sortedEmployees().map(function (e) {
+      const dept = getDeptById(e.deptId);
+      const manager = e.managerId ? getEmpById(e.managerId) : null;
+      return '<tr>' +
+        '<td>' + escapeHtml(e.name) + '</td>' +
+        '<td>' + escapeHtml(e.title) + '</td>' +
+        '<td>' + (dept ? escapeHtml(dept.name) : '—') + '</td>' +
+        '<td>' + (manager ? escapeHtml(manager.name) : '<span class="text-muted">None</span>') + '</td>' +
+        '<td><button class="btn btn-secondary btn-sm" onclick="openEditManagerModal(\'' + e.id + '\')">Edit manager</button></td>' +
+      '</tr>';
+    });
+    document.getElementById('employeeTableBody').innerHTML = rows.join('');
+  }
+
+  function renderOrgNode(emp) {
+    const dept = getDeptById(emp.deptId);
+    const reports = state.employees.filter(function (e) { return e.managerId === emp.id; })
+      .sort(function (a, b) { return a.name.localeCompare(b.name); });
+    let html = '<li class="tree-node">' +
+      '<div class="org-card">' +
+        '<span class="org-card-name">' + escapeHtml(emp.name) + '</span>' +
+        '<span class="org-card-title">' + escapeHtml(emp.title) + '</span>' +
+        '<span class="org-card-dept text-muted">' + (dept ? escapeHtml(dept.name) : '') + '</span>' +
+      '</div>';
+    if (reports.length) {
+      html += '<ul class="tree-children">' + reports.map(renderOrgNode).join('') + '</ul>';
+    }
+    html += '</li>';
+    return html;
+  }
+
+  function renderOrgChart() {
+    const roots = state.employees.filter(function (e) { return !e.managerId; })
+      .sort(function (a, b) { return a.name.localeCompare(b.name); });
+    document.getElementById('orgChartContainer').innerHTML = roots.map(renderOrgNode).join('');
+  }
+
+  function renderMyDepartmentSelect() {
+    const select = document.getElementById('myDeptManagerSelect');
+    const previous = select.value;
+    const managerIds = state.departments.map(function (d) { return d.managerId; }).filter(Boolean);
+    const unique = Array.from(new Set(managerIds));
+    const options = unique
+      .map(function (id) { return getEmpById(id); })
+      .filter(Boolean)
+      .sort(function (a, b) { return a.name.localeCompare(b.name); })
+      .map(function (e) {
+        const dept = state.departments.find(function (d) { return d.managerId === e.id; });
+        return '<option value="' + e.id + '">' + escapeHtml(e.name) + ' — manages ' + escapeHtml(dept.name) + '</option>';
+      });
+    select.innerHTML = options.join('');
+    if (previous && unique.indexOf(previous) !== -1) {
+      select.value = previous;
+    } else {
+      select.value = 'priya';
+    }
+  }
+
+  window.renderMyDepartment = function () {
+    const select = document.getElementById('myDeptManagerSelect');
+    const managerId = select.value;
+    const dept = state.departments.find(function (d) { return d.managerId === managerId; });
+    const container = document.getElementById('myDeptContainer');
+    if (!dept) {
+      container.innerHTML = '<p class="text-muted">This employee doesn\'t manage a department.</p>';
+      return;
+    }
+    const subtreeIds = getSubtreeDeptIds(dept.id);
+    const deptsInSubtree = subtreeIds.map(getDeptById).sort(function (a, b) {
+      if (a.id === dept.id) return -1;
+      if (b.id === dept.id) return 1;
+      return a.name.localeCompare(b.name);
+    });
+
+    let html = '<p class="section-note" style="margin-top:0">Showing everyone in ' + escapeHtml(dept.name) +
+      ' and its sub-departments. People in other departments, like Maya Singh in Product, aren\'t shown here.</p>';
+
+    deptsInSubtree.forEach(function (d) {
+      const members = getDirectEmployees(d.id).sort(function (a, b) { return a.name.localeCompare(b.name); });
+      if (!members.length) return;
+      html += '<h3 class="dept-group-heading">' + escapeHtml(d.name) + (d.id !== dept.id ? ' <span class="text-muted">(sub-department)</span>' : '') + '</h3>';
+      html += '<div class="table-scroll"><table class="table"><thead><tr><th>Employee</th><th>Title</th><th>Reports to</th></tr></thead><tbody>';
+      members.forEach(function (e) {
+        const mgr = e.managerId ? getEmpById(e.managerId) : null;
+        html += '<tr><td>' + escapeHtml(e.name) + '</td><td>' + escapeHtml(e.title) + '</td><td>' + (mgr ? escapeHtml(mgr.name) : '—') + '</td></tr>';
+      });
+      html += '</tbody></table></div>';
+    });
+
+    container.innerHTML = html;
+  };
+
+  function renderAll() {
+    renderDeptTree();
+    renderEmployeeTable();
+    renderOrgChart();
+    renderMyDepartmentSelect();
+    window.renderMyDepartment();
+  }
+
+  // ---------- Sidebar / mobile nav wiring ----------
+  document.addEventListener('click', function (e) {
+    const link = e.target.closest('[data-goto]');
+    if (link) show(parseInt(link.dataset.goto, 10));
+  });
+
+  // ---------- Reviewer bar ----------
+  const screens = Array.from(document.querySelectorAll('.screen'));
+  let cur = 0;
+  function show(i) {
+    cur = Math.max(0, Math.min(screens.length - 1, i));
+    screens.forEach(function (s, j) { s.style.display = j === cur ? 'block' : 'none'; });
+    document.getElementById('screen-label').textContent = (cur + 1) + ' / ' + screens.length + ': ' + screens[cur].dataset.name;
+  }
+  document.getElementById('prev-btn').onclick = function () { show(cur - 1); };
+  document.getElementById('next-btn').onclick = function () { show(cur + 1); };
+  document.addEventListener('keydown', function (e) {
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'select' || tag === 'textarea') return;
+    if (e.key === 'ArrowRight') show(cur + 1);
+    if (e.key === 'ArrowLeft') show(cur - 1);
+  });
+
+  renderAll();
+  show(0);
+})();
+</script>
+
+</body>
+</html>
+
+<!-- arc:css-inlined -->

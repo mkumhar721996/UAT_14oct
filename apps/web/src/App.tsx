@@ -3,11 +3,15 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AccessRestricted, Layout } from './components/Layout'
 import { ToastProvider } from './components/Toast'
 import { useAuth } from './lib/auth'
+import DepartmentTreePage from './routes/DepartmentTreePage'
 import EditEmployeeProfilePage from './routes/EditEmployeeProfilePage'
 import EmployeeDirectoryPage from './routes/EmployeeDirectoryPage'
 import EmployeeProfileDetailPage from './routes/EmployeeProfileDetailPage'
+import EmployeesManagersPage from './routes/EmployeesManagersPage'
+import MyDepartmentPage from './routes/MyDepartmentPage'
 import MyProfilePage from './routes/MyProfilePage'
 import NewEmployeeProfilePage from './routes/NewEmployeeProfilePage'
+import OrgChartPage from './routes/OrgChartPage'
 import PendingChangesPage from './routes/PendingChangesPage'
 
 /** Renders the HR-Admin-only page, or the access-restricted state for everyone else. */
@@ -62,6 +66,24 @@ function App() {
             </RequireHrAdmin>
           }
         />
+        <Route
+          path="/org/departments"
+          element={
+            <RequireHrAdmin title="Department tree" message="Only HR Admins can manage departments.">
+              <DepartmentTreePage />
+            </RequireHrAdmin>
+          }
+        />
+        <Route
+          path="/org/employees-managers"
+          element={
+            <RequireHrAdmin title="Employees & managers" message="Only HR Admins can assign managers.">
+              <EmployeesManagersPage />
+            </RequireHrAdmin>
+          }
+        />
+        <Route path="/org/chart" element={<OrgChartPage />} />
+        <Route path="/org/my-department" element={<MyDepartmentPage />} />
       </Routes>
     </ToastProvider>
   )

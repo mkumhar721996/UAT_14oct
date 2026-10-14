@@ -127,3 +127,34 @@ describe('EmployeesService', () => {
     expect(await service.getHistory(tenantId, id)).toHaveLength(0);
   });
 });
+
+describe('EmployeesService reporting lines', () => {
+  let service: EmployeesService;
+  let e: Employee, m: Employee, n: Employee;
+
+  beforeEach(async () => {
+    service = new EmployeesService(new FakeDataSource() as any);
+    const mk = (fullName: string) => service.createEmployee(tenantId, { fullName, startDate: '2026-01-05' });
+    [e, m, n] = [await mk('E'), await mk('M'), await mk('N')];
+  });
+
+  it('AC6: reassigning a manager replaces the old one entirely', async () => {
+    await service.assignManager(tenantId, e.id, m.id);
+    const updated = await service.assignManager(tenantId, e.id, n.id);
+    expect(updated.managerId).toBe(n.id);
+    expect(updated.managerId).not.toBe(m.id);
+  });
+
+  it('rejects self and own-report managers', async () => {
+    await expect(service.assignManager(tenantId, e.id, e.id)).rejects.toBeInstanceOf(BadRequestException);
+    await service.assignManager(tenantId, m.id, e.id);
+    await service.assignManager(tenantId, n.id, m.id);
+    await expect(service.assignManager(tenantId, e.id, n.id)).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('rejects an unknown manager or department', async () => {
+    const ghost = '33333333-3333-4333-8333-333333333333';
+    await expect(service.assignManager(tenantId, e.id, ghost)).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.assignDepartment(tenantId, e.id, ghost)).rejects.toBeInstanceOf(BadRequestException);
+  });
+});

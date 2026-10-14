@@ -1,6 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { CreateChangeRequestDto } from './dto/create-change-request.dto';
+import { Department } from '../departments/entities/department.entity';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -73,6 +74,8 @@ export class EmployeesService {
           salary: null,
           personalEmail: null,
           phone: null,
+          departmentId: null,
+          managerId: null,
         }),
       );
       for (const field of CORE_FIELDS) {
@@ -119,6 +122,31 @@ export class EmployeesService {
       for (const c of changes) await this.applyCoreChange(m, tenantId, employee, c.field, c.value, c.effectiveDate, recordedBy);
       return m.getRepository(Employee).save(employee);
     });
+  }
+
+  /** Sets the employee's single manager; refuses self and anyone already in their own report chain. */
+  async assignManager(tenantId: string, employeeId: string, managerId: string): Promise<Employee> {
+    const repo = this.dataSource.getRepository(Employee);
+    const employee = await this.getEmployee(tenantId, employeeId);
+    await this.getEmployee(tenantId, managerId);
+    if (managerId === employeeId) throw new BadRequestException('An employee cannot be their own manager');
+    const all: Employee[] = await repo.find({ where: { tenantId } });
+    const reports = new Set([employeeId]);
+    for (let grew = true; grew; ) {
+      grew = false;
+      for (const e of all) if (e.managerId && reports.has(e.managerId) && !reports.has(e.id)) reports.add(e.id), (grew = true);
+    }
+    if (reports.has(managerId)) throw new BadRequestException('An employee cannot report to one of their own reports');
+    employee.managerId = managerId;
+    return repo.save(employee);
+  }
+
+  async assignDepartment(tenantId: string, employeeId: string, departmentId: string): Promise<Employee> {
+    const employee = await this.getEmployee(tenantId, employeeId);
+    const dept = await this.dataSource.getRepository(Department).findOne({ where: { tenantId, id: departmentId } });
+    if (!dept) throw new BadRequestException('Department not found');
+    employee.departmentId = departmentId;
+    return this.dataSource.getRepository(Employee).save(employee);
   }
 
   async updateOwnContact(tenantId: string, employeeId: string, dto: UpdateContactDto): Promise<Employee> {
