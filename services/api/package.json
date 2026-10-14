@@ -1,0 +1,41 @@
+{
+  "name": "@uat-14oct/api",
+  "version": "0.0.1",
+  "private": true,
+  "description": "comp_api_service: unified API service (auth/RBAC, multi-tenant data isolation, workflow, documents, reporting, notifications, integrations)",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@12.9.1",
+  "scripts": {
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:prod": "node dist/main.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --config vitest.config.ts",
+    "test:watch": "vitest --config vitest.config.ts",
+    "test:cov": "vitest run --coverage --config vitest.config.ts",
+    "test:e2e": "vitest run --config vitest.config.e2e.ts",
+    "test:all": "pnpm run test && pnpm run test:e2e"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/core": "^11.0.1",
+    "@nestjs/platform-express": "^11.0.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.0",
+    "@nestjs/testing": "^11.0.1",
+    "@swc/core": "^1.10.7",
+    "@types/node": "^22.10.5",
+    "@types/supertest": "^6.0.2",
+    "supertest": "^7.0.0",
+    "typescript": "^5.7.3",
+    "unplugin-swc": "^1.5.1",
+    "vitest": "^3.0.5"
+  }
+}
