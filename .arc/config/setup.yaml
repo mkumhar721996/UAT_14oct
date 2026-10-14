@@ -4,16 +4,21 @@ components:
     test_command: cd services/api && pnpm run test:all
     build_command: cd services/api && pnpm run build
     devloop_command: cd services/api && pnpm run test
+    e2e_command: cd services/api && pnpm run test:e2e
+    install_command: cd services/api && pnpm add {name}@{version}
   comp_web_app:
     mode: local
     test_command: cd apps/web && pnpm run test
     build_command: cd apps/web && pnpm run build
     devloop_command: cd apps/web && pnpm run typecheck
+    e2e_command: cd apps/web && pnpm run e2e
+    install_command: cd apps/web && pnpm add {name}@{version}
   comp_worker:
     mode: local
     test_command: cd services/worker && pnpm test
     build_command: cd services/worker && pnpm build
     devloop_command: cd services/worker && pnpm typecheck
+    install_command: cd services/worker && pnpm add {name}@{version}
 commands:
   test: (cd services/api && pnpm run test:all) && (cd apps/web && pnpm run test) &&
     (cd services/worker && pnpm test)
@@ -21,3 +26,7 @@ commands:
     (cd services/worker && pnpm build)
   devloop: (cd services/api && pnpm run test) && (cd apps/web && pnpm run typecheck)
     && (cd services/worker && pnpm typecheck)
+setup_command: (cd apps/web && pnpm install --frozen-lockfile) && (cd services/api
+  && pnpm install --frozen-lockfile) && (cd services/worker && pnpm install --frozen-lockfile)
+package_install_commands:
+  pnpm: pnpm add {name}@{version}
