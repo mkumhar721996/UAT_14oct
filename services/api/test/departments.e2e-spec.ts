@@ -45,4 +45,24 @@ describe('Departments (e2e)', () => {
     const none = `Bearer ${tokenFor({ sub: 'u2', role: 'employee' })}`;
     await http().get('/departments/my').set('Authorization', none).expect(403);
   });
+
+  it('GET /departments/my redacts salary and contact details of others for a non-HR manager', async () => {
+    const mk = async (fullName: string) =>
+      (await http().post('/employees').set('Authorization', hr).send({ fullName, startDate: '2026-01-01', salary: 90000 })).body;
+    const mgr = await mk('Boss');
+    const rep = await mk('Report');
+    const dept = (await http().post('/departments').set('Authorization', hr).send({ name: 'Secret', managerId: mgr.id })).body;
+    await http().patch(`/employees/${rep.id}/department`).set('Authorization', hr).send({ departmentId: dept.id }).expect(200);
+    await http().patch(`/employees/${mgr.id}/department`).set('Authorization', hr).send({ departmentId: dept.id }).expect(200);
+    const asMgr = `Bearer ${tokenFor({ sub: 'm', role: 'employee', employee_id: mgr.id })}`;
+    const res = await http().get('/departments/my').set('Authorization', asMgr).expect(200);
+    const other = res.body.employees.find((e: any) => e.id === rep.id);
+    expect(other).toBeDefined();
+    expect(other).not.toHaveProperty('salary');
+    expect(other).not.toHaveProperty('personalEmail');
+    expect(other).not.toHaveProperty('phone');
+    expect(res.body.employees.find((e: any) => e.id === mgr.id).salary).toBe(90000);
+    const asHr = await http().get('/departments/my').set('Authorization', hr);
+    expect(asHr.status).toBe(403);
+  });
 });

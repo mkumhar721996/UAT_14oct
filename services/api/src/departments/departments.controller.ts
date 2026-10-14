@@ -4,6 +4,7 @@ import { CognitoAuthGuard } from '../auth/cognito-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
+import { present } from '../employees/employees.controller';
 import { DepartmentsService } from './departments.service';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
@@ -20,9 +21,11 @@ export class DepartmentsController {
 
   // Resolved from the token's own employee id, never from client input.
   @Get('my')
-  my(@CurrentUser() user: AuthUser) {
+  async my(@CurrentUser() user: AuthUser) {
     if (!user.employeeId) throw new ForbiddenException('No employee record linked to this user');
-    return this.departments.getMyDepartment(user.tenantId, user.employeeId);
+    const { departments, employees } = await this.departments.getMyDepartment(user.tenantId, user.employeeId);
+    // Same field-level redaction as GET /employees: salary and personal contact only on the caller's own record.
+    return { departments, employees: employees.map((e) => present(user, e)) };
   }
 
   @Post()

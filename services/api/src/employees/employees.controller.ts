@@ -17,7 +17,7 @@ import { EmployeesService } from './employees.service';
 const canSeePrivate = (user: AuthUser, employeeId: string) => user.role === 'hr_admin' || user.employeeId === employeeId;
 
 /** Non-HR callers only see salary and personal contact details on their own record. */
-function present(user: AuthUser, e: Employee): Partial<Employee> {
+export function present(user: AuthUser, e: Employee): Partial<Employee> {
   if (canSeePrivate(user, e.id)) return e;
   const { salary, personalEmail, phone, ...rest } = e;
   return rest;
