@@ -115,4 +115,58 @@ describe('Employees (e2e)', () => {
       expect(res.body.fullName).toBe('Other');
     });
   });
+
+  describe('lifecycle status', () => {
+    const emp = `Bearer ${tokenFor({ sub: 'e-9', role: 'employee' })}`;
+    const status = (id: string, value: unknown, auth = hr) => http().patch(`/employees/${id}/status`).set('Authorization', auth).send({ status: value });
+
+    it('AC2-AC4/AC13: transitions round-trip and are visible on read, including to non-HR viewers', async () => {
+      const { body: e } = await create({ fullName: 'Status', startDate: '2026-01-01' });
+      expect((await http().get(`/employees/${e.id}`).set('Authorization', emp)).body.status).toBe('active');
+      for (const next of ['on_leave', 'active', 'terminated']) {
+        expect((await status(e.id, next)).status).toBe(200);
+        expect((await http().get(`/employees/${e.id}`).set('Authorization', hr)).body.status).toBe(next);
+      }
+      const list = await http().get('/employees').set('Authorization', emp);
+      expect(list.body.find((x: any) => x.id === e.id).status).toBe('terminated');
+    });
+
+    it('records status transitions for audit without surfacing them in the core-field history view', async () => {
+      const { body: e } = await create({ fullName: 'Audited', startDate: '2026-01-01' });
+      await status(e.id, 'on_leave').expect(200);
+      const history = await http().get(`/employees/${e.id}/history`).set('Authorization', hr);
+      expect(history.body.find((h: any) => h.field === 'status')).toBeUndefined();
+    });
+
+    it('AC1: rejects a status outside the three allowed values', async () => {
+      const { body: e } = await create({ fullName: 'Bogus', startDate: '2026-01-01' });
+      await status(e.id, 'bogus').expect(400);
+    });
+
+    it('enforces 401/403 on both routes', async () => {
+      const { body: e } = await create({ fullName: 'Guards', startDate: '2026-01-01' });
+      await http().patch(`/employees/${e.id}/status`).send({ status: 'on_leave' }).expect(401);
+      await status(e.id, 'on_leave', emp).expect(403);
+      await http().post(`/employees/${e.id}/rehire`).set('Authorization', emp).send({ startDate: '2026-06-01' }).expect(403);
+    });
+
+    it('AC7: a terminated record rejects edits with 409', async () => {
+      const { body: e } = await create({ fullName: 'Gone', startDate: '2026-01-01' });
+      await status(e.id, 'terminated').expect(200);
+      await http().patch(`/employees/${e.id}`).set('Authorization', hr).send({ fullName: 'New' }).expect(409);
+      expect((await http().get(`/employees/${e.id}`).set('Authorization', hr)).body.fullName).toBe('Gone');
+    });
+
+    it('AC10-AC12: rehire creates a linked record, only from a terminated one', async () => {
+      const { body: e } = await create({ fullName: 'Back Again', startDate: '2026-01-01' });
+      await http().post(`/employees/${e.id}/rehire`).set('Authorization', hr).send({ startDate: '2026-06-01' }).expect(409);
+      await status(e.id, 'terminated').expect(200);
+      await http().post(`/employees/${e.id}/rehire`).set('Authorization', hr).send({}).expect(400);
+      const res = await http().post(`/employees/${e.id}/rehire`).set('Authorization', hr).send({ startDate: '2026-06-01' });
+      expect(res.status).toBe(201);
+      expect(res.body).toMatchObject({ status: 'active', rehiredFromId: e.id, fullName: 'Back Again' });
+      expect(res.body.id).not.toBe(e.id);
+      expect((await http().get(`/employees/${e.id}`).set('Authorization', hr)).body.status).toBe('terminated');
+    });
+  });
 });

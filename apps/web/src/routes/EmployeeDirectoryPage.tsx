@@ -4,8 +4,15 @@ import { Banner } from '../components/Banner'
 import { Layout } from '../components/Layout'
 import { apiClient } from '../lib/apiClient'
 import { useAuth } from '../lib/auth'
-import type { ChangeRequest, Employee } from '../lib/types'
+import { EMPLOYEE_STATUS_LABELS } from '../lib/fields'
+import type { ChangeRequest, Employee, EmployeeStatus } from '../lib/types'
 import { useAsync } from '../lib/useAsync'
+
+const STATUS_CHIP_CLASS: Record<EmployeeStatus, string> = {
+  active: 'chip-success',
+  on_leave: 'chip-warning',
+  terminated: 'chip-danger',
+}
 
 export default function EmployeeDirectoryPage() {
   const auth = useAuth()
@@ -120,7 +127,7 @@ export default function EmployeeDirectoryPage() {
                       {data?.pendingIds.has(e.id) ? (
                         <span className="chip chip-warning">Change pending</span>
                       ) : (
-                        <span className="chip chip-success">Active</span>
+                        <span className={`chip ${STATUS_CHIP_CLASS[e.status]}`}>{EMPLOYEE_STATUS_LABELS[e.status]}</span>
                       )}
                     </td>
                     <td>

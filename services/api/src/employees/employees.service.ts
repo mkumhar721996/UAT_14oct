@@ -2,9 +2,10 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { DataSource } from 'typeorm';
 import { CreateChangeRequestDto } from './dto/create-change-request.dto';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
+import { RehireEmployeeDto } from './dto/rehire-employee.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
-import { CORE_FIELDS, CoreField } from './employee-fields';
+import { CORE_FIELDS, CoreField, EmployeeStatus } from './employee-fields';
 import { Employee } from './entities/employee.entity';
 import { EmploymentHistoryEntry } from './entities/employment-history-entry.entity';
 import { PendingChangeRequest } from './entities/pending-change-request.entity';
@@ -59,28 +60,39 @@ export class EmployeesService {
 
   async createEmployee(tenantId: string, dto: CreateEmployeeDto, recordedBy: string | null = null): Promise<Employee> {
     const employeeNumber = await this.nextEmployeeNumber();
-    return this.dataSource.transaction(async (m) => {
-      const repo = m.getRepository(Employee);
-      const employee = await repo.save(
-        repo.create({
-          tenantId,
-          employeeNumber,
-          fullName: dto.fullName.trim(),
-          startDate: dto.startDate,
-          jobTitle: null,
-          department: null,
-          contractType: null,
-          salary: null,
-          personalEmail: null,
-          phone: null,
-        }),
-      );
-      for (const field of CORE_FIELDS) {
-        const value = normalise(field, dto[field]);
-        if (value !== null) await this.applyCoreChange(m, tenantId, employee, field, value, dto.startDate, recordedBy);
-      }
-      return repo.save(employee);
-    });
+    return this.dataSource.transaction((m) => this.insertEmployee(m, tenantId, employeeNumber, dto, recordedBy, null));
+  }
+
+  private async insertEmployee(
+    m: Manager,
+    tenantId: string,
+    employeeNumber: string,
+    dto: CreateEmployeeDto,
+    recordedBy: string | null,
+    rehiredFromId: string | null,
+  ): Promise<Employee> {
+    const repo = m.getRepository(Employee);
+    const employee = await repo.save(
+      repo.create({
+        tenantId,
+        employeeNumber,
+        fullName: dto.fullName.trim(),
+        startDate: dto.startDate,
+        status: 'active',
+        rehiredFromId,
+        jobTitle: null,
+        department: null,
+        contractType: null,
+        salary: null,
+        personalEmail: null,
+        phone: null,
+      }),
+    );
+    for (const field of CORE_FIELDS) {
+      const value = normalise(field, dto[field]);
+      if (value !== null) await this.applyCoreChange(m, tenantId, employee, field, value, dto.startDate, recordedBy);
+    }
+    return repo.save(employee);
   }
 
   async listEmployees(tenantId: string): Promise<Employee[]> {
@@ -105,6 +117,7 @@ export class EmployeesService {
     return this.dataSource.transaction(async (m) => {
       // Locked so concurrent edits can't record stale previous values.
       const employee = await this.loadEmployee(m, tenantId, id, true);
+      this.assertNotTerminated(employee);
       const changes: { field: CoreField; value: string | number | null; effectiveDate: string }[] = [];
       for (const field of CORE_FIELDS) {
         if (dto[field] === undefined) continue;
@@ -121,11 +134,55 @@ export class EmployeesService {
     });
   }
 
+  private assertNotTerminated(employee: Employee): void {
+    if (employee.status === 'terminated') throw new ConflictException('Employee is terminated; the record is read-only');
+  }
+
+  async setStatus(tenantId: string, id: string, status: EmployeeStatus, recordedBy: string | null = null): Promise<Employee> {
+    return this.dataSource.transaction(async (m) => {
+      const employee = await this.loadEmployee(m, tenantId, id, true);
+      this.assertNotTerminated(employee);
+      if (employee.status === status) return employee;
+      const history = m.getRepository(EmploymentHistoryEntry);
+      await history.save(
+        history.create({
+          tenantId,
+          employeeId: employee.id,
+          field: 'status',
+          previousValue: employee.status,
+          newValue: status,
+          effectiveDate: new Date().toISOString().slice(0, 10),
+          recordedBy,
+        }),
+      );
+      employee.status = status;
+      return m.getRepository(Employee).save(employee);
+    });
+  }
+
+  /** Integration point for the Leave epic: approval puts the employee on leave, rejection leaves them active. */
+  recordLeaveDecision(tenantId: string, employeeId: string, decision: 'approved' | 'rejected', recordedBy: string | null = null): Promise<Employee> {
+    return this.setStatus(tenantId, employeeId, decision === 'approved' ? 'on_leave' : 'active', recordedBy);
+  }
+
+  /** Creates a new record linked to a terminated one; the terminated record is never modified. */
+  async rehireEmployee(tenantId: string, terminatedId: string, dto: RehireEmployeeDto, recordedBy: string | null = null): Promise<Employee> {
+    const employeeNumber = await this.nextEmployeeNumber();
+    return this.dataSource.transaction(async (m) => {
+      const source = await this.loadEmployee(m, tenantId, terminatedId, true);
+      if (source.status !== 'terminated') throw new ConflictException('Only a terminated employee can be rehired');
+      return this.insertEmployee(m, tenantId, employeeNumber, { ...dto, fullName: dto.fullName ?? source.fullName }, recordedBy, source.id);
+    });
+  }
+
   async updateOwnContact(tenantId: string, employeeId: string, dto: UpdateContactDto): Promise<Employee> {
-    const employee = await this.getEmployee(tenantId, employeeId);
-    if (dto.personalEmail !== undefined) employee.personalEmail = toText(dto.personalEmail);
-    if (dto.phone !== undefined) employee.phone = toText(dto.phone);
-    return this.dataSource.getRepository(Employee).save(employee);
+    return this.dataSource.transaction(async (m) => {
+      const employee = await this.loadEmployee(m, tenantId, employeeId, true);
+      this.assertNotTerminated(employee);
+      if (dto.personalEmail !== undefined) employee.personalEmail = toText(dto.personalEmail);
+      if (dto.phone !== undefined) employee.phone = toText(dto.phone);
+      return m.getRepository(Employee).save(employee);
+    });
   }
 
   async getHistory(tenantId: string, employeeId: string): Promise<EmploymentHistoryEntry[]> {
@@ -138,7 +195,7 @@ export class EmployeesService {
   }
 
   async submitChangeRequest(tenantId: string, employeeId: string, dto: CreateChangeRequestDto): Promise<PendingChangeRequest> {
-    await this.getEmployee(tenantId, employeeId);
+    this.assertNotTerminated(await this.getEmployee(tenantId, employeeId));
     if (dto.field === 'salary' && !(Number(dto.requestedValue) >= 0)) {
       throw new BadRequestException('requestedValue must be a non-negative number for salary');
     }
@@ -188,6 +245,7 @@ export class EmployeesService {
     return this.dataSource.transaction(async (m) => {
       const req = await this.getOpenRequest(m, tenantId, requestId);
       const employee = await this.loadEmployee(m, tenantId, req.employeeId, true);
+      this.assertNotTerminated(employee);
       const field = req.field as CoreField;
       await this.applyCoreChange(m, tenantId, employee, field, normalise(field, req.requestedValue), req.effectiveDate, approverSub);
       req.status = 'approved';

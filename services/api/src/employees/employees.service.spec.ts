@@ -127,3 +127,119 @@ describe('EmployeesService', () => {
     expect(await service.getHistory(tenantId, id)).toHaveLength(0);
   });
 });
+
+describe('EmployeesService lifecycle status', () => {
+  let service: EmployeesService;
+  let id: string;
+
+  beforeEach(async () => {
+    service = new EmployeesService(new FakeDataSource() as any);
+    ({ id } = await service.createEmployee(tenantId, { fullName: 'Jordan Lee', startDate: '2026-01-05', jobTitle: 'Designer', salary: 90000 }));
+  });
+
+  it('AC1: new employees default to active', async () => {
+    expect((await service.getEmployee(tenantId, id)).status).toBe('active');
+  });
+
+  it('AC2/AC3/AC13: manual transitions between active and on_leave are saved', async () => {
+    expect((await service.setStatus(tenantId, id, 'on_leave')).status).toBe('on_leave');
+    expect((await service.getEmployee(tenantId, id)).status).toBe('on_leave');
+    expect((await service.setStatus(tenantId, id, 'active')).status).toBe('active');
+    expect((await service.getEmployee(tenantId, id)).status).toBe('active');
+  });
+
+  it('records a status transition in the employment history with the recording actor', async () => {
+    const before = await service.getHistory(tenantId, id);
+    await service.setStatus(tenantId, id, 'on_leave', 'hr-sub');
+    const history = await service.getHistory(tenantId, id);
+    expect(history).toHaveLength(before.length + 1);
+    expect(history.at(-1)).toMatchObject({ field: 'status', previousValue: 'active', newValue: 'on_leave', recordedBy: 'hr-sub' });
+  });
+
+  it('does not record history for a same-value status transition', async () => {
+    const before = await service.getHistory(tenantId, id);
+    await service.setStatus(tenantId, id, 'active');
+    expect(await service.getHistory(tenantId, id)).toHaveLength(before.length);
+  });
+
+  it('AC4/AC13: terminates an active employee, and an on_leave one', async () => {
+    expect((await service.setStatus(tenantId, id, 'terminated')).status).toBe('terminated');
+    const { id: other } = await service.createEmployee(tenantId, { fullName: 'B', startDate: '2026-01-01' });
+    await service.setStatus(tenantId, other, 'on_leave');
+    expect((await service.setStatus(tenantId, other, 'terminated')).status).toBe('terminated');
+  });
+
+  it('treats a same-value transition as a no-op', async () => {
+    expect((await service.setStatus(tenantId, id, 'active')).status).toBe('active');
+  });
+
+  it('AC5/AC6: leave decisions set on_leave / active; repeated approval is tolerated', async () => {
+    expect((await service.recordLeaveDecision(tenantId, id, 'approved')).status).toBe('on_leave');
+    expect((await service.recordLeaveDecision(tenantId, id, 'approved')).status).toBe('on_leave');
+    expect((await service.recordLeaveDecision(tenantId, id, 'rejected')).status).toBe('active');
+  });
+
+  it('AC6: a rejection leaves an active employee active', async () => {
+    expect((await service.recordLeaveDecision(tenantId, id, 'rejected')).status).toBe('active');
+  });
+
+  it('AC7: terminated records reject edits, status changes and leave decisions', async () => {
+    await service.setStatus(tenantId, id, 'terminated');
+    await expect(service.updateAsHrAdmin(tenantId, id, { fullName: 'New Name' })).rejects.toBeInstanceOf(ConflictException);
+    await expect(service.setStatus(tenantId, id, 'active')).rejects.toBeInstanceOf(ConflictException);
+    await expect(service.recordLeaveDecision(tenantId, id, 'approved')).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it('AC7: terminated records also reject contact updates, change requests and change-request approval', async () => {
+    const req = await service.submitChangeRequest(tenantId, id, { field: 'jobTitle', requestedValue: 'Lead', effectiveDate: '2026-02-01' });
+    await service.setStatus(tenantId, id, 'terminated');
+    await expect(service.updateOwnContact(tenantId, id, { phone: '555-0100' })).rejects.toBeInstanceOf(ConflictException);
+    await expect(
+      service.submitChangeRequest(tenantId, id, { field: 'department', requestedValue: 'Sales', effectiveDate: '2026-02-01' }),
+    ).rejects.toBeInstanceOf(ConflictException);
+    await expect(service.approveChangeRequest(tenantId, req.id, 'hr-sub')).rejects.toBeInstanceOf(ConflictException);
+    expect(await service.getEmployee(tenantId, id)).toMatchObject({ jobTitle: 'Designer', phone: null });
+  });
+
+  it('AC9: a terminated record keeps its data', async () => {
+    await service.setStatus(tenantId, id, 'terminated');
+    expect(await service.getEmployee(tenantId, id)).toMatchObject({ fullName: 'Jordan Lee', jobTitle: 'Designer', salary: 90000 });
+  });
+
+  it('AC10/AC11/AC12: rehire creates a linked new record and leaves the source terminated', async () => {
+    await service.setStatus(tenantId, id, 'terminated');
+    const rehired = await service.rehireEmployee(tenantId, id, { startDate: '2026-06-01' });
+    expect(rehired.id).not.toBe(id);
+    expect(rehired).toMatchObject({ status: 'active', rehiredFromId: id, fullName: 'Jordan Lee', startDate: '2026-06-01' });
+    expect(rehired.employeeNumber).not.toBe((await service.getEmployee(tenantId, id)).employeeNumber);
+    expect((await service.getEmployee(tenantId, id)).status).toBe('terminated');
+  });
+
+  it('rehire does not clone core fields, but accepts supplied ones', async () => {
+    await service.setStatus(tenantId, id, 'terminated');
+    expect(await service.rehireEmployee(tenantId, id, { startDate: '2026-06-01' })).toMatchObject({
+      jobTitle: null, department: null, contractType: null, salary: null,
+    });
+    expect(await service.rehireEmployee(tenantId, id, { startDate: '2026-06-01', jobTitle: 'Lead', fullName: 'Jordan L.' })).toMatchObject({
+      jobTitle: 'Lead', fullName: 'Jordan L.',
+    });
+  });
+
+  it('allows several rehires from one terminated record', async () => {
+    await service.setStatus(tenantId, id, 'terminated');
+    const r1 = await service.rehireEmployee(tenantId, id, { startDate: '2026-06-01' });
+    const r2 = await service.rehireEmployee(tenantId, id, { startDate: '2026-07-01' });
+    expect([r1.rehiredFromId, r2.rehiredFromId]).toEqual([id, id]);
+    expect(r1.id).not.toBe(r2.id);
+  });
+
+  it('rejects rehiring a non-terminated employee', async () => {
+    await expect(service.rehireEmployee(tenantId, id, { startDate: '2026-06-01' })).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it('scopes the new methods by tenant', async () => {
+    await expect(service.setStatus(otherTenant, id, 'on_leave')).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.recordLeaveDecision(otherTenant, id, 'approved')).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.rehireEmployee(otherTenant, id, { startDate: '2026-06-01' })).rejects.toBeInstanceOf(NotFoundException);
+  });
+});
