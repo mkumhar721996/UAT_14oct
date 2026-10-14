@@ -1,18 +1,22 @@
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ActiveGrid } from '../components/ActiveGrid'
 import { Banner } from '../components/Banner'
 import { Layout } from '../components/Layout'
+import { useToast } from '../components/Toast'
 import { apiClient } from '../lib/apiClient'
 import { useAuth } from '../lib/auth'
-import { CORE_FIELD_LABELS } from '../lib/fields'
+import { CORE_FIELD_LABELS, EMPLOYEE_STATUSES, EMPLOYEE_STATUS_LABELS } from '../lib/fields'
 import { fmtDate, fmtDateTime, fmtFieldValue } from '../lib/format'
-import type { ChangeRequest, Employee, HistoryEntry } from '../lib/types'
+import type { ChangeRequest, Employee, EmployeeStatus, HistoryEntry } from '../lib/types'
 import { useAsync } from '../lib/useAsync'
 
 export default function EmployeeProfileDetailPage() {
   const { id = '' } = useParams()
   const isHr = useAuth()?.role === 'hr_admin'
-  const { data, error, loading } = useAsync(async () => {
+  const toast = useToast()
+  const [saving, setSaving] = useState(false)
+  const { data, error, loading, reload } = useAsync(async () => {
     const [employee, history, pending] = await Promise.all([
       apiClient.get<Employee>(`/employees/${id}`),
       apiClient.get<HistoryEntry[]>(`/employees/${id}/history`),
@@ -21,13 +25,33 @@ export default function EmployeeProfileDetailPage() {
     return { employee, history, pending: pending.filter((r) => r.employeeId === id) }
   })
   const employee = data?.employee
+  const terminated = employee?.status === 'terminated'
+
+  async function changeStatus(status: EmployeeStatus) {
+    if (status === employee?.status) return
+    setSaving(true)
+    try {
+      await apiClient.patch(`/employees/${id}/status`, { status })
+      reload()
+    } catch (err) {
+      toast((err as Error).message, true)
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
     <Layout
       title={employee?.fullName ?? 'Employee profile'}
       crumbs={[{ label: 'Employees', to: '/employees' }, { label: employee?.fullName ?? '…' }]}
       actions={
-        isHr ? (
+        terminated ? (
+          isHr && (
+            <Link className="btn btn-primary" to={`/employees/${id}/rehire`}>
+              Create rehire
+            </Link>
+          )
+        ) : isHr ? (
           <Link className="btn btn-primary" to={`/employees/${id}/edit`}>
             Edit profile
           </Link>
@@ -74,6 +98,28 @@ export default function EmployeeProfileDetailPage() {
             <div className="readonly-row">
               <span className="readonly-label">Start date</span>
               <span className="readonly-value">{fmtDate(employee.startDate)}</span>
+            </div>
+            <div className="readonly-row">
+              <label className="readonly-label" htmlFor="employee-status">
+                Status
+              </label>
+              {isHr && !terminated ? (
+                <select
+                  className="select"
+                  id="employee-status"
+                  value={employee.status}
+                  disabled={saving}
+                  onChange={(e) => changeStatus(e.target.value as EmployeeStatus)}
+                >
+                  {EMPLOYEE_STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {EMPLOYEE_STATUS_LABELS[s]}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <span className="readonly-value">{EMPLOYEE_STATUS_LABELS[employee.status]}</span>
+              )}
             </div>
             {employee.personalEmail !== undefined && (
               <>

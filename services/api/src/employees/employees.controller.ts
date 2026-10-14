@@ -6,8 +6,10 @@ import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { CreateChangeRequestDto } from './dto/create-change-request.dto';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
+import { RehireEmployeeDto } from './dto/rehire-employee.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
+import { UpdateEmployeeStatusDto } from './dto/update-employee-status.dto';
 import { Employee } from './entities/employee.entity';
 import { EmploymentHistoryEntry } from './entities/employment-history-entry.entity';
 import { EmployeesService } from './employees.service';
@@ -71,6 +73,18 @@ export class EmployeesController {
   @Roles('hr_admin')
   update(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateEmployeeDto) {
     return this.employees.updateAsHrAdmin(user.tenantId, id, dto, user.sub);
+  }
+
+  @Patch(':id/status')
+  @Roles('hr_admin')
+  setStatus(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateEmployeeStatusDto) {
+    return this.employees.setStatus(user.tenantId, id, dto.status, user.sub);
+  }
+
+  @Post(':id/rehire')
+  @Roles('hr_admin')
+  rehire(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string, @Body() dto: RehireEmployeeDto) {
+    return this.employees.rehireEmployee(user.tenantId, id, dto, user.sub);
   }
 
   @Get(':id/history')

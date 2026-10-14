@@ -8,5 +8,6 @@ import { PendingChangeRequestsController } from './pending-change-requests.contr
   imports: [AuthModule],
   controllers: [EmployeesController, PendingChangeRequestsController],
   providers: [EmployeesService],
+  exports: [EmployeesService],
 })
 export class EmployeesModule {}

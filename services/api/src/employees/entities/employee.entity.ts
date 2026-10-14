@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { EmployeeStatus } from '../employee-fields';
 
 const numeric = {
   to: (v?: number | null) => v,
@@ -40,6 +41,12 @@ export class Employee {
 
   @Column({ type: 'text', nullable: true })
   phone!: string | null;
+
+  @Column({ type: 'text', default: 'active' })
+  status!: EmployeeStatus;
+
+  @Column({ name: 'rehired_from_id', type: 'uuid', nullable: true })
+  rehiredFromId!: string | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;

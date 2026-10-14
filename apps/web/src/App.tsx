@@ -8,6 +8,7 @@ import EmployeeDirectoryPage from './routes/EmployeeDirectoryPage'
 import EmployeeProfileDetailPage from './routes/EmployeeProfileDetailPage'
 import MyProfilePage from './routes/MyProfilePage'
 import NewEmployeeProfilePage from './routes/NewEmployeeProfilePage'
+import RehireEmployeePage from './routes/RehireEmployeePage'
 import PendingChangesPage from './routes/PendingChangesPage'
 
 /** Renders the HR-Admin-only page, or the access-restricted state for everyone else. */
@@ -50,6 +51,14 @@ function App() {
           element={
             <RequireHrAdmin title="Edit employee profile" message="Only HR Admins can edit employee profiles. No changes were saved.">
               <EditEmployeeProfilePage />
+            </RequireHrAdmin>
+          }
+        />
+        <Route
+          path="/employees/:id/rehire"
+          element={
+            <RequireHrAdmin title="Rehire employee" message="Only HR Admins can create rehire records. No record was created.">
+              <RehireEmployeePage />
             </RequireHrAdmin>
           }
         />
