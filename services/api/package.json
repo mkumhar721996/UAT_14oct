@@ -10,6 +10,7 @@
   "packageManager": "pnpm@12.9.1",
   "scripts": {
     "build": "nest build",
+    "migration:run": "pnpm run build && typeorm migration:run -d dist/database/data-source.js",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main.js",
@@ -29,6 +30,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.4",
     "pg": "^8.23.1",
+    "pg-mem": "^3.0.14",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.31"
