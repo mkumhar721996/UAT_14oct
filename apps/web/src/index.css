@@ -1,3 +1,201 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --color-fg: #1e293b;
+  --color-bg: #ffffff;
+  --color-bg-subtle: #f8fafc;
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-fg: #ffffff;
+  --color-border: #e2e8f0;
+  --color-fg-muted: #67748b;
+  --color-success: #16985c;
+  --color-success-bg: #e1f6e8;
+  --color-danger: #db2727;
+  --color-danger-bg: #fde5e5;
+  --color-warning: #b47406;
+  --color-warning-bg: #fef3d6;
+}
+
+@layer base {
+  body {
+    @apply bg-subtle font-sans text-md text-fg;
+    line-height: 1.5;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+/* Design-system primitives, mirroring the approved prototype's class recipes. */
+@layer components {
+  .sidebar {
+    @apply flex w-[220px] shrink-0 flex-col justify-between border-r border-line bg-subtle p-4;
+  }
+  .sidebar-link {
+    @apply block rounded-sm px-3 py-2 font-medium text-fg-muted no-underline hover:bg-line hover:text-fg;
+  }
+  .sidebar-link.is-active {
+    @apply bg-primary text-primary-fg hover:bg-primary;
+  }
+  .topbar {
+    @apply flex items-center justify-between border-b border-line bg-surface px-4 py-3;
+  }
+  .content {
+    @apply max-w-[920px] flex-1 p-4;
+  }
+  .content > * + * {
+    @apply mt-4;
+  }
+  .heading-lg {
+    @apply mb-3 text-lg font-semibold text-fg;
+  }
+  .text-muted {
+    @apply text-sm text-fg-muted;
+  }
+
+  .btn {
+    @apply inline-flex cursor-pointer items-center gap-1 rounded-md border border-transparent px-4 py-2 text-md font-medium disabled:cursor-not-allowed disabled:opacity-[.55];
+  }
+  .btn-primary {
+    @apply bg-primary text-primary-fg hover:bg-primary-hover disabled:hover:bg-primary;
+  }
+  .btn-secondary {
+    @apply border-line bg-surface text-fg hover:bg-subtle;
+  }
+  .btn-danger {
+    @apply border-danger bg-surface text-danger hover:bg-danger-bg;
+  }
+  .btn-sm {
+    @apply px-3 py-1 text-sm;
+  }
+
+  .card {
+    @apply rounded-lg border border-line bg-surface p-4 shadow-card;
+  }
+  .card-title {
+    @apply mb-2 text-lg font-semibold;
+  }
+  .card-body {
+    @apply text-md text-fg-muted;
+  }
+  .section-title {
+    @apply mb-2 text-md font-semibold;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-sm px-2 py-1 text-sm font-medium;
+  }
+  .chip-success {
+    @apply bg-success-bg text-success;
+  }
+  .chip-warning {
+    @apply bg-warning-bg text-warning;
+  }
+  .chip-danger {
+    @apply bg-danger-bg text-danger;
+  }
+  .chip-neutral {
+    @apply border border-line bg-subtle text-fg-muted;
+  }
+
+  .field {
+    @apply mb-3 flex flex-col gap-1;
+  }
+  .field-label {
+    @apply text-sm font-medium text-fg;
+  }
+  .input,
+  .select,
+  .textarea {
+    @apply rounded-md border border-line bg-surface px-3 py-2 text-md text-fg focus:border-primary focus:outline-none;
+  }
+  .textarea {
+    @apply min-h-[96px] resize-y;
+  }
+  .has-error {
+    @apply border-danger;
+  }
+  .field-error {
+    @apply mt-[2px] text-sm text-danger;
+  }
+  .field-hint {
+    @apply text-sm text-fg-muted;
+  }
+
+  .table {
+    @apply w-full border-collapse text-md;
+  }
+  .table th {
+    @apply border-b border-line px-3 py-2 text-left text-sm font-semibold text-fg-muted;
+  }
+  .table td {
+    @apply border-b border-line px-3 py-2;
+  }
+
+  .banner {
+    @apply flex items-start gap-2 rounded-md border border-line p-3 text-md;
+  }
+  .banner strong {
+    @apply block;
+  }
+  .banner p {
+    @apply mt-[2px] font-normal text-fg;
+  }
+  .banner-success {
+    @apply border-success bg-success-bg text-success;
+  }
+  .banner-warning {
+    @apply border-warning bg-warning-bg text-warning;
+  }
+  .banner-danger {
+    @apply border-danger bg-danger-bg text-danger;
+  }
+  .banner-info {
+    @apply border-line bg-subtle text-fg;
+  }
+
+  .empty-state {
+    @apply rounded-lg border border-dashed border-line p-4 text-center text-fg-muted;
+  }
+  .empty-state h3 {
+    @apply mb-1 text-md text-fg;
+  }
+
+  .modal-overlay {
+    @apply fixed inset-0 z-[2000] flex items-center justify-center p-4;
+    /* alpha-blended color-fg, the same recipe as the card shadow */
+    background: rgb(11.76% 16.08% 23.14% / 0.5);
+  }
+  .modal {
+    @apply w-full max-w-[440px] rounded-lg border border-line bg-surface p-4 shadow-card;
+  }
+
+  .skeleton-bar {
+    @apply h-[14px] rounded-sm;
+    background: linear-gradient(
+      90deg,
+      var(--color-border) 25%,
+      var(--color-bg-subtle) 37%,
+      var(--color-border) 63%
+    );
+    background-size: 400% 100%;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .skeleton-bar {
+      animation: shimmer 1.4s ease infinite;
+    }
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
