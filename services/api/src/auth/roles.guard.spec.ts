@@ -12,11 +12,15 @@ class Handlers {
   open() {}
 }
 
-function contextFor(handler: () => void, actor?: Actor) {
+function contextFor(
+  handler: () => void,
+  actor?: Actor,
+  user?: { role: string },
+) {
   return {
     getHandler: () => handler,
     getClass: () => Handlers,
-    switchToHttp: () => ({ getRequest: () => ({ headers: {}, actor }) }),
+    switchToHttp: () => ({ getRequest: () => ({ headers: {}, actor, user }) }),
   } as never;
 }
 
@@ -48,5 +52,17 @@ describe('RolesGuard', () => {
 
   it('allows any request to an undecorated handler', () => {
     expect(guard.canActivate(contextFor(proto.open))).toBe(true);
+  });
+
+  it('never lets a forged actor role override a verified request.user role', () => {
+    expect(() =>
+      guard.canActivate(
+        contextFor(
+          proto.reviewOnly,
+          { id: 'priya', role: 'hr_admin' },
+          { role: 'employee' },
+        ),
+      ),
+    ).toThrow(ForbiddenException);
   });
 });

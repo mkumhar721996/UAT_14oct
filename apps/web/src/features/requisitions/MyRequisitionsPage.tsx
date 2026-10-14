@@ -1,11 +1,11 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect } from 'react'
 import { requisitionsApi, type Requisition } from '../../api/requisitionsApi'
 import { useActor } from '../../auth/ActorContext'
 import { AppShell } from '../../components/AppShell'
 import { Banner } from '../../components/Banner'
 import { StatusChip } from '../../components/StatusChip'
-import { Toast } from '../../components/Toast'
+import { useToast } from '../../components/Toast'
 import { formatDate, requisitionCode } from '../../lib/format'
 import { useLoad } from '../../lib/useLoad'
 
@@ -22,17 +22,27 @@ function lastActivity(r: Requisition): string {
   }
 }
 
-/** Lists requisitions for the signed-in manager (`mine`) or every non-draft one for reviewers (`open`). */
+/** Lists requisitions for the signed-in manager (`mine`) or published (open) ones for reviewers (`open`). */
 export function MyRequisitionsPage({ mode = 'mine' }: { mode?: 'mine' | 'open' }) {
   const actor = useActor()
   const navigate = useNavigate()
   const location = useLocation()
-  const [notice, setNotice] = useState<string | null>((location.state as { notice?: string } | null)?.notice ?? null)
+  const toast = useToast()
   const { state, reload } = useLoad(
     () => requisitionsApi.list(actor, mode === 'open' ? 'open' : undefined),
     [actor.id, mode],
   )
   const isMine = mode === 'mine'
+
+  useEffect(() => {
+    const notice = (location.state as { notice?: string } | null)?.notice
+    if (notice) {
+      toast(notice)
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+    // Only run once per navigation to this page, not on every toast/navigate identity change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state])
 
   return (
     <AppShell
@@ -61,7 +71,7 @@ export function MyRequisitionsPage({ mode = 'mine' }: { mode?: 'mine' | 'open' }
         </Banner>
       )}
       {state.status === 'ready' && state.data.length === 0 && (
-        <div className="empty-state">
+        <div className="req-empty-state">
           <h3>{isMine ? "You haven't created any requisitions yet" : 'No open requisitions'}</h3>
           {isMine && (
             <>
@@ -110,7 +120,6 @@ export function MyRequisitionsPage({ mode = 'mine' }: { mode?: 'mine' | 'open' }
           </tbody>
         </table>
       )}
-      <Toast message={notice} onDismiss={() => setNotice(null)} />
     </AppShell>
   )
 }

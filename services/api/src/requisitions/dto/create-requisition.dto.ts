@@ -1,10 +1,10 @@
 import { IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { UpdateRequisitionDto } from './update-requisition.dto';
+import { RequisitionFieldsDto } from './update-requisition.dto';
 
-export class CreateRequisitionDto extends UpdateRequisitionDto {
+export class CreateRequisitionDto extends RequisitionFieldsDto {
   @IsString()
   @IsNotEmpty()
-  declare title: string;
+  title!: string;
 
   @IsOptional()
   @IsIn(['draft', 'submit'])

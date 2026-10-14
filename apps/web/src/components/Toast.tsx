@@ -1,30 +1,8 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useState, type ReactNode } from 'react'
 
 /**
- * Simple, controlled toast used by the requisitions/jobs features: pass the
- * current message (or `null`) and it auto-dismisses after a few seconds.
- */
-export function Toast({ message, onDismiss }: { message: string | null; onDismiss: () => void }) {
-  useEffect(() => {
-    if (!message) return
-    const timer = setTimeout(onDismiss, 3200)
-    return () => clearTimeout(timer)
-  }, [message, onDismiss])
-
-  return (
-    <div role="status" aria-live="polite">
-      {message && (
-        <div className="fixed bottom-4 right-4 z-[3000] max-w-[360px] rounded-md bg-fg px-4 py-3 text-md text-surface shadow-card">
-          {message}
-        </div>
-      )}
-    </div>
-  )
-}
-
-/**
- * Context-based toast stack used by the employee-profile feature: wrap the
- * app in `ToastProvider` and call `useToast()` to push a message.
+ * Context-based toast stack: wrap the app in `ToastProvider` and call
+ * `useToast()` to push a message.
  */
 type QueuedToast = { id: number; message: string; danger: boolean }
 const ToastContext = createContext<(message: string, danger?: boolean) => void>(() => {})

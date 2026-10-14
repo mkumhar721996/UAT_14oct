@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 
-export type BannerVariant = 'success' | 'warning' | 'danger' | 'info' | 'pending'
+export type BannerVariant = 'success' | 'warning' | 'danger' | 'info'
 
-const ICONS: Record<BannerVariant, string> = { success: '✓', warning: '⚠', danger: '✕', info: '✎', pending: '⌛' }
+const ICONS: Record<BannerVariant, string> = { success: '✓', warning: '⚠', danger: '✕', info: '✎' }
 
 export function Banner({
   variant,

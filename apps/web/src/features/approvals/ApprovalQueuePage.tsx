@@ -4,19 +4,19 @@ import { requisitionsApi, type Requisition } from '../../api/requisitionsApi'
 import { useActor } from '../../auth/ActorContext'
 import { AppShell } from '../../components/AppShell'
 import { Banner } from '../../components/Banner'
-import { Toast } from '../../components/Toast'
+import { useToast } from '../../components/Toast'
 import { formatDate, requisitionCode } from '../../lib/format'
 import { useLoad } from '../../lib/useLoad'
 
 export function ApprovalQueuePage() {
   const actor = useActor()
   const { state, reload } = useLoad(() => requisitionsApi.listPending(actor), [actor.id])
+  const toast = useToast()
   const [rejectingId, setRejectingId] = useState<number | null>(null)
   const [reason, setReason] = useState('')
   const [reasonError, setReasonError] = useState(false)
   const [busyId, setBusyId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [notice, setNotice] = useState<string | null>(null)
 
   async function act(r: Requisition, run: () => Promise<unknown>, message: string) {
     setBusyId(r.id)
@@ -25,7 +25,7 @@ export function ApprovalQueuePage() {
       await run()
       setRejectingId(null)
       setReason('')
-      setNotice(message)
+      toast(message)
       reload()
     } catch (err) {
       setError((err as Error).message)
@@ -87,7 +87,7 @@ export function ApprovalQueuePage() {
         </Banner>
       )}
       {state.status === 'ready' && state.data.length === 0 && (
-        <div className="empty-state">
+        <div className="req-empty-state">
           <h3>No requisitions waiting on approval</h3>
           <p>Nice work — you're all caught up.</p>
         </div>
@@ -176,7 +176,6 @@ export function ApprovalQueuePage() {
           </tbody>
         </table>
       )}
-      <Toast message={notice} onDismiss={() => setNotice(null)} />
     </AppShell>
   )
 }

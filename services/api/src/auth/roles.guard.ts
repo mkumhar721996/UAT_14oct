@@ -32,7 +32,9 @@ export class RolesGuard implements CanActivate {
       return true;
     }
     const request = context.switchToHttp().getRequest<GuardedRequest>();
-    const role = request.actor?.role ?? request.user?.role;
+    // A verified Cognito-authenticated user always wins over the dev actor stand-in,
+    // so a forged x-actor-role header can never shadow a real token's role.
+    const role = request.user?.role ?? request.actor?.role;
     if (!role) {
       throw new UnauthorizedException('Sign in to continue.');
     }

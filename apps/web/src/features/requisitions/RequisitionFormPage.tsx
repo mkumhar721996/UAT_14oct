@@ -54,7 +54,7 @@ function toInput(v: FormValues): RequisitionInput {
     department: v.department,
     location: v.location.trim(),
     employmentType: v.employmentType,
-    headcount: Number(v.headcount) || 1,
+    headcount: v.headcount.trim() ? Number(v.headcount) : 1,
     description: v.description.trim(),
   }
   if (v.startDate) input.startDate = v.startDate
@@ -66,10 +66,14 @@ function toInput(v: FormValues): RequisitionInput {
 function validate(v: FormValues, requireAll: boolean): FieldErrors {
   const errors: FieldErrors = {}
   if (!v.title.trim()) errors.title = 'Enter a job title.'
+  // An explicit, invalid headcount is always rejected; an empty one only blocks submit
+  // (a draft defaults it to 1 instead).
+  if (v.headcount.trim() ? Number(v.headcount) < 1 : requireAll) {
+    errors.headcount = 'Headcount must be at least 1.'
+  }
   if (requireAll) {
     if (!v.department) errors.department = 'Select a department.'
     if (!v.location.trim()) errors.location = 'Enter a location.'
-    if (!v.headcount || Number(v.headcount) < 1) errors.headcount = 'Headcount must be at least 1.'
     if (!v.description.trim()) errors.description = 'Add a short job description.'
   }
   return errors

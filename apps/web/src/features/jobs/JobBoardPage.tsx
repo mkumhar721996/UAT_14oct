@@ -35,7 +35,7 @@ export function JobBoardPage() {
         </Banner>
       )}
       {state.status === 'ready' && state.data.length === 0 && (
-        <div className="empty-state">
+        <div className="req-empty-state">
           <h3>No open roles match your search</h3>
           <p>Try a different keyword or clear your search.</p>
         </div>

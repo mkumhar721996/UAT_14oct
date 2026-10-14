@@ -174,9 +174,7 @@ export class RequisitionsService {
   }
 
   async listPendingApproval(): Promise<JobRequisition[]> {
-    return newestFirst(
-      await this.requisitions.find({ where: { status: 'pending_approval' } }),
-    );
+    return this.listForReviewers('pending_approval');
   }
 
   async listOpen(search?: string): Promise<JobRequisition[]> {

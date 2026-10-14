@@ -17,6 +17,8 @@ import { RequisitionsService } from './requisitions.service';
 })
 export class RequisitionsModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(ActorMiddleware).forRoutes('*');
+    consumer
+      .apply(ActorMiddleware)
+      .forRoutes(RequisitionsController, JobBoardController);
   }
 }

@@ -5,7 +5,7 @@ import { isReviewer, useActor } from '../../auth/ActorContext'
 import { AppShell } from '../../components/AppShell'
 import { Banner } from '../../components/Banner'
 import { StatusChip, statusLabel } from '../../components/StatusChip'
-import { Toast } from '../../components/Toast'
+import { useToast } from '../../components/Toast'
 import { formatDate, money, requisitionCode } from '../../lib/format'
 import { useLoad } from '../../lib/useLoad'
 import { ReassignModal } from './ReassignModal'
@@ -14,7 +14,7 @@ export function RequisitionDetailPage() {
   const id = Number(useParams().id)
   const actor = useActor()
   const { state, reload } = useLoad(() => requisitionsApi.get(actor, id), [id, actor.id])
-  const [notice, setNotice] = useState<string | null>(null)
+  const toast = useToast()
   const requisition = state.status === 'ready' ? state.data : null
 
   return (
@@ -34,13 +34,12 @@ export function RequisitionDetailPage() {
           <StatusSection
             requisition={requisition}
             onChanged={(message) => {
-              setNotice(message)
+              toast(message)
               reload()
             }}
           />
         </>
       )}
-      <Toast message={notice} onDismiss={() => setNotice(null)} />
     </AppShell>
   )
 }

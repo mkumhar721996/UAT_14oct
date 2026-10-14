@@ -1,13 +1,29 @@
 import type { CoreField } from './types'
 
-export function formatDate(value?: string | null): string {
+type DatePartOrder = 'month-day-year' | 'day-month-year'
+
+export function formatDate(
+  value?: string | null,
+  opts: { order?: DatePartOrder } = {},
+): string {
   if (!value) return '—'
   const date = new Date(value.length === 10 ? `${value}T00:00:00` : value)
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  const parts =
+    opts.order === 'day-month-year'
+      ? ({ day: 'numeric', month: 'short', year: 'numeric' } as const)
+      : ({ month: 'short', day: 'numeric', year: 'numeric' } as const)
+  return date.toLocaleDateString('en-US', parts)
 }
 
-export function money(value?: number | null): string {
-  return value ? `$${Number(value).toLocaleString('en-US')}` : '—'
+/** Same day/month/year formatting as `formatDate`, used by the employee-profile feature. */
+export const fmtDate = (iso: string) => formatDate(iso, { order: 'day-month-year' })
+
+export function money(
+  value?: number | string | null,
+  opts: { placeholder?: string | null } = {},
+): string | null {
+  if (value === null || value === undefined || value === '') return opts.placeholder ?? '—'
+  return `$${Number(value).toLocaleString('en-US')}`
 }
 
 export function requisitionCode(id: number): string {
@@ -25,12 +41,6 @@ export function roleLabel(role: string): string {
   )
 }
 
-export const fmtMoney = (n: number | string | null | undefined) =>
-  n === null || n === undefined || n === '' ? null : '$' + Number(n).toLocaleString('en-US')
-
-export const fmtDate = (iso: string) =>
-  new Date(iso.slice(0, 10) + 'T00:00:00').toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
-
 export const fmtDateTime = (iso: string) => {
   const d = new Date(iso)
   return (
@@ -42,4 +52,4 @@ export const fmtDateTime = (iso: string) => {
 
 /** Display text for a stored core-field value; salary is stored as a plain number string. */
 export const fmtFieldValue = (field: CoreField, v: string | number | null | undefined) =>
-  v === null || v === undefined || v === '' ? null : field === 'salary' ? fmtMoney(v) : String(v)
+  v === null || v === undefined || v === '' ? null : field === 'salary' ? money(v, { placeholder: null }) : String(v)
