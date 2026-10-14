@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Design System Style Guide</title>
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="prototype-utils.css" />
+<style>
+  body { margin: 0; font-family: var(--font-family-base); color: var(--color-fg); background: var(--color-bg); }
+  .sg-section { padding: var(--space-4) 32px; border-bottom: 1px solid var(--color-border); }
+  .sg-grid { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+  .swatch { width: 140px; }
+  .swatch-color { height: 56px; border-radius: var(--radius-md); border: 1px solid var(--color-border); margin-bottom: var(--space-1); }
+  .swatch-label { font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+  .dim-bar { background: var(--color-primary); height: 8px; }
+  .row { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3); flex-wrap: wrap; }
+  code { font-family: var(--font-family-mono); font-size: var(--font-size-sm); }
+  .guidelines h3 { margin-top: var(--space-4); }
+</style>
+</head>
+<body>
+
+<header class="sg-section">
+  <h1 class="heading-lg">Design System Style Guide</h1>
+  <p class="text-muted">Tokens, components and UI guidelines for this product.</p>
+</header>
+
+<section class="sg-section">
+  <h2 class="heading-lg">Color tokens</h2>
+  <div class="sg-grid">
+    <div class="swatch"><div class="swatch-color" style="background: var(--color-fg)"></div><div class="swatch-label">color-fg</div></div>
+    <div class="swatch"><div class="swatch-color" style="background: var(--color-bg)"></div><div class="swatch-label">color-bg</div></div>
+    <div class="swatch"><div class="swatch-color" style="background: var(--color-bg-subtle)"></div><div class="swatch-label">color-bg-subtle</div></div>
+    <div class="swatch"><div class="swatch-color" style="background: var(--color-primary)"></div><div class="swatch-label">color-primary</div></div>
+    <div class="swatch"><div class="swatch-color" style="background: var(--color-primary-hover)"></div><div class="swatch-label">color-primary-hover</div></div>
+    <div class="swatch"><div class="swatch-color" style="background: var(--color-primary-fg); border: 1px solid var(--color-border)"></div><div class="swatch-label">color-primary-fg</div></div>
+    <div class="swatch"><div class="swatch-color" style="background: var(--color-border)"></div><div class="swatch-label">color-border</div></div>
+    <div class="swatch"><div class="swatch-color" style="background: var(--color-fg-muted)"></div><div class="swatch-label">color-fg-muted</div></div>
+    <div class="swatch"><div class="swatch-color" style="background: var(--color-success)"></div><div class="swatch-label">color-success</div></div>
+    <div class="swatch"><div class="swatch-color" style="background: var(--color-success-bg)"></div><div class="swatch-label">color-success-bg</div></div>
+    <div class="swatch"><div class="swatch-color" style="background: var(--color-danger)"></div><div class="swatch-label">color-danger</div></div>
+    <div class="swatch"><div class="swatch-color" style="background: var(--color-danger-bg)"></div><div class="swatch-label">color-danger-bg</div></div>
+    <div class="swatch"><div class="swatch-color" style="background: var(--color-warning)"></div><div class="swatch-label">color-warning</div></div>
+    <div class="swatch"><div class="swatch-color" style="background: var(--color-warning-bg)"></div><div class="swatch-label">color-warning-bg</div></div>
+  </div>
+</section>
+
+<section class="sg-section">
+  <h2 class="heading-lg">Typography</h2>
+  <p style="font-family: var(--font-family-base)">font-family-base — <code>Inter, ui-sans-serif, system-ui, sans-serif</code></p>
+  <p style="font-family: var(--font-family-mono)">font-family-mono — <code>'JetBrains Mono', ui-monospace, monospace</code></p>
+  <p style="font-size: var(--font-size-sm)">font-size-sm (12px) — The quick brown fox jumps over the lazy dog.</p>
+  <p style="font-size: var(--font-size-md)">font-size-md (14px) — The quick brown fox jumps over the lazy dog.</p>
+  <p style="font-size: var(--font-size-lg)">font-size-lg (18px) — The quick brown fox jumps over the lazy dog.</p>
+  <p style="font-weight: var(--font-weight-regular)">font-weight-regular (400)</p>
+  <p style="font-weight: var(--font-weight-medium)">font-weight-medium (500)</p>
+  <p style="font-weight: var(--font-weight-semibold)">font-weight-semibold (600)</p>
+</section>
+
+<section class="sg-section">
+  <h2 class="heading-lg">Spacing & radius</h2>
+  <div class="row">
+    <div><div class="dim-bar" style="width: var(--space-1)"></div><span class="swatch-label">space-1</span></div>
+    <div><div class="dim-bar" style="width: var(--space-2)"></div><span class="swatch-label">space-2</span></div>
+    <div><div class="dim-bar" style="width: var(--space-3)"></div><span class="swatch-label">space-3</span></div>
+    <div><div class="dim-bar" style="width: var(--space-4)"></div><span class="swatch-label">space-4</span></div>
+  </div>
+  <div class="row">
+    <div style="width:56px;height:56px;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius: var(--radius-sm)"></div>
+    <span class="swatch-label">radius-sm</span>
+    <div style="width:56px;height:56px;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius: var(--radius-md)"></div>
+    <span class="swatch-label">radius-md</span>
+    <div style="width:56px;height:56px;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius: var(--radius-lg)"></div>
+    <span class="swatch-label">radius-lg</span>
+  </div>
+</section>
+
+<section class="sg-section">
+  <h2 class="heading-lg">Buttons</h2>
+  <div class="row">
+    <button class="btn btn-primary">Retry job</button>
+    <button class="btn btn-secondary">View logs</button>
+  </div>
+</section>
+
+<section class="sg-section">
+  <h2 class="heading-lg">Cards</h2>
+  <div class="card" style="max-width: 320px;">
+    <h3 class="card-title">Queue: email-dispatch</h3>
+    <p class="card-body">1,204 messages processed in the last hour.</p>
+  </div>
+</section>
+
+<section class="sg-section">
+  <h2 class="heading-lg">Chips</h2>
+  <div class="row">
+    <span class="chip chip-success">Succeeded</span>
+    <span class="chip chip-warning">Retrying</span>
+    <span class="chip chip-danger">Failed</span>
+  </div>
+</section>
+
+<section class="sg-section">
+  <h2 class="heading-lg">Form controls</h2>
+  <div class="field" style="max-width: 320px;">
+    <label class="field-label">Job name</label>
+    <input class="input" type="text" placeholder="e.g. send-invoice" />
+  </div>
+  <div class="field" style="max-width: 320px;">
+    <label class="field-label">Queue</label>
+    <select class="select">
+      <option>email-dispatch</option>
+      <option>image-resize</option>
+    </select>
+  </div>
+  <div class="field" style="max-width: 320px;">
+    <label class="field-label">Notes</label>
+    <textarea class="textarea" placeholder="Optional notes"></textarea>
+  </div>
+</section>
+
+<section class="sg-section">
+  <h2 class="heading-lg">Table</h2>
+  <table class="table">
+    <thead>
+      <tr><th>Job</th><th>Queue</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>send-invoice</td><td>email-dispatch</td><td><span class="chip chip-success">Succeeded</span></td></tr>
+      <tr><td>resize-banner</td><td>image-resize</td><td><span class="chip chip-warning">Retrying</span></td></tr>
+      <tr><td>sync-ledger</td><td>finance-sync</td><td><span class="chip chip-danger">Failed</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="sg-section">
+  <h2 class="heading-lg">App shell example</h2>
+  <div class="app-shell" style="border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; min-height: 240px;">
+    <nav class="sidebar">
+      <a class="sidebar-link is-active" href="#">Jobs</a>
+      <a class="sidebar-link" href="#">Queues</a>
+      <a class="sidebar-link" href="#">Settings</a>
+    </nav>
+    <div style="flex:1; display:flex; flex-direction:column;">
+      <div class="topbar">
+        <strong>Jobs</strong>
+        <button class="btn btn-primary">Retry job</button>
+      </div>
+      <div class="content">
+        <p class="text-muted">Example content area.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sg-section guidelines">
+  <h2 class="heading-lg">UI Guidelines</h2>
+
+  <h3>Navigation &amp; information architecture</h3>
+  <ul>
+    <li>Persistent left sidebar lists top-level sections (e.g. Jobs, Queues, Settings); it stays visible so operators always know where they are in a multi-service console.</li>
+    <li>A top bar holds page title and contextual actions only — it does not duplicate navigation, keeping one source of truth for "where am I."</li>
+    <li>No bottom navigation and no nested flyout menus — this is an internal/operator tool, not a consumer app, so a flat two-level hierarchy (sidebar section → page) is enough.</li>
+  </ul>
+
+  <h3>Layout &amp; density</h3>
+  <ul>
+    <li>Default to a data-dense layout (compact paddings) since this product's primary users are engineers monitoring jobs and queues, not casual browsers.</li>
+    <li>Content area uses a single scrolling column per page, with tables/cards rather than multi-column dashboards, so operators can scan top-to-bottom without losing their place.</li>
+    <li>Design for desktop widths first (≥1024px); below that, collapse the sidebar into the top bar, because this tool is used from engineer workstations, not phones.</li>
+  </ul>
+
+  <h3>Component usage</h3>
+  <ul>
+    <li>Use a card for a single entity's summary or a settings group — anything read as one cohesive unit.</li>
+    <li>Use a table for any list of records a user compares or scans across rows (jobs, queue messages) — tables communicate "many similar things" better than stacked cards.</li>
+    <li>Use the success/warning/danger chip styles for job/queue status only — status is the one thing worth color-coding; overusing chips elsewhere dilutes the signal.</li>
+    <li>Use the primary button for exactly one primary action per view (e.g. "Retry job"); every other action is a secondary button, so users always know the one recommended next step.</li>
+    <li>Use labeled fields with input/select/textarea controls for all form entry so keyboard focus and spacing stay consistent across settings and filter forms.</li>
+  </ul>
+
+  <h3>Theme</h3>
+  <ul>
+    <li>Light theme only, by default. Operators work in bright office/monitoring environments and this keeps the token set small; dark mode can be added later if requested, but is not a current requirement.</li>
+  </ul>
+
+  <h3>Voice &amp; tone</h3>
+  <ul>
+    <li>Copy is plain and operational: short imperative labels ("Retry job", "View logs") over cleverness, since users are triaging issues and need the fastest path to the next action.</li>
+    <li>Error and status text states what happened and what to do next in one sentence — no blame, no jargon beyond terms the service itself uses (queue, job, worker).</li>
+  </ul>
+</section>
+
+</body>
+</html>
