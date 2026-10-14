@@ -115,4 +115,14 @@ describe('Employees (e2e)', () => {
       expect(res.body.fullName).toBe('Other');
     });
   });
+
+  it('AC7: clearing a manager is rejected and the manager is unchanged', async () => {
+    const { body: m } = await create({ fullName: 'Mgr', startDate: '2026-01-01' });
+    const { body: e } = await create({ fullName: 'Rep', startDate: '2026-01-01' });
+    await http().patch(`/employees/${e.id}/manager`).set('Authorization', hr).send({ managerId: m.id }).expect(200);
+    await http().patch(`/employees/${e.id}/manager`).set('Authorization', hr).send({ managerId: null }).expect(400);
+    await http().patch(`/employees/${e.id}/manager`).set('Authorization', hr).send({}).expect(400);
+    const after = await http().get(`/employees/${e.id}`).set('Authorization', hr);
+    expect(after.body.managerId).toBe(m.id);
+  });
 });

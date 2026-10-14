@@ -44,6 +44,25 @@ export function Layout({
           </NavLink>
         )}
         <div className="sidebar-section-label" style={{ marginTop: 'var(--space-3)' }}>
+          Org Structure
+        </div>
+        {isHr && (
+          <NavLink to="/org/departments" className={linkClass}>
+            Department Tree
+          </NavLink>
+        )}
+        {isHr && (
+          <NavLink to="/org/employees-managers" className={linkClass}>
+            Employees &amp; Managers
+          </NavLink>
+        )}
+        <NavLink to="/org/chart" className={linkClass}>
+          Org Chart
+        </NavLink>
+        <NavLink to="/org/my-department" className={linkClass}>
+          My Department
+        </NavLink>
+        <div className="sidebar-section-label" style={{ marginTop: 'var(--space-3)' }}>
           Self-service
         </div>
         <NavLink to="/me" className={linkClass}>

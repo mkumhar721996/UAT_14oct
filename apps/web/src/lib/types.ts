@@ -11,6 +11,15 @@ export interface Employee {
   salary: number | null
   personalEmail?: string | null
   phone?: string | null
+  departmentId: string | null
+  managerId: string | null
+}
+
+export interface Department {
+  id: string
+  name: string
+  parentId: string | null
+  managerId: string
 }
 
 export interface HistoryEntry {

@@ -41,6 +41,12 @@ export class Employee {
   @Column({ type: 'text', nullable: true })
   phone!: string | null;
 
+  @Column({ name: 'department_id', type: 'uuid', nullable: true })
+  departmentId!: string | null;
+
+  @Column({ name: 'manager_id', type: 'uuid', nullable: true })
+  managerId!: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 

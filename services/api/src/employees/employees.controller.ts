@@ -4,6 +4,8 @@ import { CognitoAuthGuard } from '../auth/cognito-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
+import { AssignDepartmentDto } from './dto/assign-department.dto';
+import { AssignManagerDto } from './dto/assign-manager.dto';
 import { CreateChangeRequestDto } from './dto/create-change-request.dto';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
@@ -71,6 +73,18 @@ export class EmployeesController {
   @Roles('hr_admin')
   update(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateEmployeeDto) {
     return this.employees.updateAsHrAdmin(user.tenantId, id, dto, user.sub);
+  }
+
+  @Patch(':id/manager')
+  @Roles('hr_admin')
+  assignManager(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string, @Body() dto: AssignManagerDto) {
+    return this.employees.assignManager(user.tenantId, id, dto.managerId);
+  }
+
+  @Patch(':id/department')
+  @Roles('hr_admin')
+  assignDepartment(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string, @Body() dto: AssignDepartmentDto) {
+    return this.employees.assignDepartment(user.tenantId, id, dto.departmentId);
   }
 
   @Get(':id/history')
