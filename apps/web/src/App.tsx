@@ -3,6 +3,8 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AccessRestricted, Layout } from './components/Layout'
 import { ToastProvider } from './components/Toast'
 import { useAuth } from './lib/auth'
+import DefectDetailPage from './routes/DefectDetailPage'
+import EditDefectPage from './routes/EditDefectPage'
 import EditEmployeeProfilePage from './routes/EditEmployeeProfilePage'
 import EmployeeDirectoryPage from './routes/EmployeeDirectoryPage'
 import EmployeeProfileDetailPage from './routes/EmployeeProfileDetailPage'
@@ -53,6 +55,8 @@ function App() {
             </RequireHrAdmin>
           }
         />
+        <Route path="/defects/:id" element={<DefectDetailPage />} />
+        <Route path="/defects/:id/edit" element={<EditDefectPage />} />
         <Route path="/me" element={<MyProfilePage />} />
         <Route
           path="/pending-changes"

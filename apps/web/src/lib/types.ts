@@ -31,3 +31,23 @@ export interface ChangeRequest {
   note: string | null
   submittedAt: string
 }
+
+export interface Defect {
+  id: string
+  defectNumber: string
+  title: string
+  description: string
+  reproSteps: string
+  severity: string
+  priority: string | null
+  type: string
+  status: string
+  triagedAt: string | null
+  reporterId: string
+  reporterName: string | null
+  assigneeId: string | null
+  assigneeName: string | null
+  environment: string | null
+  createdAt: string
+  updatedAt: string
+}
