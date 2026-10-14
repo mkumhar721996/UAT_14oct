@@ -1,8 +1,11 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { AuthUser } from '../auth/auth-user';
+import { CreateDefectDto } from './dto/create-defect.dto';
 import { UpdateDefectDto } from './dto/update-defect.dto';
 import { Defect } from './entities/defect.entity';
+
+const toText = (v: string | null | undefined): string | null => (v?.trim() ? v.trim() : null);
 
 const EDITABLE_FIELDS = ['description', 'reproSteps', 'severity'] as const;
 type EditableField = (typeof EDITABLE_FIELDS)[number];
@@ -10,6 +13,36 @@ type EditableField = (typeof EDITABLE_FIELDS)[number];
 @Injectable()
 export class DefectsService {
   constructor(private readonly dataSource: DataSource) {}
+
+  private async nextDefectNumber(): Promise<string> {
+    const [row] = await this.dataSource.query(`SELECT nextval('defect_number_seq') AS n`);
+    return `DEF-${row.n}`;
+  }
+
+  async createDefect(tenantId: string, dto: CreateDefectDto, reporterId: string): Promise<Defect> {
+    const repo = this.dataSource.getRepository(Defect);
+    return repo.save(
+      repo.create({
+        tenantId,
+        defectNumber: await this.nextDefectNumber(),
+        title: dto.title.trim(),
+        description: dto.description.trim(),
+        severity: dto.severity,
+        reproSteps: dto.reproSteps.trim(),
+        priority: null,
+        type: 'Bug',
+        status: 'New',
+        triagedAt: null,
+        reporterId,
+        reporterName: null,
+        assigneeId: null,
+        assigneeName: null,
+        expectedResult: toText(dto.expectedResult),
+        actualResult: toText(dto.actualResult),
+        environment: toText(dto.environment),
+      }),
+    );
+  }
 
   async getDefect(tenantId: string, id: string): Promise<Defect> {
     const defect = await this.dataSource.getRepository(Defect).findOne({ where: { id, tenantId } });

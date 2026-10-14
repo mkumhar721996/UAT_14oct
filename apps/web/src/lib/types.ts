@@ -32,13 +32,15 @@ export interface ChangeRequest {
   submittedAt: string
 }
 
+export type DefectSeverity = 'Critical' | 'High' | 'Medium' | 'Low'
+
 export interface Defect {
   id: string
   defectNumber: string
   title: string
   description: string
   reproSteps: string
-  severity: string
+  severity: DefectSeverity
   priority: string | null
   type: string
   status: string
@@ -47,6 +49,8 @@ export interface Defect {
   reporterName: string | null
   assigneeId: string | null
   assigneeName: string | null
+  expectedResult: string | null
+  actualResult: string | null
   environment: string | null
   createdAt: string
   updatedAt: string

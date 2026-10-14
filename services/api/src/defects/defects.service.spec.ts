@@ -32,6 +32,16 @@ describe('DefectsService', () => {
     });
   });
 
+  it('creates a defect: trims required fields, nulls blank optionals and starts at New', async () => {
+    const dto = { title: '  T  ', description: ' D ', severity: 'High' as const, reproSteps: ' S ', actualResult: ' ' };
+    const d = await service.createDefect(tenantId, dto, 'rep-1');
+    expect(d).toMatchObject({
+      tenantId, title: 'T', description: 'D', reproSteps: 'S', status: 'New', reporterId: 'rep-1',
+      actualResult: null, expectedResult: null, environment: null, priority: null, triagedAt: null,
+    });
+    expect(d.defectNumber).toBeTruthy();
+  });
+
   it('AC1: returns the full record, scoped by tenant', async () => {
     expect(await service.getDefect(tenantId, triaged.id)).toMatchObject({ defectNumber: 'DEF-1038', status: 'Triaged', assigneeName: 'Sam Okafor' });
     await expect(service.getDefect(otherTenant, triaged.id)).rejects.toBeInstanceOf(NotFoundException);

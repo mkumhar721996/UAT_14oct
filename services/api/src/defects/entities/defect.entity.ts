@@ -17,6 +17,8 @@ export class Defect {
   @Column({ name: 'reporter_name', type: 'text', nullable: true }) reporterName!: string | null;
   @Column({ name: 'assignee_id', type: 'text', nullable: true }) assigneeId!: string | null;
   @Column({ name: 'assignee_name', type: 'text', nullable: true }) assigneeName!: string | null;
+  @Column({ name: 'expected_result', type: 'text', nullable: true }) expectedResult!: string | null;
+  @Column({ name: 'actual_result', type: 'text', nullable: true }) actualResult!: string | null;
   @Column({ type: 'text', nullable: true }) environment!: string | null;
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' }) createdAt!: Date;
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' }) updatedAt!: Date;

@@ -5,10 +5,11 @@ import { ReadonlyField, StatusChip } from '../components/DefectParts'
 import { Layout } from '../components/Layout'
 import { apiClient } from '../lib/apiClient'
 import { useAuth } from '../lib/auth'
-import type { Defect } from '../lib/types'
+import { DEFECT_SEVERITIES } from '../lib/defectFields'
+import type { Defect, DefectSeverity } from '../lib/types'
 import { useAsync } from '../lib/useAsync'
 
-const SEVERITIES = ['Critical', 'High', 'Medium', 'Low']
+const SEVERITIES = DEFECT_SEVERITIES
 
 function Refused({ defect }: { defect: Defect }) {
   return (
@@ -144,7 +145,7 @@ function EditForm({ defect: initial, isAdmin }: { defect: Defect; isAdmin: boole
                 id="ed-severity"
                 className="select"
                 value={values.severity}
-                onChange={(e) => setValues({ ...values, severity: e.target.value })}
+                onChange={(e) => setValues({ ...values, severity: e.target.value as DefectSeverity })}
               >
                 {SEVERITIES.map((s) => (
                   <option key={s}>{s}</option>
