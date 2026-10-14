@@ -8,6 +8,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port,
+    // design-system CSS lives at the repo root, outside apps/web
+    fs: { allow: ['../..'] },
   },
   preview: {
     port,
@@ -17,5 +19,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
     exclude: ['**/node_modules/**', '**/e2e/**', '**/dist/**'],
+    // Keep tests deterministic and independent of the developer's local .env.local.
+    env: { VITE_ARC_API_URL: '' },
   },
 })
