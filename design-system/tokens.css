@@ -1,0 +1,51 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-fg: #1e293b; /** Primary text color on light surfaces */
+  --color-bg: #ffffff; /** Default page/app background */
+  --color-bg-subtle: #f8fafc; /** Secondary surface used for panels and alternating rows */
+  --color-primary: #2563eb; /** Brand/action color for primary buttons and links */
+  --color-primary-hover: #1d4ed8; /** Hover state for primary actions */
+  --color-primary-fg: #ffffff; /** Text/icon color on top of primary-colored surfaces */
+  --color-border: #e2e8f0; /** Default border color for inputs, cards and dividers */
+  --color-fg-muted: #67748b; /** Secondary text color for captions and helper text */
+  --color-success: #16985c; /** Positive status and success chip color */
+  --color-success-bg: #e1f6e8; /** Background for success chips */
+  --color-danger: #db2727; /** Destructive action and error status color */
+  --color-danger-bg: #fde5e5; /** Background for danger/error chips */
+  --color-warning: #b47406; /** Warning status color */
+  --color-warning-bg: #fef3d6; /** Background for warning chips */
+  --font-family-base: Inter, ui-sans-serif, system-ui, sans-serif; /** Default UI typeface */
+  --font-family-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace; /** Monospace typeface for code and identifiers */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --line-height-base: 1.5; /** Default line-height multiplier for body text */
+  --font-size-sm: 12px; /** Helper text, captions, chip labels */
+  --font-size-md: 14px; /** Default body and control text */
+  --font-size-lg: 18px; /** Section headings */
+  --space-1: 4px; /** Tightest spacing, icon-to-label gaps */
+  --space-2: 8px; /** Compact spacing inside controls */
+  --space-3: 12px; /** Default spacing between stacked elements */
+  --space-4: 16px; /** Section and card padding */
+  --radius-sm: 4px; /** Chips and small controls */
+  --radius-md: 6px; /** Buttons and inputs */
+  --radius-lg: 10px; /** Cards and panels */
+  --shadow-card: 0px 1px 3px 0px rgb(11.76% 16.08% 23.14% / 0.08); /** Resting elevation for cards */
+  --border-default: 1px solid rgb(88.63% 90.98% 94.12%); /** Default 1px hairline border */
+  --button-primary-background: var(--color-primary);
+  --button-primary-background-hover: var(--color-primary-hover);
+  --button-primary-foreground: var(--color-primary-fg);
+  --button-primary-radius: var(--radius-md);
+  --button-primary-padding-y: var(--space-2);
+  --button-primary-padding-x: var(--space-4);
+  --button-secondary-background: var(--color-bg);
+  --button-secondary-foreground: var(--color-fg);
+  --button-secondary-border: var(--color-border);
+  --card-default-background: var(--color-bg);
+  --card-default-border: var(--color-border);
+  --card-default-radius: var(--radius-lg);
+  --card-default-padding: var(--space-4);
+}
