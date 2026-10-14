@@ -372,6 +372,51 @@
   .toast.show { opacity: 1; transform: translateY(0); }
   @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
 </style>
+<style>
+  /* ---- PO feedback (2026-10-14): "make design in colour pink and background should light
+     blue" ----
+     Scoped, named palette proposal for THIS prototype only — not a change to the canonical
+     design-system tokens. If approved, design-system-bootstrap should add equivalents (e.g.
+     alternate color-primary / color-bg values) rather than this file redefining the canonical
+     token names. Applied to brand accents (buttons, active nav, links, focus ring) and neutral
+     surfaces (page/app-shell/card/sidebar/topbar backgrounds) only. The success/warning/danger
+     banner and chip colors, the neutral "New" status chip, and the severity icon colors are
+     intentionally left untouched — they encode status/severity meaning, not brand decoration,
+     and diluting them would break AC5/AC4's visual signal.
+     Contrast checked: --color-primary-pink on white/light-blue surfaces and against
+     --color-primary-fg (white) text is ~6:1, comfortably over 4.5:1. --color-fg body text on
+     both light-blue surfaces is >13:1. The light-blue border is a soft divider at the same low
+     contrast the base design system already uses for its neutral hairline borders (cards rely
+     on shadow + spacing, not border contrast, for separation). */
+  :root {
+    --color-primary-pink: #be185d;
+    --color-primary-pink-hover: #9d174d;
+    --color-bg-lightblue: #dbeafe;
+    --color-bg-lightblue-subtle: #eff6ff;
+    --color-border-lightblue: #bfdbfe;
+  }
+
+  body { background: var(--color-bg-lightblue-subtle); }
+  .app-shell { background: var(--color-bg-lightblue); }
+  .sidebar { background: var(--color-bg-lightblue-subtle); border-right-color: var(--color-border-lightblue); }
+  .sidebar-link:hover { background: var(--color-border-lightblue); }
+  .sidebar-link.is-active { background: var(--color-primary-pink); }
+  .sidebar-badge { background: var(--color-primary-pink); }
+  .sidebar-link.is-active .sidebar-badge { color: var(--color-primary-pink); }
+  .topbar { background: var(--color-bg-lightblue); border-bottom-color: var(--color-border-lightblue); }
+  .crumb a:hover { color: var(--color-primary-pink); }
+  .btn-primary { background: var(--color-primary-pink); }
+  .btn-primary:hover { background: var(--color-primary-pink-hover); }
+  .btn-secondary:hover { background: var(--color-bg-lightblue-subtle); }
+  .card { background: var(--color-bg-lightblue-subtle); border-color: var(--color-border-lightblue); }
+  .input, .select, .textarea { border-color: var(--color-border-lightblue); }
+  .input:focus, .select:focus, .textarea:focus { border-color: var(--color-primary-pink); }
+  .table th, .table td { border-bottom-color: var(--color-border-lightblue); }
+  .readonly-row { border-bottom-color: var(--color-border-lightblue); }
+  .skeleton { background: linear-gradient(90deg, var(--color-border-lightblue) 25%, var(--color-bg-lightblue-subtle) 37%, var(--color-border-lightblue) 63%); background-size: 400% 100%; }
+  .toast { background: var(--color-bg-lightblue-subtle); border-color: var(--color-border-lightblue); }
+  :focus-visible { outline-color: var(--color-primary-pink); }
+</style>
 </head>
 <body>
 
