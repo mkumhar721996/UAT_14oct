@@ -1,0 +1,1510 @@
+<!doctype html>
+<!--
+  UAT-14OCT-STORY-012: Employee Profile & Employment History
+  App nav: left sidebar (Employees, Pending changes) + top bar — HR Admin console pattern per UI guidelines.
+  This is a static, self-contained prototype. All data lives in the EMPLOYEE_FIXTURES script
+  block and is mutated only in memory (localStorage/network are not used).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Employee Profile &amp; Employment History — Design Prototype</title>
+<style>
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-fg: #1e293b; /** Primary text color on light surfaces */
+  --color-bg: #ffffff; /** Default page/app background */
+  --color-bg-subtle: #f8fafc; /** Secondary surface used for panels and alternating rows */
+  --color-primary: #2563eb; /** Brand/action color for primary buttons and links */
+  --color-primary-hover: #1d4ed8; /** Hover state for primary actions */
+  --color-primary-fg: #ffffff; /** Text/icon color on top of primary-colored surfaces */
+  --color-border: #e2e8f0; /** Default border color for inputs, cards and dividers */
+  --color-fg-muted: #67748b; /** Secondary text color for captions and helper text */
+  --color-success: #16985c; /** Positive status and success chip color */
+  --color-success-bg: #e1f6e8; /** Background for success chips */
+  --color-danger: #db2727; /** Destructive action and error status color */
+  --color-danger-bg: #fde5e5; /** Background for danger/error chips */
+  --color-warning: #b47406; /** Warning status color */
+  --color-warning-bg: #fef3d6; /** Background for warning chips */
+  --font-family-base: Inter, ui-sans-serif, system-ui, sans-serif; /** Default UI typeface */
+  --font-family-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace; /** Monospace typeface for code and identifiers */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --line-height-base: 1.5; /** Default line-height multiplier for body text */
+  --font-size-sm: 12px; /** Helper text, captions, chip labels */
+  --font-size-md: 14px; /** Default body and control text */
+  --font-size-lg: 18px; /** Section headings */
+  --space-1: 4px; /** Tightest spacing, icon-to-label gaps */
+  --space-2: 8px; /** Compact spacing inside controls */
+  --space-3: 12px; /** Default spacing between stacked elements */
+  --space-4: 16px; /** Section and card padding */
+  --radius-sm: 4px; /** Chips and small controls */
+  --radius-md: 6px; /** Buttons and inputs */
+  --radius-lg: 10px; /** Cards and panels */
+  --shadow-card: 0px 1px 3px 0px rgb(11.76% 16.08% 23.14% / 0.08); /** Resting elevation for cards */
+  --border-default: 1px solid rgb(88.63% 90.98% 94.12%); /** Default 1px hairline border */
+  --button-primary-background: var(--color-primary);
+  --button-primary-background-hover: var(--color-primary-hover);
+  --button-primary-foreground: var(--color-primary-fg);
+  --button-primary-radius: var(--radius-md);
+  --button-primary-padding-y: var(--space-2);
+  --button-primary-padding-x: var(--space-4);
+  --button-secondary-background: var(--color-bg);
+  --button-secondary-foreground: var(--color-fg);
+  --button-secondary-border: var(--color-border);
+  --card-default-background: var(--color-bg);
+  --card-default-border: var(--color-border);
+  --card-default-radius: var(--radius-lg);
+  --card-default-padding: var(--space-4);
+}
+
+</style>
+<style>
+/* Layout primitives */
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-base);
+}
+
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--color-bg-subtle);
+  border-right: 1px solid var(--color-border);
+  padding: var(--space-4);
+}
+
+.sidebar-link {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-fg-muted);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.sidebar-link:hover {
+  background: var(--color-border);
+  color: var(--color-fg);
+}
+
+.sidebar-link.is-active {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1;
+  padding: var(--space-4);
+}
+
+/* Typography */
+
+.heading-lg {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.text-muted {
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+  border-radius: var(--button-primary-radius);
+  padding: var(--button-primary-padding-y) var(--button-primary-padding-x);
+}
+
+.btn-primary:hover {
+  background: var(--button-primary-background-hover);
+}
+
+.btn-secondary {
+  background: var(--button-secondary-background);
+  color: var(--button-secondary-foreground);
+  border: 1px solid var(--button-secondary-border);
+}
+
+.btn-secondary:hover {
+  background: var(--color-bg-subtle);
+}
+
+/* Cards */
+
+.card {
+  background: var(--card-default-background);
+  border: 1px solid var(--card-default-border);
+  border-radius: var(--card-default-radius);
+  padding: var(--card-default-padding);
+  box-shadow: var(--shadow-card);
+}
+
+.card-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.card-body {
+  font-size: var(--font-size-md);
+  color: var(--color-fg-muted);
+}
+
+/* Chips */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+}
+
+.chip-success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.chip-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.chip-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+/* Form controls */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.field-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-fg);
+}
+
+.input,
+.select,
+.textarea {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  color: var(--color-fg);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+/* Table */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-md);
+}
+
+.table th {
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+</style>
+<style>
+  /* ---- Page-level layout additions (composed only from design-system tokens) ---- */
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--color-bg-subtle); }
+  .screen { display: none; }
+  .app-shell { min-height: calc(100vh - 46px); }
+  .sidebar-section-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: var(--space-2) var(--space-3) var(--space-1);
+  }
+  .sidebar-link { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+  .sidebar-badge {
+    background: var(--color-primary);
+    color: var(--color-primary-fg);
+    font-size: 11px;
+    font-weight: var(--font-weight-semibold);
+    border-radius: 999px;
+    padding: 0 6px;
+    min-width: 18px;
+    text-align: center;
+    line-height: 18px;
+  }
+  .sidebar-link.is-active .sidebar-badge { background: var(--color-primary-fg); color: var(--color-primary); }
+  .topbar-title { display: flex; flex-direction: column; gap: 2px; }
+  .topbar-title h1 { margin: 0; font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); }
+  .topbar-actions { display: flex; align-items: center; gap: var(--space-3); }
+  .role-switcher { display: flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+  .role-switcher select.select { padding: var(--space-1) var(--space-2); font-size: var(--font-size-sm); }
+  .crumb { font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+  .crumb a { color: var(--color-fg-muted); text-decoration: none; cursor: pointer; }
+  .crumb a:hover { color: var(--color-primary); text-decoration: underline; }
+  .crumb .sep { margin: 0 var(--space-1); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 var(--space-4); }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); }
+  @media (max-width: 860px) { .grid-2, .grid-4 { grid-template-columns: 1fr; } .app-shell { flex-direction: column; } .sidebar { width: auto; display: flex; gap: var(--space-2); overflow-x: auto; } }
+
+  .required-mark { color: var(--color-danger); margin-left: 2px; }
+  .field-hint { font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+  .field-error { font-size: var(--font-size-sm); color: var(--color-danger); }
+  .input.has-error, .select.has-error { border-color: var(--color-danger); }
+
+  .banner { display: flex; gap: var(--space-2); align-items: flex-start; padding: var(--space-3); border-radius: var(--radius-md); font-size: var(--font-size-md); margin-bottom: var(--space-3); }
+  .banner strong { display: block; margin-bottom: 2px; }
+  .banner-danger { background: var(--color-danger-bg); color: var(--color-danger); }
+  .banner-warning { background: var(--color-warning-bg); color: var(--color-warning); }
+  .banner-success { background: var(--color-success-bg); color: var(--color-success); }
+  .banner-icon { font-weight: var(--font-weight-semibold); }
+
+  .readonly-row { display: flex; justify-content: space-between; align-items: center; padding: var(--space-2) 0; border-bottom: 1px solid var(--color-border); gap: var(--space-3); }
+  .readonly-row:last-child { border-bottom: none; }
+  .readonly-label { color: var(--color-fg-muted); font-size: var(--font-size-sm); }
+  .readonly-value { font-weight: var(--font-weight-medium); text-align: right; }
+  .readonly-value.mono { font-family: var(--font-family-mono); }
+  .readonly-value.muted { color: var(--color-fg-muted); font-weight: var(--font-weight-regular); font-style: italic; }
+
+  .active-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); margin-top: var(--space-3); }
+  .active-cell { background: var(--color-bg-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-3); }
+  .active-cell .label { font-size: var(--font-size-sm); color: var(--color-fg-muted); margin-bottom: 4px; }
+  .active-cell .value { font-weight: var(--font-weight-semibold); font-size: var(--font-size-md); }
+  @media (max-width: 860px) { .active-grid { grid-template-columns: 1fr 1fr; } }
+
+  .access-restricted { max-width: 460px; margin: 48px auto; text-align: center; }
+  .access-restricted .glyph { width: 48px; height: 48px; border-radius: 50%; background: var(--color-danger-bg); color: var(--color-danger); display: flex; align-items: center; justify-content: center; font-weight: var(--font-weight-semibold); font-size: var(--font-size-lg); margin: 0 auto var(--space-3); }
+
+  .skeleton { background: linear-gradient(90deg, var(--color-border) 25%, var(--color-bg-subtle) 37%, var(--color-border) 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; border-radius: var(--radius-sm); }
+  @keyframes shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+  @media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
+  .skeleton-row td { padding: var(--space-3); }
+  .skeleton-line { height: 14px; }
+
+  .empty-state { text-align: center; padding: 48px var(--space-4); color: var(--color-fg-muted); }
+  .empty-state .glyph { font-size: 28px; margin-bottom: var(--space-2); }
+
+  .history-actions-col { color: var(--color-fg-muted); font-size: var(--font-size-sm); font-style: italic; }
+
+  .pending-row { background: var(--color-warning-bg); }
+  .request-form { border: 1px dashed var(--color-border); border-radius: var(--radius-md); padding: var(--space-3); margin-top: var(--space-2); background: var(--color-bg-subtle); }
+  .request-actions { display: flex; gap: var(--space-2); margin-top: var(--space-2); }
+
+  .toast-wrap { position: fixed; bottom: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: var(--space-2); }
+  .toast { min-width: 260px; max-width: 360px; padding: var(--space-3); border-radius: var(--radius-md); box-shadow: var(--shadow-card); font-size: var(--font-size-md); background: var(--color-bg); border: 1px solid var(--color-border); border-left: 4px solid var(--color-success); opacity: 0; transform: translateY(8px); transition: opacity 200ms ease-out, transform 200ms ease-out; }
+  .toast.toast-danger { border-left-color: var(--color-danger); }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(30,41,59,0.45); display: flex; align-items: center; justify-content: center; z-index: 10001; }
+  .modal { background: var(--color-bg); border-radius: var(--radius-lg); padding: var(--space-4); max-width: 420px; width: 90%; box-shadow: var(--shadow-card); }
+  .modal h3 { margin: 0 0 var(--space-2); font-size: var(--font-size-lg); }
+  .modal p { font-size: var(--font-size-md); color: var(--color-fg-muted); }
+  .modal-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4); }
+
+  .search-row { display: flex; gap: var(--space-2); margin-bottom: var(--space-3); align-items: center; }
+  .search-row .input { max-width: 280px; }
+
+  .section-heading { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: var(--space-2); }
+  .section-heading .heading-lg { margin-bottom: 0; }
+
+  .effective-date-field { background: var(--color-warning-bg); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-3); margin-top: 2px; margin-bottom: var(--space-3); }
+  .effective-date-field .field-label { color: var(--color-warning); }
+
+  :focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+  .self-badge { display: inline-flex; align-items: center; gap: var(--space-1); background: var(--color-bg-subtle); border: 1px solid var(--color-border); border-radius: 999px; padding: 2px 10px; font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+</style>
+</head>
+<body>
+
+<!-- Reviewer bar -->
+<div id="review-bar" style="position:fixed;top:0;left:0;right:0;z-index:9999;
+  display:flex;align-items:center;gap:10px;padding:8px 16px;
+  background:var(--color-bg);border-bottom:1px solid var(--color-border);font-size:13px;font-family:var(--font-family-base)">
+  <span style="font-family:var(--font-family-mono);color:var(--color-fg-muted)">UAT-14OCT-STORY-012</span>
+  <button id="prev-btn">← Prev</button>
+  <span id="screen-label" style="flex:1;text-align:center;font-weight:600;color:var(--color-fg)"></span>
+  <button id="next-btn">Next →</button>
+</div>
+<div style="height:46px"></div><!-- spacer -->
+<style>#review-bar button { background:none; border:none; color:var(--color-primary); cursor:pointer; font-size:13px; font-family:var(--font-family-base); padding:4px 8px; }
+#review-bar button:hover { text-decoration: underline; }</style>
+
+<div id="screens">
+
+<!-- ============================================================ -->
+<!-- Screen 1: Employee Directory -->
+<!-- Notes:
+     - Sidebar "Employees" / "Pending changes" (badge = open request count, HR Admin only)
+     - Role switcher in top bar simulates "HR Admin" vs "Employee (no HR role)" to show AC3 gating
+     - States: loading skeleton -> success table -> empty (search, no matches) -> error (demo link) -> partial (filtered)
+     - "+ New employee" is the one primary action; disabled + explained for non-HR-Admin role (AC3)
+-->
+<div class="screen" data-name="Employee Directory">
+  <div class="app-shell">
+    <nav class="sidebar" id="sidebar-directory"></nav>
+    <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+      <div class="topbar">
+        <div class="topbar-title">
+          <h1>Employees</h1>
+          <span class="crumb">HR Admin console</span>
+        </div>
+        <div class="topbar-actions">
+          <div class="role-switcher">
+            <label for="role-select">Viewing as</label>
+            <select class="select" id="role-select">
+              <option value="hr-admin">HR Admin</option>
+              <option value="employee">Employee (no HR role)</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="btn-new-employee">+ New employee</button>
+        </div>
+      </div>
+      <div class="content">
+        <div id="directory-role-note"></div>
+        <div class="search-row">
+          <input class="input" id="directory-search" type="text" placeholder="Search by name, ID or department" />
+          <button class="btn btn-secondary" id="btn-simulate-error" title="Design-review only">Simulate load error</button>
+        </div>
+        <div class="card" style="padding:0; overflow:hidden;">
+          <table class="table" id="directory-table">
+            <thead>
+              <tr><th>Employee ID</th><th>Full name</th><th>Job title</th><th>Department</th><th>Contract type</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody id="directory-rows"></tbody>
+          </table>
+          <div id="directory-empty" style="display:none;"></div>
+          <div id="directory-error" style="display:none; padding: var(--space-4);"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- Screen 2: New Employee Profile -->
+<!-- Notes:
+     - Only full name + start date are required (AC7, AC8); job title/department/contract type/salary are optional at creation
+     - Missing name or start date blocks save with inline, field-level errors and a summary banner (AC7)
+     - On save: system-generated employee ID is shown (AC9) and all entered core values are reflected (AC1)
+     - Non-HR-Admin sees an access-restricted state instead of the form (AC3)
+-->
+<div class="screen" data-name="New Employee Profile">
+  <div class="app-shell">
+    <nav class="sidebar" id="sidebar-new"></nav>
+    <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+      <div class="topbar">
+        <div class="topbar-title">
+          <h1>New employee profile</h1>
+          <span class="crumb"><a data-nav="0">Employees</a><span class="sep">/</span>New</span>
+        </div>
+        <div class="topbar-actions">
+          <div class="role-switcher">
+            <label for="role-select-2">Viewing as</label>
+            <select class="select" id="role-select-2">
+              <option value="hr-admin">HR Admin</option>
+              <option value="employee">Employee (no HR role)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="content" id="new-employee-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- Screen 3: Employee Profile Detail -->
+<!-- Notes:
+     - Employee ID shown as plain text with no edit control, per AC10
+     - "Active now" strip shows only the current value per field (AC6) even though history keeps every past value
+     - Employment history table is sorted oldest -> newest by effective date (AC5); no edit/delete control on any row (AC14)
+     - Each history row shows both the effective date and the saved timestamp (AC13)
+     - Loading skeleton on first paint; "Edit profile" disabled with explanation for non-HR-Admin (AC3)
+-->
+<div class="screen" data-name="Employee Profile Detail">
+  <div class="app-shell">
+    <nav class="sidebar" id="sidebar-detail"></nav>
+    <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+      <div class="topbar">
+        <div class="topbar-title">
+          <h1 id="detail-name">Employee profile</h1>
+          <span class="crumb"><a data-nav="0">Employees</a><span class="sep">/</span><span id="detail-crumb-name"></span></span>
+        </div>
+        <div class="topbar-actions">
+          <div class="role-switcher">
+            <label for="role-select-3">Viewing as</label>
+            <select class="select" id="role-select-3">
+              <option value="hr-admin">HR Admin</option>
+              <option value="employee">Employee (no HR role)</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="btn-edit-profile">Edit profile</button>
+        </div>
+      </div>
+      <div class="content" id="profile-detail-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- Screen 4: Edit Employee Profile -->
+<!-- Notes:
+     - Changing job title, department, contract type or salary reveals a required "Effective date" field for that change (AC13)
+     - Saving updates the active value immediately (AC2, AC6) and appends one history entry per changed field,
+       leaving every earlier entry in place (AC4)
+     - Employee ID remains read-only even in the edit form, consistent with AC10's intent
+-->
+<div class="screen" data-name="Edit Employee Profile">
+  <div class="app-shell">
+    <nav class="sidebar" id="sidebar-edit"></nav>
+    <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+      <div class="topbar">
+        <div class="topbar-title">
+          <h1>Edit employee profile</h1>
+          <span class="crumb"><a data-nav="0">Employees</a><span class="sep">/</span><a data-nav="2" id="edit-crumb-name"></a><span class="sep">/</span>Edit</span>
+        </div>
+      </div>
+      <div class="content" id="edit-profile-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- Screen 5: My Profile — Self-Service -->
+<!-- Notes:
+     - Represents the signed-in employee editing their own record (independent of the role switcher above)
+     - Contact details save immediately on submit, no approval step (AC11)
+     - Requesting a change to job title, department, contract type or salary keeps the current value active
+       and shows a "Pending HR approval" banner until an HR Admin reviews it (AC12)
+-->
+<div class="screen" data-name="My Profile — Self-Service">
+  <div class="app-shell">
+    <nav class="sidebar" id="sidebar-self"></nav>
+    <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+      <div class="topbar">
+        <div class="topbar-title">
+          <h1>My profile</h1>
+          <span class="crumb">Employee self-service</span>
+        </div>
+        <div class="topbar-actions">
+          <span class="self-badge">Signed in as Priya Nair</span>
+        </div>
+      </div>
+      <div class="content" id="self-service-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- Screen 6: Pending Changes — HR Admin Review -->
+<!-- Notes:
+     - Lists employee-submitted requests to job title, department, contract type or salary (AC12)
+     - Approve: writes a history entry dated for the requested effective date and updates the active value (AC4, AC6, AC13)
+     - Reject: confirms the consequence by name before discarding the request; nothing is saved
+     - Empty state invites HR Admins to understand what will show up here
+     - Non-HR-Admin sees an access-restricted state
+-->
+<div class="screen" data-name="Pending Changes — HR Admin Review">
+  <div class="app-shell">
+    <nav class="sidebar" id="sidebar-pending"></nav>
+    <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+      <div class="topbar">
+        <div class="topbar-title">
+          <h1>Pending changes</h1>
+          <span class="crumb">Requests awaiting HR Admin approval</span>
+        </div>
+        <div class="topbar-actions">
+          <div class="role-switcher">
+            <label for="role-select-6">Viewing as</label>
+            <select class="select" id="role-select-6">
+              <option value="hr-admin">HR Admin</option>
+              <option value="employee">Employee (no HR role)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="content" id="pending-content"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /#screens -->
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+/* ============================================================
+   Fixture data — everything lives in memory for this prototype
+   ============================================================ */
+const EMPLOYEE_FIXTURES = {
+  employees: [
+    { id: 'EMP-1042', fullName: 'Alicia Gomez', startDate: '2022-03-14', jobTitle: 'Senior Product Designer', department: 'Design', contractType: 'Full-time', salary: 118000, personalEmail: 'alicia.gomez@personalmail.com', phone: '(555) 014-7723' },
+    { id: 'EMP-1043', fullName: 'Daniel Osei', startDate: '2023-07-01', jobTitle: 'Support Engineer', department: 'Customer Success', contractType: 'Contract', salary: 72000, personalEmail: 'daniel.osei@personalmail.com', phone: '(555) 088-3391' },
+    { id: 'EMP-1044', fullName: 'Priya Nair', startDate: '2021-11-08', jobTitle: 'Engineering Manager', department: 'Engineering', contractType: 'Full-time', salary: 142000, personalEmail: 'priya.nair@personalmail.com', phone: '(555) 019-2834' }
+  ],
+  history: {
+    'EMP-1042': [
+      { field: 'Job title', previous: '—', next: 'Product Designer', effectiveDate: '2022-03-14', recordedAt: '2022-03-10T14:05:00' },
+      { field: 'Department', previous: '—', next: 'Design', effectiveDate: '2022-03-14', recordedAt: '2022-03-10T14:05:00' },
+      { field: 'Contract type', previous: 'Contract', next: 'Full-time', effectiveDate: '2022-09-01', recordedAt: '2022-08-25T16:45:00' },
+      { field: 'Salary', previous: '$98,000', next: '$108,000', effectiveDate: '2023-01-01', recordedAt: '2022-12-18T09:32:00' },
+      { field: 'Job title', previous: 'Product Designer', next: 'Senior Product Designer', effectiveDate: '2024-02-01', recordedAt: '2024-01-20T11:10:00' },
+      { field: 'Salary', previous: '$108,000', next: '$118,000', effectiveDate: '2025-01-01', recordedAt: '2024-12-15T10:00:00' }
+    ],
+    'EMP-1043': [
+      { field: 'Job title', previous: '—', next: 'Support Engineer', effectiveDate: '2023-07-01', recordedAt: '2023-06-28T13:20:00' },
+      { field: 'Department', previous: '—', next: 'Customer Success', effectiveDate: '2023-07-01', recordedAt: '2023-06-28T13:20:00' },
+      { field: 'Contract type', previous: '—', next: 'Contract', effectiveDate: '2023-07-01', recordedAt: '2023-06-28T13:20:00' }
+    ],
+    'EMP-1044': [
+      { field: 'Job title', previous: '—', next: 'Engineering Manager', effectiveDate: '2021-11-08', recordedAt: '2021-11-02T09:00:00' },
+      { field: 'Department', previous: '—', next: 'Engineering', effectiveDate: '2021-11-08', recordedAt: '2021-11-02T09:00:00' },
+      { field: 'Contract type', previous: '—', next: 'Full-time', effectiveDate: '2021-11-08', recordedAt: '2021-11-02T09:00:00' }
+    ]
+  },
+  pendingRequests: [
+    { id: 'REQ-1', employeeId: 'EMP-1044', field: 'Job title', previous: 'Engineering Manager', requested: 'Director of Engineering', effectiveDate: '2026-12-01', submittedAt: '2026-10-12T15:40:00', note: 'Promotion approved by VP Engineering on Oct 10.' }
+  ],
+  nextIdNumber: 1045
+};
+
+const CORE_FIELDS = ['jobTitle', 'department', 'contractType', 'salary'];
+const CORE_FIELD_LABELS = { jobTitle: 'Job title', department: 'Department', contractType: 'Contract type', salary: 'Salary' };
+const DEPARTMENTS = ['Design', 'Engineering', 'Customer Success', 'People & Culture', 'Finance', 'Sales'];
+const CONTRACT_TYPES = ['Full-time', 'Part-time', 'Contract', 'Intern'];
+
+let state = {
+  role: 'hr-admin',
+  currentProfileId: 'EMP-1042',
+  currentEditId: 'EMP-1042'
+};
+
+/* ---------- helpers ---------- */
+function $(id) { return document.getElementById(id); }
+function employeeById(id) { return EMPLOYEE_FIXTURES.employees.find(e => e.id === id); }
+function historyFor(id) { return (EMPLOYEE_FIXTURES.history[id] || []).slice().sort((a, b) => (a.effectiveDate < b.effectiveDate ? -1 : a.effectiveDate > b.effectiveDate ? 1 : new Date(a.recordedAt) - new Date(b.recordedAt))); }
+function pendingFor(id) { return EMPLOYEE_FIXTURES.pendingRequests.filter(r => r.employeeId === id); }
+function fmtMoney(n) { return n === null || n === undefined || n === '' ? null : '$' + Number(n).toLocaleString('en-US'); }
+function fmtDate(iso) { if (!iso) return null; const d = new Date(iso + 'T00:00:00'); return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }); }
+function fmtDateTime(iso) { const d = new Date(iso); return d.toLocaleString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); }
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function showToast(message, type) {
+  const wrap = $('toast-wrap');
+  const el = document.createElement('div');
+  el.className = 'toast' + (type === 'danger' ? ' toast-danger' : '');
+  el.textContent = message;
+  wrap.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 220); }, 3200);
+}
+
+function sidebarHtml(active, role) {
+  const pendingCount = EMPLOYEE_FIXTURES.pendingRequests.length;
+  const pendingBadge = role === 'hr-admin' && pendingCount > 0 ? `<span class="sidebar-badge">${pendingCount}</span>` : '';
+  return `
+    <div class="sidebar-section-label">HR Console</div>
+    <a class="sidebar-link${active === 'employees' ? ' is-active' : ''}" data-nav="0">Employees</a>
+    <a class="sidebar-link${active === 'pending' ? ' is-active' : ''}" data-nav="5">Pending changes${pendingBadge}</a>
+    <div class="sidebar-section-label" style="margin-top:var(--space-3)">Self-service</div>
+    <a class="sidebar-link${active === 'self' ? ' is-active' : ''}" data-nav="4">My profile</a>
+  `;
+}
+
+/* ============================================================
+   Screen navigation (reviewer bar)
+   ============================================================ */
+const screens = Array.from(document.querySelectorAll('.screen'));
+let cur = 0;
+function show(i) {
+  cur = Math.max(0, Math.min(screens.length - 1, i));
+  screens.forEach((s, j) => s.style.display = j === cur ? 'block' : 'none');
+  document.getElementById('screen-label').textContent = `${cur + 1} / ${screens.length}: ${screens[cur].dataset.name}`;
+  window.scrollTo(0, 0);
+}
+document.getElementById('prev-btn').onclick = () => show(cur - 1);
+document.getElementById('next-btn').onclick = () => show(cur + 1);
+document.addEventListener('keydown', e => {
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+  if (e.key === 'ArrowRight') show(cur + 1);
+  if (e.key === 'ArrowLeft') show(cur - 1);
+});
+document.addEventListener('click', e => {
+  const nav = e.target.closest('[data-nav]');
+  if (nav) { show(parseInt(nav.dataset.nav, 10)); }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* ============================================================
+   Role switcher (syncs the three selects that appear per screen)
+   ============================================================ */
+function syncRoleSelects() {
+  ['role-select', 'role-select-2', 'role-select-3', 'role-select-6'].forEach(id => { const el = $(id); if (el) el.value = state.role; });
+}
+['role-select', 'role-select-2', 'role-select-3', 'role-select-6'].forEach(id => {
+  document.addEventListener('change', e => {
+    if (e.target.id === id) { state.role = e.target.value; syncRoleSelects(); renderAll(); }
+  });
+});
+
+/* ============================================================
+   Screen 1: Employee Directory
+   ============================================================ */
+let directoryFilter = '';
+function renderDirectory(loading) {
+  $('sidebar-directory').innerHTML = sidebarHtml('employees', state.role);
+  $('directory-role-note').innerHTML = state.role !== 'hr-admin'
+    ? `<div class="banner banner-warning"><span class="banner-icon">&#9888;</span><div><strong>Viewing with limited access</strong>Only HR Admins can create or edit employee profiles. You can still browse the directory.</div></div>`
+    : '';
+  $('btn-new-employee').disabled = state.role !== 'hr-admin';
+  $('btn-new-employee').title = state.role !== 'hr-admin' ? 'Requires HR Admin role' : '';
+  $('btn-new-employee').style.opacity = state.role !== 'hr-admin' ? '0.5' : '1';
+  $('btn-new-employee').style.cursor = state.role !== 'hr-admin' ? 'not-allowed' : 'pointer';
+
+  $('directory-error').style.display = 'none';
+  const tbody = $('directory-rows');
+  const table = $('directory-table');
+
+  if (loading) {
+    table.style.display = '';
+    $('directory-empty').style.display = 'none';
+    tbody.innerHTML = Array.from({ length: 3 }).map(() => `
+      <tr class="skeleton-row">
+        <td><div class="skeleton skeleton-line" style="width:70px"></div></td>
+        <td><div class="skeleton skeleton-line" style="width:120px"></div></td>
+        <td><div class="skeleton skeleton-line" style="width:140px"></div></td>
+        <td><div class="skeleton skeleton-line" style="width:100px"></div></td>
+        <td><div class="skeleton skeleton-line" style="width:80px"></div></td>
+        <td><div class="skeleton skeleton-line" style="width:60px"></div></td>
+        <td></td>
+      </tr>`).join('');
+    return;
+  }
+
+  const q = directoryFilter.trim().toLowerCase();
+  const rows = EMPLOYEE_FIXTURES.employees.filter(e =>
+    !q || e.fullName.toLowerCase().includes(q) || e.id.toLowerCase().includes(q) || (e.department || '').toLowerCase().includes(q)
+  );
+
+  if (rows.length === 0) {
+    table.style.display = 'none';
+    $('directory-empty').style.display = 'block';
+    $('directory-empty').innerHTML = `
+      <div class="empty-state">
+        <div class="glyph">&#128269;</div>
+        <p><strong>No employees match "${escapeHtml(directoryFilter)}"</strong></p>
+        <p class="text-muted">Try a different name, employee ID or department.</p>
+      </div>`;
+    return;
+  }
+
+  table.style.display = '';
+  $('directory-empty').style.display = 'none';
+  tbody.innerHTML = rows.map(e => {
+    const hasPending = pendingFor(e.id).length > 0;
+    const statusChip = hasPending ? `<span class="chip chip-warning">Change pending</span>` : `<span class="chip chip-success">Active</span>`;
+    return `
+    <tr>
+      <td class="mono" style="font-family:var(--font-family-mono)">${e.id}</td>
+      <td>${escapeHtml(e.fullName)}</td>
+      <td>${escapeHtml(e.jobTitle || '—')}</td>
+      <td>${escapeHtml(e.department || '—')}</td>
+      <td>${escapeHtml(e.contractType || '—')}</td>
+      <td>${statusChip}</td>
+      <td><button class="btn btn-secondary" data-view-profile="${e.id}">View</button></td>
+    </tr>`;
+  }).join('');
+}
+
+document.addEventListener('click', e => {
+  const viewBtn = e.target.closest('[data-view-profile]');
+  if (viewBtn) { state.currentProfileId = viewBtn.dataset.viewProfile; renderProfileDetail(); show(2); }
+});
+
+$('directory-search').addEventListener('input', e => { directoryFilter = e.target.value; renderDirectory(false); });
+
+$('btn-new-employee').addEventListener('click', () => { if (state.role === 'hr-admin') { resetNewEmployeeForm(); show(1); } });
+
+$('btn-simulate-error').addEventListener('click', () => {
+  $('directory-table').style.display = 'none';
+  $('directory-empty').style.display = 'none';
+  const err = $('directory-error');
+  err.style.display = 'block';
+  err.innerHTML = `
+    <div class="banner banner-danger" style="margin:0;">
+      <span class="banner-icon">&#9888;</span>
+      <div><strong>Couldn't load employees</strong>The directory service didn't respond in time. Check your connection and try again.</div>
+    </div>
+    <div style="margin-top:var(--space-3)"><button class="btn btn-secondary" id="btn-retry-directory">Retry</button></div>`;
+  $('btn-retry-directory').addEventListener('click', () => renderDirectory(false));
+});
+
+/* ============================================================
+   Screen 2: New Employee Profile
+   ============================================================ */
+let newEmployeeDraft = {};
+function resetNewEmployeeForm() { newEmployeeDraft = { fullName: '', startDate: '', jobTitle: '', department: '', contractType: '', salary: '' }; renderNewEmployeeScreen(); }
+
+function renderNewEmployeeScreen(savedEmployee) {
+  $('sidebar-new').innerHTML = sidebarHtml('employees', state.role);
+  const root = $('new-employee-content');
+
+  if (state.role !== 'hr-admin') {
+    root.innerHTML = `
+      <div class="access-restricted">
+        <div class="glyph">&#10006;</div>
+        <h2 class="heading-lg">Access restricted</h2>
+        <p class="text-muted">Only HR Admins can create employee profiles. No profile was created.</p>
+        <button class="btn btn-secondary" data-nav="0">Back to employees</button>
+      </div>`;
+    return;
+  }
+
+  if (savedEmployee) {
+    const deptStr = savedEmployee.department || 'Not set';
+    const titleStr = savedEmployee.jobTitle || 'Not set';
+    const contractStr = savedEmployee.contractType || 'Not set';
+    const salaryStr = savedEmployee.salary ? fmtMoney(savedEmployee.salary) : 'Not set';
+    root.innerHTML = `
+      <div class="banner banner-success"><span class="banner-icon">&#10003;</span><div><strong>Profile saved</strong>Employee ID <span style="font-family:var(--font-family-mono)">${savedEmployee.id}</span> was generated automatically.</div></div>
+      <div class="card" style="max-width:640px;">
+        <h3 class="card-title">${escapeHtml(savedEmployee.fullName)}</h3>
+        <div class="readonly-row"><span class="readonly-label">Employee ID</span><span class="readonly-value mono">${savedEmployee.id}</span></div>
+        <div class="readonly-row"><span class="readonly-label">Start date</span><span class="readonly-value">${fmtDate(savedEmployee.startDate)}</span></div>
+        <div class="active-grid">
+          <div class="active-cell"><div class="label">Job title</div><div class="value">${escapeHtml(titleStr)}</div></div>
+          <div class="active-cell"><div class="label">Department</div><div class="value">${escapeHtml(deptStr)}</div></div>
+          <div class="active-cell"><div class="label">Contract type</div><div class="value">${escapeHtml(contractStr)}</div></div>
+          <div class="active-cell"><div class="label">Salary</div><div class="value">${escapeHtml(salaryStr)}</div></div>
+        </div>
+        <div style="margin-top:var(--space-4); display:flex; gap:var(--space-2);">
+          <button class="btn btn-primary" id="btn-view-saved-profile">View full profile</button>
+          <button class="btn btn-secondary" id="btn-add-another">+ Add another employee</button>
+        </div>
+      </div>`;
+    $('btn-view-saved-profile').addEventListener('click', () => { state.currentProfileId = savedEmployee.id; renderProfileDetail(); show(2); });
+    $('btn-add-another').addEventListener('click', () => resetNewEmployeeForm());
+    return;
+  }
+
+  root.innerHTML = `
+    <div class="card" style="max-width:640px;">
+      <h3 class="card-title">Core details</h3>
+      <p class="card-body" style="margin-top:-6px;">Full name and start date are required. Job title, department, contract type and salary can be added now or later.</p>
+      <form id="new-employee-form" novalidate>
+        <div class="grid-2">
+          <div class="field">
+            <label class="field-label">Full name<span class="required-mark">*</span></label>
+            <input class="input" id="ne-fullName" type="text" placeholder="e.g. Jordan Lee" value="${escapeHtml(newEmployeeDraft.fullName || '')}" />
+            <div class="field-error" id="err-fullName" style="display:none;">Enter the employee's full name.</div>
+          </div>
+          <div class="field">
+            <label class="field-label">Start date<span class="required-mark">*</span></label>
+            <input class="input" id="ne-startDate" type="date" value="${newEmployeeDraft.startDate || ''}" />
+            <div class="field-error" id="err-startDate" style="display:none;">Enter a start date.</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label class="field-label">Job title</label>
+            <input class="input" id="ne-jobTitle" type="text" placeholder="e.g. Product Designer" value="${escapeHtml(newEmployeeDraft.jobTitle || '')}" />
+          </div>
+          <div class="field">
+            <label class="field-label">Department</label>
+            <select class="select" id="ne-department">
+              <option value="">Not set</option>
+              ${DEPARTMENTS.map(d => `<option value="${d}" ${newEmployeeDraft.department === d ? 'selected' : ''}>${d}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label class="field-label">Contract type</label>
+            <select class="select" id="ne-contractType">
+              <option value="">Not set</option>
+              ${CONTRACT_TYPES.map(c => `<option value="${c}" ${newEmployeeDraft.contractType === c ? 'selected' : ''}>${c}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">Salary (annual, USD)</label>
+            <input class="input" id="ne-salary" type="number" min="0" step="1000" placeholder="e.g. 95000" value="${escapeHtml(newEmployeeDraft.salary || '')}" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Employee ID</label>
+          <input class="input" type="text" value="Generated automatically after save" disabled />
+        </div>
+        <div id="new-employee-summary-error"></div>
+        <div style="display:flex; gap:var(--space-2);">
+          <button type="submit" class="btn btn-primary" id="btn-save-new-employee">Save profile</button>
+          <button type="button" class="btn btn-secondary" data-nav="0">Cancel</button>
+        </div>
+      </form>
+    </div>`;
+
+  $('new-employee-form').addEventListener('submit', onSubmitNewEmployee);
+}
+
+async function onSubmitNewEmployee(e) {
+  e.preventDefault();
+  const fullName = $('ne-fullName').value.trim();
+  const startDate = $('ne-startDate').value;
+  const jobTitle = $('ne-jobTitle').value.trim();
+  const department = $('ne-department').value;
+  const contractType = $('ne-contractType').value;
+  const salary = $('ne-salary').value;
+
+  let hasError = false;
+  $('ne-fullName').classList.remove('has-error'); $('err-fullName').style.display = 'none';
+  $('ne-startDate').classList.remove('has-error'); $('err-startDate').style.display = 'none';
+
+  if (!fullName) { $('ne-fullName').classList.add('has-error'); $('err-fullName').style.display = 'block'; hasError = true; }
+  if (!startDate) { $('ne-startDate').classList.add('has-error'); $('err-startDate').style.display = 'block'; hasError = true; }
+
+  if (hasError) {
+    $('new-employee-summary-error').innerHTML = `<div class="banner banner-danger"><span class="banner-icon">&#9888;</span><div><strong>Couldn't save</strong>Fix the highlighted fields and try again.</div></div>`;
+    (!fullName ? $('ne-fullName') : $('ne-startDate')).focus();
+    return;
+  }
+  $('new-employee-summary-error').innerHTML = '';
+
+  const btn = $('btn-save-new-employee');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  await wait(300);
+
+  const id = 'EMP-' + (EMPLOYEE_FIXTURES.nextIdNumber++);
+  const newEmployee = { id, fullName, startDate, jobTitle: jobTitle || '', department: department || '', contractType: contractType || '', salary: salary ? Number(salary) : '' , personalEmail: '', phone: '' };
+  EMPLOYEE_FIXTURES.employees.unshift(newEmployee);
+
+  const entries = [];
+  const now = new Date().toISOString();
+  if (jobTitle) entries.push({ field: 'Job title', previous: '—', next: jobTitle, effectiveDate: startDate, recordedAt: now });
+  if (department) entries.push({ field: 'Department', previous: '—', next: department, effectiveDate: startDate, recordedAt: now });
+  if (contractType) entries.push({ field: 'Contract type', previous: '—', next: contractType, effectiveDate: startDate, recordedAt: now });
+  if (salary) entries.push({ field: 'Salary', previous: '—', next: fmtMoney(salary), effectiveDate: startDate, recordedAt: now });
+  EMPLOYEE_FIXTURES.history[id] = entries;
+
+  btn.disabled = false; btn.textContent = 'Save profile';
+  renderNewEmployeeScreen(newEmployee);
+  renderDirectory(false);
+  showToast(`Profile saved. Employee ID ${id} assigned.`);
+}
+
+/* ============================================================
+   Screen 3: Employee Profile Detail
+   ============================================================ */
+function renderProfileDetail() {
+  $('sidebar-detail').innerHTML = sidebarHtml('employees', state.role);
+  const e = employeeById(state.currentProfileId);
+  $('detail-name').textContent = e.fullName;
+  $('detail-crumb-name').textContent = e.fullName;
+  $('btn-edit-profile').disabled = state.role !== 'hr-admin';
+  $('btn-edit-profile').title = state.role !== 'hr-admin' ? 'Requires HR Admin role' : '';
+  $('btn-edit-profile').style.opacity = state.role !== 'hr-admin' ? '0.5' : '1';
+  $('btn-edit-profile').style.cursor = state.role !== 'hr-admin' ? 'not-allowed' : 'pointer';
+
+  const root = $('profile-detail-content');
+  root.innerHTML = `<div id="profile-detail-loading"></div>`;
+  $('profile-detail-loading').innerHTML = `
+    <div class="card" style="max-width:720px; margin-bottom:var(--space-4);">
+      <div class="skeleton skeleton-line" style="width:40%; height:18px; margin-bottom:var(--space-3);"></div>
+      <div class="skeleton skeleton-line" style="width:100%; margin-bottom:var(--space-2);"></div>
+      <div class="skeleton skeleton-line" style="width:100%;"></div>
+    </div>`;
+
+  setTimeout(() => renderProfileDetailContent(), 260);
+}
+
+function renderProfileDetailContent() {
+  const e = employeeById(state.currentProfileId);
+  const pending = pendingFor(e.id);
+  const root = $('profile-detail-content');
+
+  const nonHrNote = state.role !== 'hr-admin'
+    ? `<div class="banner banner-warning"><span class="banner-icon">&#9888;</span><div><strong>Read-only for your role</strong>Only HR Admins can edit this profile.</div></div>` : '';
+
+  const pendingBanner = pending.map(r => `
+    <div class="banner banner-warning"><span class="banner-icon">&#8987;</span><div><strong>${r.field} change pending</strong>Requested change to "${escapeHtml(r.requested)}" effective ${fmtDate(r.effectiveDate)} is awaiting HR Admin approval in <a data-nav="5" style="color:inherit;text-decoration:underline;cursor:pointer;">Pending changes</a>. The current value stays active until approved.</div></div>
+  `).join('');
+
+  const history = historyFor(e.id);
+  const historyRows = history.map(h => `
+    <tr>
+      <td>${escapeHtml(h.field)}</td>
+      <td>${escapeHtml(h.previous)}</td>
+      <td>${escapeHtml(h.next)}</td>
+      <td>${fmtDate(h.effectiveDate)}</td>
+      <td class="text-muted">${fmtDateTime(h.recordedAt)}</td>
+      <td class="history-actions-col">No edit or delete</td>
+    </tr>`).join('');
+
+  root.innerHTML = `
+    ${nonHrNote}
+    ${pendingBanner}
+    <div class="card" style="max-width:720px; margin-bottom:var(--space-4);">
+      <h3 class="card-title">Core profile</h3>
+      <div class="readonly-row"><span class="readonly-label">Employee ID</span><span class="readonly-value mono">${e.id}</span></div>
+      <div class="readonly-row"><span class="readonly-label">Full name</span><span class="readonly-value">${escapeHtml(e.fullName)}</span></div>
+      <div class="readonly-row"><span class="readonly-label">Start date</span><span class="readonly-value">${fmtDate(e.startDate)}</span></div>
+      <div class="readonly-row"><span class="readonly-label">Personal email</span><span class="readonly-value${e.personalEmail ? '' : ' muted'}">${e.personalEmail ? escapeHtml(e.personalEmail) : 'Not set'}</span></div>
+      <div class="readonly-row"><span class="readonly-label">Phone</span><span class="readonly-value${e.phone ? '' : ' muted'}">${e.phone ? escapeHtml(e.phone) : 'Not set'}</span></div>
+
+      <div class="section-heading" style="margin-top:var(--space-4)">
+        <h4 class="heading-lg" style="font-size:var(--font-size-md)">Active now</h4>
+      </div>
+      <div class="active-grid">
+        <div class="active-cell"><div class="label">Job title</div><div class="value">${e.jobTitle ? escapeHtml(e.jobTitle) : 'Not set'}</div></div>
+        <div class="active-cell"><div class="label">Department</div><div class="value">${e.department ? escapeHtml(e.department) : 'Not set'}</div></div>
+        <div class="active-cell"><div class="label">Contract type</div><div class="value">${e.contractType ? escapeHtml(e.contractType) : 'Not set'}</div></div>
+        <div class="active-cell"><div class="label">Salary</div><div class="value">${e.salary ? fmtMoney(e.salary) : 'Not set'}</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="max-width:720px;">
+      <div class="section-heading">
+        <h3 class="card-title" style="margin:0;">Employment history</h3>
+        <span class="text-muted">Oldest to newest</span>
+      </div>
+      ${history.length === 0 ? `
+        <div class="empty-state">
+          <div class="glyph">&#128196;</div>
+          <p><strong>No history yet</strong></p>
+          <p class="text-muted">Changes to job title, department, contract type or salary will appear here, dated and timestamped.</p>
+        </div>` : `
+        <table class="table">
+          <thead><tr><th>Field</th><th>Previous value</th><th>New value</th><th>Effective date</th><th>Recorded</th><th></th></tr></thead>
+          <tbody>${historyRows}</tbody>
+        </table>`}
+    </div>`;
+}
+
+$('btn-edit-profile').addEventListener('click', () => {
+  if (state.role !== 'hr-admin') return;
+  state.currentEditId = state.currentProfileId;
+  renderEditProfile();
+  show(3);
+});
+
+/* ============================================================
+   Screen 4: Edit Employee Profile
+   ============================================================ */
+function renderEditProfile() {
+  $('sidebar-edit').innerHTML = sidebarHtml('employees', state.role);
+  const e = employeeById(state.currentEditId);
+  $('edit-crumb-name').textContent = e.fullName;
+  $('edit-crumb-name').dataset.nav = '2';
+
+  const root = $('edit-profile-content');
+  root.innerHTML = `
+    <div class="card" style="max-width:680px;">
+      <h3 class="card-title">${escapeHtml(e.fullName)}</h3>
+      <div class="readonly-row"><span class="readonly-label">Employee ID</span><span class="readonly-value mono">${e.id}</span></div>
+      <form id="edit-employee-form" novalidate style="margin-top:var(--space-3);">
+        <div class="grid-2">
+          <div class="field">
+            <label class="field-label">Full name<span class="required-mark">*</span></label>
+            <input class="input" id="ee-fullName" type="text" value="${escapeHtml(e.fullName)}" />
+            <div class="field-error" id="eerr-fullName" style="display:none;">Enter the employee's full name.</div>
+          </div>
+          <div class="field">
+            <label class="field-label">Start date<span class="required-mark">*</span></label>
+            <input class="input" id="ee-startDate" type="date" value="${e.startDate}" />
+            <div class="field-error" id="eerr-startDate" style="display:none;">Enter a start date.</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Job title</label>
+          <input class="input" id="ee-jobTitle" data-original="${escapeHtml(e.jobTitle || '')}" type="text" value="${escapeHtml(e.jobTitle || '')}" />
+        </div>
+        <div class="effective-date-field" id="eff-jobTitle" style="display:none;">
+          <label class="field-label">Effective date for job title change<span class="required-mark">*</span></label>
+          <input class="input" id="ee-jobTitle-effDate" type="date" />
+          <div class="field-error" id="eerr-jobTitle-eff" style="display:none;">Enter an effective date for this change.</div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Department</label>
+          <select class="select" id="ee-department" data-original="${escapeHtml(e.department || '')}">
+            <option value="">Not set</option>
+            ${DEPARTMENTS.map(d => `<option value="${d}" ${e.department === d ? 'selected' : ''}>${d}</option>`).join('')}
+          </select>
+        </div>
+        <div class="effective-date-field" id="eff-department" style="display:none;">
+          <label class="field-label">Effective date for department change<span class="required-mark">*</span></label>
+          <input class="input" id="ee-department-effDate" type="date" />
+          <div class="field-error" id="eerr-department-eff" style="display:none;">Enter an effective date for this change.</div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Contract type</label>
+          <select class="select" id="ee-contractType" data-original="${escapeHtml(e.contractType || '')}">
+            <option value="">Not set</option>
+            ${CONTRACT_TYPES.map(c => `<option value="${c}" ${e.contractType === c ? 'selected' : ''}>${c}</option>`).join('')}
+          </select>
+        </div>
+        <div class="effective-date-field" id="eff-contractType" style="display:none;">
+          <label class="field-label">Effective date for contract type change<span class="required-mark">*</span></label>
+          <input class="input" id="ee-contractType-effDate" type="date" />
+          <div class="field-error" id="eerr-contractType-eff" style="display:none;">Enter an effective date for this change.</div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Salary (annual, USD)</label>
+          <input class="input" id="ee-salary" data-original="${e.salary || ''}" type="number" min="0" step="1000" value="${e.salary || ''}" />
+        </div>
+        <div class="effective-date-field" id="eff-salary" style="display:none;">
+          <label class="field-label">Effective date for salary change<span class="required-mark">*</span></label>
+          <input class="input" id="ee-salary-effDate" type="date" />
+          <div class="field-error" id="eerr-salary-eff" style="display:none;">Enter an effective date for this change.</div>
+        </div>
+
+        <div id="edit-summary-error"></div>
+        <div style="display:flex; gap:var(--space-2);">
+          <button type="submit" class="btn btn-primary" id="btn-save-edit">Save changes</button>
+          <button type="button" class="btn btn-secondary" data-nav="2">Cancel</button>
+        </div>
+      </form>
+    </div>`;
+
+  CORE_FIELDS.forEach(f => {
+    const input = $('ee-' + f);
+    const effWrap = $('eff-' + f);
+    const toggle = () => {
+      const changed = String(input.value || '') !== String(input.dataset.original || '');
+      effWrap.style.display = changed ? 'block' : 'none';
+    };
+    input.addEventListener('input', toggle);
+    input.addEventListener('change', toggle);
+  });
+
+  $('edit-employee-form').addEventListener('submit', onSubmitEditEmployee);
+}
+
+async function onSubmitEditEmployee(ev) {
+  ev.preventDefault();
+  const e = employeeById(state.currentEditId);
+  const fullName = $('ee-fullName').value.trim();
+  const startDate = $('ee-startDate').value;
+
+  let hasError = false;
+  $('ee-fullName').classList.remove('has-error'); $('eerr-fullName').style.display = 'none';
+  $('ee-startDate').classList.remove('has-error'); $('eerr-startDate').style.display = 'none';
+  if (!fullName) { $('ee-fullName').classList.add('has-error'); $('eerr-fullName').style.display = 'block'; hasError = true; }
+  if (!startDate) { $('ee-startDate').classList.add('has-error'); $('eerr-startDate').style.display = 'block'; hasError = true; }
+
+  const changes = [];
+  CORE_FIELDS.forEach(f => {
+    const input = $('ee-' + f);
+    const original = input.dataset.original || '';
+    const newVal = input.value || '';
+    const effEl = $('ee-' + f + '-effDate');
+    const errEl = $('eerr-' + f + '-eff');
+    errEl.style.display = 'none';
+    effEl.classList.remove('has-error');
+    if (newVal !== original) {
+      if (!effEl.value) { errEl.style.display = 'block'; effEl.classList.add('has-error'); hasError = true; }
+      changes.push({ field: f, original, newVal, effectiveDate: effEl.value });
+    }
+  });
+
+  if (hasError) {
+    $('edit-summary-error').innerHTML = `<div class="banner banner-danger"><span class="banner-icon">&#9888;</span><div><strong>Couldn't save</strong>Fix the highlighted fields and try again.</div></div>`;
+    return;
+  }
+  $('edit-summary-error').innerHTML = '';
+
+  const btn = $('btn-save-edit');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  await wait(300);
+
+  e.fullName = fullName;
+  e.startDate = startDate;
+  const now = new Date().toISOString();
+  changes.forEach(c => {
+    const label = CORE_FIELD_LABELS[c.field];
+    const previousDisplay = c.field === 'salary' ? (c.original ? fmtMoney(c.original) : '—') : (c.original || '—');
+    const nextDisplay = c.field === 'salary' ? fmtMoney(c.newVal) : c.newVal;
+    EMPLOYEE_FIXTURES.history[e.id] = EMPLOYEE_FIXTURES.history[e.id] || [];
+    EMPLOYEE_FIXTURES.history[e.id].push({ field: label, previous: previousDisplay, next: nextDisplay, effectiveDate: c.effectiveDate, recordedAt: now });
+    e[c.field] = c.field === 'salary' ? Number(c.newVal) : c.newVal;
+  });
+
+  btn.disabled = false; btn.textContent = 'Save changes';
+  state.currentProfileId = e.id;
+  renderProfileDetail();
+  renderDirectory(false);
+  show(2);
+  showToast('Profile updated. New values are active immediately.');
+}
+
+/* ============================================================
+   Screen 5: My Profile — Self-Service (Priya Nair, EMP-1044)
+   ============================================================ */
+const SELF_SERVICE_ID = 'EMP-1044';
+let activeRequestField = null;
+
+function renderSelfService() {
+  $('sidebar-self').innerHTML = sidebarHtml('self', state.role);
+  const e = employeeById(SELF_SERVICE_ID);
+  const pending = pendingFor(e.id);
+  const pendingByField = {};
+  pending.forEach(r => pendingByField[r.field] = r);
+
+  const root = $('self-service-content');
+  root.innerHTML = `
+    <div class="card" style="max-width:680px; margin-bottom:var(--space-4);">
+      <h3 class="card-title">Contact details</h3>
+      <p class="card-body" style="margin-top:-6px;">These fields save immediately — no approval needed.</p>
+      <form id="self-contact-form">
+        <div class="grid-2">
+          <div class="field">
+            <label class="field-label">Personal email</label>
+            <input class="input" id="ss-personalEmail" type="email" value="${escapeHtml(e.personalEmail || '')}" />
+          </div>
+          <div class="field">
+            <label class="field-label">Phone</label>
+            <input class="input" id="ss-phone" type="tel" value="${escapeHtml(e.phone || '')}" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Save contact details</button>
+      </form>
+    </div>
+
+    <div class="card" style="max-width:680px;">
+      <h3 class="card-title">Employment details</h3>
+      <p class="card-body" style="margin-top:-6px;">Changes to these fields need HR Admin approval before they take effect.</p>
+      ${CORE_FIELDS.map(f => renderSelfServiceFieldRow(e, f, pendingByField[CORE_FIELD_LABELS[f]])).join('')}
+    </div>`;
+
+  $('self-contact-form').addEventListener('submit', async ev => {
+    ev.preventDefault();
+    e.personalEmail = $('ss-personalEmail').value.trim();
+    e.phone = $('ss-phone').value.trim();
+    showToast('Saved. Your contact details are updated.');
+  });
+
+  document.querySelectorAll('[data-request-field]').forEach(btn => {
+    btn.addEventListener('click', () => { activeRequestField = btn.dataset.requestField; renderSelfService(); });
+  });
+  document.querySelectorAll('[data-cancel-request]').forEach(btn => {
+    btn.addEventListener('click', () => { activeRequestField = null; renderSelfService(); });
+  });
+  const submitBtn = document.getElementById('btn-submit-request');
+  if (submitBtn) submitBtn.addEventListener('click', onSubmitChangeRequest);
+}
+
+function renderSelfServiceFieldRow(e, field, pendingReq) {
+  const label = CORE_FIELD_LABELS[field];
+  const currentDisplay = field === 'salary' ? (e.salary ? fmtMoney(e.salary) : 'Not set') : (e[field] || 'Not set');
+  const isOpen = activeRequestField === field;
+
+  let pendingBlock = '';
+  if (pendingReq) {
+    pendingBlock = `<div class="banner banner-warning" style="margin-top:var(--space-2)"><span class="banner-icon">&#8987;</span><div><strong>Pending HR approval</strong>Requested: ${escapeHtml(pendingReq.requested)}, effective ${fmtDate(pendingReq.effectiveDate)}. Submitted ${fmtDateTime(pendingReq.submittedAt)}. Your current value stays active until this is approved.</div></div>`;
+  }
+
+  let requestForm = '';
+  if (isOpen && !pendingReq) {
+    let fieldControl = '';
+    if (field === 'department') {
+      fieldControl = `<select class="select" id="req-value">${DEPARTMENTS.map(d => `<option value="${d}">${d}</option>`).join('')}</select>`;
+    } else if (field === 'contractType') {
+      fieldControl = `<select class="select" id="req-value">${CONTRACT_TYPES.map(c => `<option value="${c}">${c}</option>`).join('')}</select>`;
+    } else if (field === 'salary') {
+      fieldControl = `<input class="input" id="req-value" type="number" min="0" step="1000" placeholder="e.g. 150000" />`;
+    } else {
+      fieldControl = `<input class="input" id="req-value" type="text" placeholder="e.g. Director of Engineering" />`;
+    }
+    requestForm = `
+      <div class="request-form">
+        <div class="field">
+          <label class="field-label">Requested ${label.toLowerCase()}</label>
+          ${fieldControl}
+        </div>
+        <div class="field">
+          <label class="field-label">Effective date</label>
+          <input class="input" id="req-effDate" type="date" />
+        </div>
+        <div class="field">
+          <label class="field-label">Note (optional)</label>
+          <textarea class="textarea" id="req-note" placeholder="Add context for your HR Admin"></textarea>
+        </div>
+        <div id="req-error"></div>
+        <div class="request-actions">
+          <button class="btn btn-primary" id="btn-submit-request" data-field="${field}">Submit request</button>
+          <button class="btn btn-secondary" data-cancel-request="${field}">Cancel</button>
+        </div>
+      </div>`;
+  }
+
+  return `
+    <div class="readonly-row" style="flex-direction:column; align-items:stretch;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="readonly-label">${label}</span>
+        <div style="display:flex; align-items:center; gap:var(--space-3);">
+          <span class="readonly-value">${escapeHtml(String(currentDisplay))}</span>
+          ${!pendingReq ? `<button class="btn btn-secondary" data-request-field="${field}">${isOpen ? 'Cancel' : 'Request a change'}</button>` : ''}
+        </div>
+      </div>
+      ${pendingBlock}
+      ${requestForm}
+    </div>`;
+}
+
+async function onSubmitChangeRequest(ev) {
+  const field = ev.target.dataset.field;
+  const valueEl = $('req-value');
+  const effEl = $('req-effDate');
+  const value = valueEl.value.trim ? valueEl.value.trim() : valueEl.value;
+  const effDate = effEl.value;
+
+  if (!value || !effDate) {
+    $('req-error').innerHTML = `<div class="banner banner-danger" style="margin-top:var(--space-2)"><span class="banner-icon">&#9888;</span><div><strong>Couldn't submit</strong>Enter a requested value and an effective date.</div></div>`;
+    return;
+  }
+
+  const e = employeeById(SELF_SERVICE_ID);
+  const label = CORE_FIELD_LABELS[field];
+  const currentValue = field === 'salary' ? fmtMoney(e.salary) : e[field];
+  const displayNext = field === 'salary' ? fmtMoney(value) : value;
+
+  ev.target.disabled = true; ev.target.textContent = 'Submitting…';
+  await wait(250);
+
+  EMPLOYEE_FIXTURES.pendingRequests.push({
+    id: 'REQ-' + (Math.random().toString(36).slice(2, 7)),
+    employeeId: e.id,
+    field: label,
+    previous: currentValue,
+    requested: displayNext,
+    effectiveDate: effDate,
+    submittedAt: new Date().toISOString(),
+    note: $('req-note').value.trim()
+  });
+
+  activeRequestField = null;
+  renderSelfService();
+  renderDirectory(false);
+  showToast(`Request submitted. ${label} stays "${currentValue}" until an HR Admin approves it.`);
+}
+
+/* ============================================================
+   Screen 6: Pending Changes — HR Admin Review
+   ============================================================ */
+let rejectModalReqId = null;
+
+function renderPending() {
+  $('sidebar-pending').innerHTML = sidebarHtml('pending', state.role);
+  const root = $('pending-content');
+
+  if (state.role !== 'hr-admin') {
+    root.innerHTML = `
+      <div class="access-restricted">
+        <div class="glyph">&#10006;</div>
+        <h2 class="heading-lg">Access restricted</h2>
+        <p class="text-muted">Only HR Admins can review pending changes.</p>
+        <button class="btn btn-secondary" data-nav="0">Back to employees</button>
+      </div>`;
+    return;
+  }
+
+  const reqs = EMPLOYEE_FIXTURES.pendingRequests;
+  if (reqs.length === 0) {
+    root.innerHTML = `
+      <div class="card">
+        <div class="empty-state">
+          <div class="glyph">&#9989;</div>
+          <p><strong>No pending changes</strong></p>
+          <p class="text-muted">When an employee requests a change to their job title, department, contract type or salary, it will appear here for your review.</p>
+        </div>
+      </div>`;
+    return;
+  }
+
+  root.innerHTML = `
+    <div class="card" style="padding:0; overflow:hidden;">
+      <table class="table">
+        <thead><tr><th>Employee</th><th>Field</th><th>Current → Requested</th><th>Effective date</th><th>Submitted</th><th></th></tr></thead>
+        <tbody>
+          ${reqs.map(r => {
+            const e = employeeById(r.employeeId);
+            return `
+            <tr class="pending-row">
+              <td>${escapeHtml(e.fullName)}</td>
+              <td>${escapeHtml(r.field)}</td>
+              <td>${escapeHtml(r.previous)} &rarr; ${escapeHtml(r.requested)}</td>
+              <td>${fmtDate(r.effectiveDate)}</td>
+              <td class="text-muted">${fmtDateTime(r.submittedAt)}</td>
+              <td style="white-space:nowrap;">
+                <button class="btn btn-primary" data-approve="${r.id}">Approve</button>
+                <button class="btn btn-secondary" data-reject="${r.id}">Reject</button>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+
+  document.querySelectorAll('[data-approve]').forEach(btn => btn.addEventListener('click', () => approveRequest(btn.dataset.approve)));
+  document.querySelectorAll('[data-reject]').forEach(btn => btn.addEventListener('click', () => openRejectModal(btn.dataset.reject)));
+}
+
+async function approveRequest(reqId) {
+  const req = EMPLOYEE_FIXTURES.pendingRequests.find(r => r.id === reqId);
+  if (!req) return;
+  const e = employeeById(req.employeeId);
+  await wait(250);
+
+  const fieldKey = Object.keys(CORE_FIELD_LABELS).find(k => CORE_FIELD_LABELS[k] === req.field);
+  EMPLOYEE_FIXTURES.history[e.id] = EMPLOYEE_FIXTURES.history[e.id] || [];
+  EMPLOYEE_FIXTURES.history[e.id].push({ field: req.field, previous: req.previous, next: req.requested, effectiveDate: req.effectiveDate, recordedAt: new Date().toISOString() });
+  e[fieldKey] = fieldKey === 'salary' ? Number(String(req.requested).replace(/[^0-9]/g, '')) : req.requested;
+
+  EMPLOYEE_FIXTURES.pendingRequests = EMPLOYEE_FIXTURES.pendingRequests.filter(r => r.id !== reqId);
+  renderPending();
+  renderDirectory(false);
+  showToast(`Approved. ${e.fullName}'s ${req.field.toLowerCase()} is now ${req.requested}.`);
+}
+
+function openRejectModal(reqId) {
+  rejectModalReqId = reqId;
+  const req = EMPLOYEE_FIXTURES.pendingRequests.find(r => r.id === reqId);
+  const e = employeeById(req.employeeId);
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.id = 'reject-modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="modal">
+      <h3>Reject this change?</h3>
+      <p>${escapeHtml(e.fullName)} will keep their current ${req.field.toLowerCase()} ("${escapeHtml(req.previous)}"). This can't be undone.</p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="btn-cancel-reject">Cancel</button>
+        <button class="btn btn-primary" id="btn-confirm-reject" style="background:var(--color-danger)">Reject change</button>
+      </div>
+    </div>`;
+  document.body.appendChild(backdrop);
+  backdrop.addEventListener('click', e2 => { if (e2.target === backdrop) closeModal(); });
+  $('btn-cancel-reject').addEventListener('click', closeModal);
+  $('btn-confirm-reject').addEventListener('click', confirmReject);
+}
+
+function closeModal() {
+  const backdrop = $('reject-modal-backdrop');
+  if (backdrop) backdrop.remove();
+}
+
+async function confirmReject() {
+  const req = EMPLOYEE_FIXTURES.pendingRequests.find(r => r.id === rejectModalReqId);
+  const e = employeeById(req.employeeId);
+  closeModal();
+  await wait(200);
+  EMPLOYEE_FIXTURES.pendingRequests = EMPLOYEE_FIXTURES.pendingRequests.filter(r => r.id !== rejectModalReqId);
+  renderPending();
+  renderDirectory(false);
+  showToast(`Rejected. No changes were made to ${e.fullName}'s profile.`, 'danger');
+}
+
+/* ============================================================
+   Init
+   ============================================================ */
+function renderAll() {
+  renderDirectory(false);
+  renderNewEmployeeScreen();
+  renderProfileDetailContent();
+  renderEditProfile();
+  renderSelfService();
+  renderPending();
+}
+
+renderDirectory(true);
+setTimeout(() => {
+  renderDirectory(false);
+  renderNewEmployeeScreen();
+  renderProfileDetail();
+  renderEditProfile();
+  renderSelfService();
+  renderPending();
+}, 300);
+
+show(0);
+</script>
+</body>
+</html>
+
+<!-- arc:css-inlined -->
