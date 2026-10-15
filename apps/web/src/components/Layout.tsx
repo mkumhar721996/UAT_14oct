@@ -50,6 +50,12 @@ export function Layout({
           Defects
         </NavLink>
         <div className="sidebar-section-label" style={{ marginTop: 'var(--space-3)' }}>
+          Store
+        </div>
+        <NavLink to="/shop" className={linkClass}>
+          Shop
+        </NavLink>
+        <div className="sidebar-section-label" style={{ marginTop: 'var(--space-3)' }}>
           Self-service
         </div>
         <NavLink to="/me" className={linkClass}>
