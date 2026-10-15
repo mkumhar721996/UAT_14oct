@@ -10,6 +10,7 @@ import MyProfilePage from './routes/MyProfilePage'
 import NewEmployeeProfilePage from './routes/NewEmployeeProfilePage'
 import ReportDefectPage from './routes/ReportDefectPage'
 import PendingChangesPage from './routes/PendingChangesPage'
+import ShoppingPage from './routes/ShoppingPage'
 
 /** Renders the HR-Admin-only page, or the access-restricted state for everyone else. */
 function RequireHrAdmin({ title, message, children }: { title: string; message: string; children: ReactNode }) {
@@ -55,6 +56,7 @@ function App() {
           }
         />
         <Route path="/defects/new" element={<ReportDefectPage />} />
+        <Route path="/shop" element={<ShoppingPage />} />
         <Route path="/me" element={<MyProfilePage />} />
         <Route
           path="/pending-changes"
