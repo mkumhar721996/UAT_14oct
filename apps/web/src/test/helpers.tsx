@@ -3,10 +3,10 @@ import type { ReactElement } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { vi } from 'vitest'
 import { ToastProvider } from '../components/Toast'
-import { TOKEN_KEY } from '../lib/auth'
+import { TOKEN_KEY, type Role } from '../lib/auth'
 
-export function signIn(role: 'hr_admin' | 'employee' | 'reporter', employeeId?: string) {
-  const payload = btoa(JSON.stringify({ role, tenant_id: 'tenant-1', employee_id: employeeId }))
+export function signIn(role: Role, employeeId?: string, sub = 'test-sub') {
+  const payload = btoa(JSON.stringify({ sub, role, tenant_id: 'tenant-1', employee_id: employeeId }))
   localStorage.setItem(TOKEN_KEY, `header.${payload}.signature`)
 }
 

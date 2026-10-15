@@ -33,6 +33,12 @@ export class Defect {
   @Column({ type: 'text', default: 'New' })
   status!: string;
 
+  @Column({ type: 'text', nullable: true })
+  priority!: string | null;
+
+  @Column({ name: 'assignee_name', type: 'text', nullable: true })
+  assigneeName!: string | null;
+
   @Column({ name: 'reported_by', type: 'text' })
   reportedBy!: string;
 
