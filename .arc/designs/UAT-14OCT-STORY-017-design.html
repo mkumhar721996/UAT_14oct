@@ -1,0 +1,1570 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>UAT-14OCT-STORY-017 · Job requisition creation &amp; approval</title>
+<style>
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-fg: #1e293b; /** Primary text color on light surfaces */
+  --color-bg: #ffffff; /** Default page/app background */
+  --color-bg-subtle: #f8fafc; /** Secondary surface used for panels and alternating rows */
+  --color-primary: #2563eb; /** Brand/action color for primary buttons and links */
+  --color-primary-hover: #1d4ed8; /** Hover state for primary actions */
+  --color-primary-fg: #ffffff; /** Text/icon color on top of primary-colored surfaces */
+  --color-border: #e2e8f0; /** Default border color for inputs, cards and dividers */
+  --color-fg-muted: #67748b; /** Secondary text color for captions and helper text */
+  --color-success: #16985c; /** Positive status and success chip color */
+  --color-success-bg: #e1f6e8; /** Background for success chips */
+  --color-danger: #db2727; /** Destructive action and error status color */
+  --color-danger-bg: #fde5e5; /** Background for danger/error chips */
+  --color-warning: #b47406; /** Warning status color */
+  --color-warning-bg: #fef3d6; /** Background for warning chips */
+  --font-family-base: Inter, ui-sans-serif, system-ui, sans-serif; /** Default UI typeface */
+  --font-family-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace; /** Monospace typeface for code and identifiers */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --line-height-base: 1.5; /** Default line-height multiplier for body text */
+  --font-size-sm: 12px; /** Helper text, captions, chip labels */
+  --font-size-md: 14px; /** Default body and control text */
+  --font-size-lg: 18px; /** Section headings */
+  --space-1: 4px; /** Tightest spacing, icon-to-label gaps */
+  --space-2: 8px; /** Compact spacing inside controls */
+  --space-3: 12px; /** Default spacing between stacked elements */
+  --space-4: 16px; /** Section and card padding */
+  --radius-sm: 4px; /** Chips and small controls */
+  --radius-md: 6px; /** Buttons and inputs */
+  --radius-lg: 10px; /** Cards and panels */
+  --shadow-card: 0px 1px 3px 0px rgb(11.76% 16.08% 23.14% / 0.08); /** Resting elevation for cards */
+  --border-default: 1px solid rgb(88.63% 90.98% 94.12%); /** Default 1px hairline border */
+  --button-primary-background: var(--color-primary);
+  --button-primary-background-hover: var(--color-primary-hover);
+  --button-primary-foreground: var(--color-primary-fg);
+  --button-primary-radius: var(--radius-md);
+  --button-primary-padding-y: var(--space-2);
+  --button-primary-padding-x: var(--space-4);
+  --button-secondary-background: var(--color-bg);
+  --button-secondary-foreground: var(--color-fg);
+  --button-secondary-border: var(--color-border);
+  --card-default-background: var(--color-bg);
+  --card-default-border: var(--color-border);
+  --card-default-radius: var(--radius-lg);
+  --card-default-padding: var(--space-4);
+}
+
+</style>
+<style>
+/* Layout primitives */
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-base);
+}
+
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--color-bg-subtle);
+  border-right: 1px solid var(--color-border);
+  padding: var(--space-4);
+}
+
+.sidebar-link {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-fg-muted);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.sidebar-link:hover {
+  background: var(--color-border);
+  color: var(--color-fg);
+}
+
+.sidebar-link.is-active {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1;
+  padding: var(--space-4);
+}
+
+/* Typography */
+
+.heading-lg {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.text-muted {
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+  border-radius: var(--button-primary-radius);
+  padding: var(--button-primary-padding-y) var(--button-primary-padding-x);
+}
+
+.btn-primary:hover {
+  background: var(--button-primary-background-hover);
+}
+
+.btn-secondary {
+  background: var(--button-secondary-background);
+  color: var(--button-secondary-foreground);
+  border: 1px solid var(--button-secondary-border);
+}
+
+.btn-secondary:hover {
+  background: var(--color-bg-subtle);
+}
+
+/* Cards */
+
+.card {
+  background: var(--card-default-background);
+  border: 1px solid var(--card-default-border);
+  border-radius: var(--card-default-radius);
+  padding: var(--card-default-padding);
+  box-shadow: var(--shadow-card);
+}
+
+.card-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.card-body {
+  font-size: var(--font-size-md);
+  color: var(--color-fg-muted);
+}
+
+/* Chips */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+}
+
+.chip-success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.chip-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.chip-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+/* Form controls */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.field-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-fg);
+}
+
+.input,
+.select,
+.textarea {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  color: var(--color-fg);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+/* Table */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-md);
+}
+
+.table th {
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+</style>
+<style>
+  /* ============================================================
+     Page-specific styles for this story only.
+     Every value below is a var(--…) token from the linked
+     design system — no literal colors/spacing/radii/fonts.
+     Two new composite patterns are introduced because the base
+     system has no equivalents yet (see design notes at bottom
+     of this file, in the HTML comment before </body>):
+       .chip-neutral  — composed from color-bg-subtle + color-fg-muted
+       .modal-overlay — alpha-blended color-fg, same recipe tokens.css
+                         already uses for --shadow-card
+     ============================================================ */
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-family-base);
+    background: var(--color-bg-subtle);
+    color: var(--color-fg);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  .screen { display: none; }
+
+  /* ---- App shell per screen ---- */
+  .app-shell { min-height: calc(100vh - 46px); align-items: stretch; }
+  .sidebar { display: flex; flex-direction: column; justify-content: space-between; }
+  .sidebar-nav { display: flex; flex-direction: column; gap: var(--space-1); }
+  .sidebar-identity {
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--space-3);
+    margin-top: var(--space-3);
+  }
+  .sidebar-identity strong { display: block; color: var(--color-fg); font-weight: var(--font-weight-medium); }
+  .sidebar-link-btn { border: none; width: 100%; font: inherit; text-align: left; cursor: pointer; }
+
+  .topbar-title { display: flex; flex-direction: column; gap: 2px; }
+  .topbar-title h1 { margin: 0; font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); }
+  .topbar-title .context-label { font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+  .topbar-actions { display: flex; gap: var(--space-2); align-items: center; }
+
+  .content { max-width: 920px; }
+  .content > * + * { margin-top: var(--space-4); }
+
+  /* ---- Chips ---- */
+  .chip-neutral { background: var(--color-bg-subtle); color: var(--color-fg-muted); border: 1px solid var(--color-border); }
+
+  /* ---- Cards / sections ---- */
+  .section-title { font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin: 0 0 var(--space-2) 0; }
+  .kv-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3) var(--space-4); }
+  .kv-grid dt { font-size: var(--font-size-sm); color: var(--color-fg-muted); margin: 0; }
+  .kv-grid dd { font-size: var(--font-size-md); margin: 2px 0 0 0; }
+
+  /* ---- Banners ---- */
+  .banner {
+    display: flex; gap: var(--space-2); align-items: flex-start;
+    border-radius: var(--radius-md); border: 1px solid var(--color-border);
+    padding: var(--space-3); font-size: var(--font-size-md);
+  }
+  .banner strong { display: block; }
+  .banner-success { background: var(--color-success-bg); border-color: var(--color-success); color: var(--color-success); }
+  .banner-warning { background: var(--color-warning-bg); border-color: var(--color-warning); color: var(--color-warning); }
+  .banner-danger { background: var(--color-danger-bg); border-color: var(--color-danger); color: var(--color-danger); }
+  .banner-info { background: var(--color-bg-subtle); border-color: var(--color-border); color: var(--color-fg); }
+  .banner p { margin: 2px 0 0 0; color: var(--color-fg); font-weight: var(--font-weight-regular); }
+  .banner-icon { font-weight: var(--font-weight-semibold); flex-shrink: 0; }
+
+  /* ---- Segmented (prototype-only role simulator) ---- */
+  .proto-note {
+    font-size: var(--font-size-sm); color: var(--color-fg-muted);
+    background: var(--color-bg-subtle); border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md); padding: var(--space-2) var(--space-3);
+  }
+  .segmented { display: inline-flex; border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; }
+  .segmented button {
+    font-family: var(--font-family-base); font-size: var(--font-size-md); font-weight: var(--font-weight-medium);
+    padding: var(--space-2) var(--space-3); border: none; background: var(--color-bg); color: var(--color-fg-muted); cursor: pointer;
+  }
+  .segmented button + button { border-left: 1px solid var(--color-border); }
+  .segmented button[aria-pressed="true"] { background: var(--color-primary); color: var(--color-primary-fg); }
+
+  /* ---- Forms ---- */
+  .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--space-4); }
+  .form-grid .field-span-2 { grid-column: 1 / -1; }
+  .field-error { color: var(--color-danger); font-size: var(--font-size-sm); margin-top: 2px; }
+  .field .input.has-error, .field .select.has-error, .field .textarea.has-error { border-color: var(--color-danger); }
+  .field-hint { color: var(--color-fg-muted); font-size: var(--font-size-sm); }
+  .form-actions { display: flex; gap: var(--space-2); justify-content: flex-end; border-top: 1px solid var(--color-border); padding-top: var(--space-3); }
+
+  .btn-danger { background: var(--color-bg); color: var(--color-danger); border: 1px solid var(--color-danger); }
+  .btn-danger:hover { background: var(--color-danger-bg); }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-sm { padding: var(--space-1) var(--space-3); font-size: var(--font-size-sm); }
+
+  /* ---- Table action cells ---- */
+  .table-actions { display: flex; gap: var(--space-2); }
+  .reject-row td { background: var(--color-bg-subtle); }
+
+  /* ---- Empty / loading / error states ---- */
+  .empty-state { text-align: center; padding: var(--space-4); border: 1px dashed var(--color-border); border-radius: var(--radius-lg); color: var(--color-fg-muted); }
+  .empty-state h3 { color: var(--color-fg); margin: 0 0 var(--space-1) 0; font-size: var(--font-size-md); }
+
+  .skeleton-row td { padding: var(--space-3); }
+  .skeleton-bar { height: 14px; border-radius: var(--radius-sm); background: linear-gradient(90deg, var(--color-border) 25%, var(--color-bg-subtle) 37%, var(--color-border) 63%); background-size: 400% 100%; }
+  @media (prefers-reduced-motion: no-preference) {
+    .skeleton-bar { animation: shimmer 1.4s ease infinite; }
+  }
+  @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
+
+  /* ---- Reassign modal ---- */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 2000;
+    /* alpha-blended color-fg, same recipe tokens.css uses for --shadow-card */
+    background: rgb(11.76% 16.08% 23.14% / 0.5);
+    display: flex; align-items: center; justify-content: center;
+    padding: var(--space-4);
+  }
+  .modal {
+    background: var(--color-bg); border-radius: var(--radius-lg); border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card); max-width: 440px; width: 100%; padding: var(--space-4);
+  }
+  .modal h2 { margin: 0 0 var(--space-1) 0; font-size: var(--font-size-lg); }
+  .modal-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4); }
+
+  /* ---- Candidate job board ---- */
+  .job-cards { display: flex; flex-direction: column; gap: var(--space-3); }
+  .job-card-meta { color: var(--color-fg-muted); font-size: var(--font-size-sm); margin: 2px 0 var(--space-2) 0; }
+  .job-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-3); }
+
+  /* ---- Overview role cards ---- */
+  .role-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
+  .legend { display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: center; }
+
+  /* ---- Toast ---- */
+  #toast {
+    position: fixed; right: var(--space-4); bottom: var(--space-4); z-index: 3000;
+    max-width: 360px; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md);
+    background: var(--color-fg); color: var(--color-bg); font-size: var(--font-size-md);
+    box-shadow: var(--shadow-card); display: none;
+  }
+  #toast.is-visible { display: block; }
+
+  @media (max-width: 1023px) {
+    .app-shell { flex-direction: column; }
+    .sidebar { width: auto; border-right: none; border-bottom: 1px solid var(--color-border); flex-direction: row; justify-content: space-between; align-items: center; }
+    .sidebar-nav { flex-direction: row; }
+    .sidebar-identity { border-top: none; margin-top: 0; padding-top: 0; }
+    .kv-grid, .form-grid, .role-cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- App nav: left sidebar (role-specific sections, kept consistent per console) + top bar
+     (page title, requisition context, and contextual actions only). This story spans three
+     separate consoles that would, in the real product, be separately authenticated:
+       - Hiring Manager console  → sidebar: "My requisitions"
+       - Recruiter / HR Admin console → sidebar: "Approvals", "Open requisitions"
+       - Candidate job board (public) → sidebar: "Browse jobs"
+     The Requisition Detail screen is shared by both internal roles; it carries an explicit,
+     clearly-labeled "Prototype control" to simulate viewing it as either role, because that is
+     the cleanest way to show permission differences (AC3, AC5, AC10, AC16, AC17) side by side
+     for sign-off without needing separate logins. -->
+
+<!-- Fixture data: inline JSON, mutated in-memory as the reviewer clicks through actions. -->
+<script id="fixture-data" type="application/json">
+{
+  "users": [
+    { "id": "priya", "name": "Priya Nathan", "role": "Hiring Manager" },
+    { "id": "jordan", "name": "Jordan Reyes", "role": "Hiring Manager" },
+    { "id": "alicia", "name": "Alicia Gomez", "role": "Hiring Manager" },
+    { "id": "wen", "name": "Wen Zhao", "role": "Hiring Manager" },
+    { "id": "sam", "name": "Sam Osei", "role": "Finance Analyst" },
+    { "id": "morgan", "name": "Morgan Clarke", "role": "HR Admin" },
+    { "id": "devon", "name": "Devon Blake", "role": "Recruiter" }
+  ],
+  "requisitions": [
+    {
+      "id": "REQ-1042", "title": "Senior Backend Engineer", "department": "Engineering", "location": "Remote (US)",
+      "employmentType": "Full-time", "headcount": 1, "startDate": "2026-11-16",
+      "description": "Own the payments service rewrite and mentor two mid-level engineers.",
+      "salaryMin": 150000, "salaryMax": 180000,
+      "hiringManagerId": "priya", "hiringManagerStatus": "active",
+      "status": "draft", "lastSavedAt": "2026-10-13", "pipeline": []
+    },
+    {
+      "id": "REQ-1039", "title": "Product Designer", "department": "Design", "location": "Austin, TX",
+      "employmentType": "Full-time", "headcount": 1, "startDate": "2026-11-02",
+      "description": "Lead end-to-end design for the onboarding redesign, from research through shipped UI.",
+      "salaryMin": 120000, "salaryMax": 145000,
+      "hiringManagerId": "priya", "hiringManagerStatus": "active",
+      "status": "pending_approval", "submittedAt": "2026-10-12", "pipeline": []
+    },
+    {
+      "id": "REQ-1031", "title": "Customer Success Manager", "department": "Customer Success", "location": "Remote (US)",
+      "employmentType": "Full-time", "headcount": 2, "startDate": "2026-10-26",
+      "description": "Manage renewals and onboarding for our mid-market accounts.",
+      "salaryMin": 90000, "salaryMax": 110000,
+      "hiringManagerId": "priya", "hiringManagerStatus": "active",
+      "status": "rejected", "rejectedBy": "Morgan Clarke (HR Admin)", "rejectedAt": "2026-10-08",
+      "rejectionReason": "Headcount for this role moves to Q1 planning. Please resubmit once budget is approved.",
+      "pipeline": []
+    },
+    {
+      "id": "REQ-1020", "title": "Staff Data Engineer", "department": "Engineering", "location": "New York, NY",
+      "employmentType": "Full-time", "headcount": 1, "startDate": "2026-10-05",
+      "description": "Design the event-streaming platform powering real-time analytics for the product team.",
+      "salaryMin": 170000, "salaryMax": 205000,
+      "hiringManagerId": "priya", "hiringManagerStatus": "active",
+      "status": "open", "approvedBy": "Morgan Clarke (HR Admin)", "publishedAt": "2026-09-28",
+      "pipeline": [
+        { "name": "Elena Cho", "stage": "Phone screen" },
+        { "name": "Marcus Webb", "stage": "Onsite" },
+        { "name": "Sam Patel", "stage": "Offer" }
+      ]
+    },
+    {
+      "id": "REQ-1005", "title": "Support Engineer II", "department": "Support", "location": "Remote (Global)",
+      "employmentType": "Full-time", "headcount": 1, "startDate": "2026-08-24",
+      "description": "Triage and resolve tier-2 escalations for our enterprise customers.",
+      "salaryMin": 85000, "salaryMax": 100000,
+      "hiringManagerId": "jordan", "hiringManagerStatus": "role_changed",
+      "status": "open", "approvedBy": "Devon Blake (Recruiter)", "publishedAt": "2026-08-02",
+      "pipeline": [
+        { "name": "Taylor Brooks", "stage": "Phone screen" }
+      ]
+    }
+  ]
+}
+</script>
+
+<!-- Reviewer bar -->
+<div id="review-bar" style="position:fixed;top:0;left:0;right:0;z-index:9999;
+  display:flex;align-items:center;gap:10px;padding:8px 16px;
+  background:var(--color-bg);border-bottom:1px solid var(--color-border);font-size:13px;font-family:var(--font-family-base)">
+  <span style="font-family:var(--font-family-mono);color:var(--color-fg-muted)">UAT-14OCT-STORY-017</span>
+  <button id="prev-btn">← Prev</button>
+  <span id="screen-label" style="flex:1;text-align:center;font-weight:600;color:var(--color-fg)"></span>
+  <button id="next-btn">Next →</button>
+</div>
+<div style="height:46px"></div><!-- spacer -->
+<style>
+  #review-bar button { background: none; border: none; color: var(--color-primary); cursor: pointer; font-family: var(--font-family-base); font-size: 13px; padding: var(--space-1) var(--space-2); }
+  #review-bar button:hover { text-decoration: underline; }
+</style>
+
+<div id="screens">
+
+  <!-- Screen: Overview
+       Notes:
+         - Orientation screen only; not an AC in itself.
+         - Explains the three consoles in this story and the status-chip legend reused
+           on every later screen.
+         - "Open flow" buttons jump straight to the relevant screen via show(n).
+  -->
+  <!-- State: default -->
+  <div class="screen" data-name="Overview">
+    <div class="app-shell">
+      <nav class="sidebar">
+        <div class="sidebar-nav">
+          <span class="sidebar-link is-active">Overview</span>
+        </div>
+      </nav>
+      <div style="flex:1; display:flex; flex-direction:column;">
+        <div class="topbar">
+          <div class="topbar-title">
+            <h1>Job requisition creation &amp; approval</h1>
+            <span class="context-label">Prototype walkthrough — UAT-14OCT-STORY-017</span>
+          </div>
+        </div>
+        <div class="content">
+          <p style="max-width:65ch">
+            A Hiring Manager requests a new job opening; a Recruiter or HR Admin must approve it
+            before it is published and open to candidates. This prototype covers requisition
+            creation, approval/rejection, publishing, and reassigning an open requisition's
+            owner. It does not cover candidate sourcing or pipeline movement.
+          </p>
+          <div class="card">
+            <h3 class="card-title">Status chip legend</h3>
+            <div class="legend">
+              <span class="chip chip-neutral">Draft</span>
+              <span class="text-muted">saved, not yet submitted</span>
+              <span class="chip chip-warning">Pending approval</span>
+              <span class="text-muted">awaiting a Recruiter/HR Admin</span>
+              <span class="chip chip-success">Open</span>
+              <span class="text-muted">published, visible to candidates</span>
+              <span class="chip chip-danger">Rejected</span>
+              <span class="text-muted">sent back to the hiring manager</span>
+            </div>
+          </div>
+          <div class="role-cards">
+            <div class="card">
+              <h3 class="card-title">Hiring Manager</h3>
+              <p class="card-body">Draft, submit, and track your own requisitions. Resubmit anything that was rejected.</p>
+              <button class="btn btn-primary" onclick="show(1)">Open flow</button>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Recruiter / HR Admin</h3>
+              <p class="card-body">Approve or reject pending requisitions, and reassign an open requisition's owner.</p>
+              <button class="btn btn-primary" onclick="show(4)">Open flow</button>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Candidate</h3>
+              <p class="card-body">Browse and apply to open roles only — unapproved requisitions never appear.</p>
+              <button class="btn btn-primary" onclick="show(5)">Open flow</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen: Hiring Manager – My Requisitions
+       Notes:
+         - Satisfies AC12 (draft shown in list) and AC14 (rejected shown as rejected).
+         - Draft rows route to "Edit draft" (Create/Edit screen); others route to "View"
+           (Requisition Detail screen, pre-set to the Hiring Manager role).
+         - "Preview: no requisitions yet" is a reviewer-only toggle to show the empty state.
+  -->
+  <div class="screen" data-name="Hiring Manager – My Requisitions">
+    <div class="app-shell">
+      <nav class="sidebar">
+        <div class="sidebar-nav">
+          <span class="sidebar-link is-active">My requisitions</span>
+        </div>
+        <div class="sidebar-identity"><strong>Priya Nathan</strong>Hiring Manager</div>
+      </nav>
+      <div style="flex:1; display:flex; flex-direction:column;">
+        <div class="topbar">
+          <div class="topbar-title">
+            <h1>My requisitions</h1>
+            <span class="context-label">Hiring Manager console</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-primary" onclick="openCreate('new')">New requisition</button>
+          </div>
+        </div>
+        <div class="content">
+          <p class="text-muted" style="max-width:65ch">Requisitions you've created. Submit a draft once it's ready, or resubmit one that was rejected — only you can see and edit your drafts.</p>
+          <div id="hm-list-banner"></div>
+          <div id="hm-list-container"><!-- State: success (rendered by renderHmList) --></div>
+          <button class="btn btn-secondary btn-sm" id="hm-empty-toggle" onclick="toggleHmEmptyPreview()">Preview: no requisitions yet</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen: Hiring Manager – Create / Edit Requisition
+       Notes:
+         - One form serves three entry points, each with its own banner + button copy:
+             new draft (AC1), editing an existing draft (AC13), and resubmitting a
+             rejected requisition (AC15).
+         - Inline, specific validation keeps the user's input (no values are cleared on error).
+         - "Save as draft" and "Submit for approval" both disable + relabel while pending,
+           per the feedback baseline.
+  -->
+  <div class="screen" data-name="Hiring Manager – Create / Edit Requisition">
+    <div class="app-shell">
+      <nav class="sidebar">
+        <div class="sidebar-nav">
+          <span class="sidebar-link is-active">My requisitions</span>
+        </div>
+        <div class="sidebar-identity"><strong>Priya Nathan</strong>Hiring Manager</div>
+      </nav>
+      <div style="flex:1; display:flex; flex-direction:column;">
+        <div class="topbar">
+          <div class="topbar-title">
+            <h1 id="create-title">New requisition</h1>
+            <span class="context-label">Hiring Manager console</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-secondary" onclick="show(1)">Cancel</button>
+          </div>
+        </div>
+        <div class="content">
+          <div id="create-banner"></div>
+          <form id="req-form" class="card" onsubmit="return false;" novalidate>
+            <div class="form-grid">
+              <div class="field field-span-2">
+                <label class="field-label" for="f-title">Job title</label>
+                <input class="input" id="f-title" type="text" placeholder="e.g. Senior Backend Engineer" />
+                <div class="field-error" id="err-title" hidden></div>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-dept">Department</label>
+                <select class="select" id="f-dept">
+                  <option value="">Select a department</option>
+                  <option>Engineering</option>
+                  <option>Design</option>
+                  <option>Product</option>
+                  <option>Customer Success</option>
+                  <option>Support</option>
+                  <option>Sales</option>
+                  <option>Marketing</option>
+                  <option>Finance</option>
+                  <option>People</option>
+                </select>
+                <div class="field-error" id="err-dept" hidden></div>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-location">Location</label>
+                <input class="input" id="f-location" type="text" placeholder="e.g. Remote (US)" />
+                <div class="field-error" id="err-location" hidden></div>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-type">Employment type</label>
+                <select class="select" id="f-type">
+                  <option>Full-time</option>
+                  <option>Part-time</option>
+                  <option>Contract</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-headcount">Headcount</label>
+                <input class="input" id="f-headcount" type="number" min="1" value="1" />
+                <div class="field-error" id="err-headcount" hidden></div>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-start">Target start date</label>
+                <input class="input" id="f-start" type="date" />
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-hm">Hiring manager</label>
+                <input class="input" id="f-hm" type="text" value="Priya Nathan" disabled />
+                <div class="field-hint">Requisitions are owned by the manager who creates them until reassigned.</div>
+              </div>
+              <div class="field field-span-2">
+                <label class="field-label" for="f-desc">Job description</label>
+                <textarea class="textarea" id="f-desc" placeholder="Summarize responsibilities, requirements, and what success looks like in this role."></textarea>
+                <div class="field-error" id="err-desc" hidden></div>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-salary-min">Salary range — min</label>
+                <input class="input" id="f-salary-min" type="number" min="0" placeholder="e.g. 120000" />
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-salary-max">Salary range — max</label>
+                <input class="input" id="f-salary-max" type="number" min="0" placeholder="e.g. 150000" />
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-secondary" type="button" id="btn-save-draft" onclick="saveDraft()">Save as draft</button>
+              <button class="btn btn-primary" type="button" id="btn-submit" onclick="submitForApproval()">Submit for approval</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen: Requisition Detail (shared by Hiring Manager and Recruiter / HR Admin)
+       Notes:
+         - "Viewing requisition" switcher lets the reviewer inspect every status.
+         - "Prototype control — simulate role" is explicitly labeled as a prototype-only
+           aid; it is not a real feature of the product.
+         - Draft: AC12/14 context. Pending: AC2 (approve), AC3 (HM blocked), AC4 (reject),
+           AC5 (HM blocked), AC16 (reassign blocked while pending). Rejected: AC14, AC15.
+           Open: AC8, AC9 (reassign updates owner, pipeline persists), AC10 (HM blocked),
+           AC11 (former HM, still open, pipeline unchanged), AC17 (non-HM target blocked
+           in the reassign modal).
+  -->
+  <div class="screen" data-name="Requisition Detail">
+    <div class="app-shell">
+      <nav class="sidebar">
+        <div class="sidebar-nav">
+          <span class="sidebar-link" id="nav-my-reqs">My requisitions</span>
+          <span class="sidebar-link" id="nav-approvals">Approvals</span>
+        </div>
+        <div class="sidebar-identity" id="detail-identity"></div>
+      </nav>
+      <div style="flex:1; display:flex; flex-direction:column;">
+        <div class="topbar">
+          <div class="topbar-title">
+            <h1 id="detail-title">Requisition</h1>
+            <span class="context-label" id="detail-context">Requisition detail</span>
+          </div>
+          <div class="topbar-actions">
+            <label class="field-label" for="req-switcher" style="margin:0">Viewing requisition:</label>
+            <select class="select" id="req-switcher" onchange="selectDetail(this.value)"></select>
+          </div>
+        </div>
+        <div class="content">
+          <div class="proto-note">
+            <strong>Prototype control — simulate role.</strong> This toggle isn't part of the real product;
+            it lets you preview this screen as each role so you can check permission rules below.
+            <div class="segmented" style="margin-top:var(--space-2)">
+              <button id="role-btn-hm" onclick="setDetailRole('hiring_manager')">Hiring Manager (Priya Nathan)</button>
+              <button id="role-btn-rec" onclick="setDetailRole('recruiter')">Recruiter / HR Admin (Morgan Clarke)</button>
+            </div>
+          </div>
+          <div id="detail-body"><!-- rendered by renderDetail() --></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reassign modal: lives inside the Requisition Detail screen, hidden until opened. -->
+  <div class="modal-overlay" id="reassign-modal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="reassign-title" onclick="if(event.target===this) closeReassignModal()">
+    <div class="modal">
+      <h2 id="reassign-title">Reassign requisition owner</h2>
+      <p class="text-muted" id="reassign-sub"></p>
+      <div class="field">
+        <label class="field-label" for="reassign-select">New hiring manager</label>
+        <select class="select" id="reassign-select"></select>
+        <div class="field-hint">Only users with the Hiring Manager role can own a requisition — other roles are listed but can't be selected.</div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeReassignModal()">Cancel</button>
+        <button class="btn btn-primary" id="confirm-reassign-btn" onclick="confirmReassign()">Confirm reassignment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen: Recruiter / HR Admin – Approval Queue
+       Notes:
+         - Satisfies AC2 (approve → open) and AC4 (reject → rejected, with required reason).
+         - Demonstrates loading, error, empty and success states for this data view, via the
+           "Refresh" and "Simulate connection error" controls.
+  -->
+  <div class="screen" data-name="Recruiter / HR Admin – Approval Queue">
+    <div class="app-shell">
+      <nav class="sidebar">
+        <div class="sidebar-nav">
+          <span class="sidebar-link is-active">Approvals</span>
+          <button type="button" class="sidebar-link sidebar-link-btn" onclick="openDetailAsRecruiter('REQ-1020')">Open requisitions</button>
+        </div>
+        <div class="sidebar-identity"><strong>Morgan Clarke</strong>HR Admin</div>
+      </nav>
+      <div style="flex:1; display:flex; flex-direction:column;">
+        <div class="topbar">
+          <div class="topbar-title">
+            <h1>Approval queue</h1>
+            <span class="context-label">Recruiter / HR Admin console</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-secondary btn-sm" onclick="simulateQueueError()">Simulate connection error</button>
+            <button class="btn btn-secondary" onclick="refreshQueue()">Refresh</button>
+          </div>
+        </div>
+        <div class="content">
+          <p class="text-muted" style="max-width:65ch">Requisitions waiting on a Recruiter or HR Admin decision. Approving publishes the role to the job board; rejecting sends it back to the hiring manager with a reason.</p>
+          <div id="queue-container"><!-- rendered by renderQueue() --></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen: Candidate – Job Board
+       Notes:
+         - Satisfies AC6: only requisitions with status "open" are ever listed here —
+           draft, pending approval, and rejected requisitions are filtered out upstream,
+           not just hidden by a button.
+  -->
+  <div class="screen" data-name="Candidate – Job Board">
+    <div class="app-shell">
+      <nav class="sidebar">
+        <div class="sidebar-nav">
+          <span class="sidebar-link is-active">Browse jobs</span>
+        </div>
+        <div class="sidebar-identity">Browsing as a candidate<br />(not signed in)</div>
+      </nav>
+      <div style="flex:1; display:flex; flex-direction:column;">
+        <div class="topbar">
+          <div class="topbar-title">
+            <h1>Open positions</h1>
+            <span class="context-label">Candidate job board</span>
+          </div>
+        </div>
+        <div class="content">
+          <div class="field" style="max-width:360px">
+            <label class="field-label" for="job-search">Search open roles</label>
+            <input class="input" id="job-search" type="text" placeholder="Search by title, department, or location" oninput="renderJobBoard()" />
+          </div>
+          <div id="job-board-container"><!-- rendered by renderJobBoard() --></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen: Candidate – Job Posting
+       Notes:
+         - Satisfies AC7: a requisition that hasn't been approved refuses the application,
+           with a plain explanation and no way to submit one.
+         - The two "Prototype control" buttons simulate a candidate landing on an open
+           posting versus landing on an unapproved one via a shared/bookmarked direct link.
+  -->
+  <div class="screen" data-name="Candidate – Job Posting">
+    <div class="app-shell">
+      <nav class="sidebar">
+        <div class="sidebar-nav">
+          <span class="sidebar-link is-active">Browse jobs</span>
+        </div>
+        <div class="sidebar-identity">Browsing as a candidate<br />(not signed in)</div>
+      </nav>
+      <div style="flex:1; display:flex; flex-direction:column;">
+        <div class="topbar">
+          <div class="topbar-title">
+            <h1 id="posting-title">Job posting</h1>
+            <span class="context-label">Candidate job board</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-secondary" onclick="show(5)">Back to open positions</button>
+          </div>
+        </div>
+        <div class="content">
+          <div class="proto-note">
+            <strong>Prototype control — simulate navigation.</strong>
+            <div class="segmented" style="margin-top:var(--space-2)">
+              <button id="posting-btn-open" onclick="viewPosting('REQ-1020')">Open posting (Staff Data Engineer)</button>
+              <button id="posting-btn-unapproved" onclick="viewPosting('REQ-1039')">Direct link to an unapproved posting (Product Designer)</button>
+            </div>
+          </div>
+          <div id="posting-container"><!-- rendered by renderPosting() --></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  const FIXTURES = JSON.parse(document.getElementById('fixture-data').textContent);
+  const USERS = FIXTURES.users;
+  let REQS = JSON.parse(JSON.stringify(FIXTURES.requisitions));
+  const CURRENT_HM = { id: 'priya', name: 'Priya Nathan', role: 'Hiring Manager' };
+  const CURRENT_RECRUITER = { id: 'morgan', name: 'Morgan Clarke', role: 'HR Admin' };
+
+  const STATUS_LABEL = { draft: 'Draft', pending_approval: 'Pending approval', open: 'Open', rejected: 'Rejected' };
+  const STATUS_CHIP = { draft: 'chip-neutral', pending_approval: 'chip-warning', open: 'chip-success', rejected: 'chip-danger' };
+
+  function wait(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+  function findReq(id) { return REQS.find(r => r.id === id); }
+  function findUser(id) { return USERS.find(u => u.id === id); }
+  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function formatDate(iso) { if (!iso) return '—'; const d = new Date(iso + 'T00:00:00'); return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+  function money(n) { return n ? '$' + Number(n).toLocaleString('en-US') : '—'; }
+  function statusChip(status) { return `<span class="chip ${STATUS_CHIP[status]}">${STATUS_LABEL[status]}</span>`; }
+
+  function showToast(msg, variant) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'is-visible';
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => { t.className = ''; }, 3200);
+  }
+
+  /* ---------------- Reviewer bar / screen cycling ---------------- */
+  const screens = Array.from(document.querySelectorAll('.screen'));
+  let cur = 0;
+  function show(i) {
+    cur = Math.max(0, Math.min(screens.length - 1, i));
+    screens.forEach((s, j) => s.style.display = j === cur ? 'block' : 'none');
+    document.getElementById('screen-label').textContent =
+      `${cur + 1} / ${screens.length}: ${screens[cur].dataset.name}`;
+    closeReassignModal();
+  }
+  document.getElementById('prev-btn').onclick = () => show(cur - 1);
+  document.getElementById('next-btn').onclick = () => show(cur + 1);
+  document.addEventListener('keydown', e => {
+    const tag = (document.activeElement && document.activeElement.tagName) || '';
+    const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(tag);
+    if (document.getElementById('reassign-modal').style.display !== 'none') {
+      if (e.key === 'Escape') closeReassignModal();
+      return;
+    }
+    if (typing) return;
+    if (e.key === 'ArrowRight') show(cur + 1);
+    if (e.key === 'ArrowLeft') show(cur - 1);
+  });
+
+  /* ================= Hiring Manager – My Requisitions ================= */
+  let hmEmptyPreview = false;
+  function toggleHmEmptyPreview() {
+    hmEmptyPreview = !hmEmptyPreview;
+    document.getElementById('hm-empty-toggle').textContent = hmEmptyPreview ? 'Show my actual requisitions' : 'Preview: no requisitions yet';
+    renderHmList();
+  }
+
+  function renderHmList() {
+    const container = document.getElementById('hm-list-container');
+    const mine = REQS.filter(r => r.hiringManagerId === CURRENT_HM.id);
+    if (hmEmptyPreview || mine.length === 0) {
+      container.innerHTML = `
+        <!-- State: empty -->
+        <div class="empty-state">
+          <h3>You haven't created any requisitions yet</h3>
+          <p>Start a new requisition to request a job opening — it's saved as a draft until you submit it.</p>
+          <button class="btn btn-primary" onclick="openCreate('new')">New requisition</button>
+        </div>`;
+      return;
+    }
+    const rows = mine.map(r => {
+      const activity = r.status === 'draft' ? `Saved ${formatDate(r.lastSavedAt)}`
+        : r.status === 'pending_approval' ? `Submitted ${formatDate(r.submittedAt)}`
+        : r.status === 'open' ? `Published ${formatDate(r.publishedAt)}`
+        : `Rejected ${formatDate(r.rejectedAt)}`;
+      const action = r.status === 'draft'
+        ? `<button class="btn btn-secondary btn-sm" onclick="openCreate('edit','${r.id}')">Edit draft</button>`
+        : `<button class="btn btn-secondary btn-sm" onclick="openDetailAsHm('${r.id}')">View</button>`;
+      return `<tr>
+        <td><strong>${escapeHtml(r.title)}</strong><br /><span class="text-muted">${r.id}</span></td>
+        <td>${escapeHtml(r.department)}</td>
+        <td>${statusChip(r.status)}</td>
+        <td>${activity}</td>
+        <td class="table-actions">${action}</td>
+      </tr>`;
+    }).join('');
+    container.innerHTML = `
+      <!-- State: success -->
+      <table class="table">
+        <thead><tr><th>Requisition</th><th>Department</th><th>Status</th><th>Last activity</th><th>Actions</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  /* ================= Create / Edit Requisition ================= */
+  let createMode = 'new'; // 'new' | 'edit' | 'resubmit'
+  let createReqId = null;
+
+  function openCreate(mode, reqId) {
+    createMode = mode;
+    createReqId = reqId || null;
+    const banner = document.getElementById('create-banner');
+    const title = document.getElementById('create-title');
+    clearFormErrors();
+
+    if (mode === 'new') {
+      title.textContent = 'New requisition';
+      banner.innerHTML = '';
+      setFormValues({ title: '', department: '', location: '', employmentType: 'Full-time', headcount: 1, startDate: '', description: '', salaryMin: '', salaryMax: '' });
+    } else {
+      const r = findReq(reqId);
+      setFormValues(r);
+      if (mode === 'edit') {
+        title.textContent = 'Edit draft';
+        banner.innerHTML = '';
+      } else {
+        title.textContent = `Resubmit requisition — ${escapeHtml(r.title)}`;
+        banner.innerHTML = `
+          <!-- State: resubmit-after-rejection -->
+          <div class="banner banner-warning">
+            <span class="banner-icon">↺</span>
+            <div><strong>You're resubmitting a previously rejected requisition.</strong>
+            <p>Rejected by ${escapeHtml(r.rejectedBy)} on ${formatDate(r.rejectedAt)}: "${escapeHtml(r.rejectionReason)}". Submitting will send it back to pending approval.</p></div>
+          </div>`;
+      }
+    }
+    show(2);
+  }
+
+  function setFormValues(r) {
+    document.getElementById('f-title').value = r.title || '';
+    document.getElementById('f-dept').value = r.department || '';
+    document.getElementById('f-location').value = r.location || '';
+    document.getElementById('f-type').value = r.employmentType || 'Full-time';
+    document.getElementById('f-headcount').value = r.headcount || 1;
+    document.getElementById('f-start').value = r.startDate || '';
+    document.getElementById('f-desc').value = r.description || '';
+    document.getElementById('f-salary-min').value = r.salaryMin || '';
+    document.getElementById('f-salary-max').value = r.salaryMax || '';
+  }
+
+  function clearFormErrors() {
+    ['title', 'dept', 'location', 'headcount', 'desc'].forEach(f => {
+      document.getElementById('err-' + f).hidden = true;
+      const el = document.getElementById('f-' + f);
+      if (el) el.classList.remove('has-error');
+    });
+  }
+
+  function validateForm(requireAll) {
+    clearFormErrors();
+    let ok = true;
+    const vals = {
+      title: document.getElementById('f-title').value.trim(),
+      dept: document.getElementById('f-dept').value,
+      location: document.getElementById('f-location').value.trim(),
+      headcount: document.getElementById('f-headcount').value,
+      desc: document.getElementById('f-desc').value.trim(),
+    };
+    function fail(field, msg) {
+      document.getElementById('err-' + field).hidden = false;
+      document.getElementById('err-' + field).textContent = msg;
+      document.getElementById('f-' + field).classList.add('has-error');
+      ok = false;
+    }
+    if (!vals.title) fail('title', 'Enter a job title.');
+    if (requireAll) {
+      if (!vals.dept) fail('dept', 'Select a department.');
+      if (!vals.location) fail('location', 'Enter a location.');
+      if (!vals.headcount || Number(vals.headcount) < 1) fail('headcount', 'Headcount must be at least 1.');
+      if (!vals.desc) fail('desc', 'Add a short job description.');
+    }
+    return ok;
+  }
+
+  function readForm() {
+    return {
+      title: document.getElementById('f-title').value.trim(),
+      department: document.getElementById('f-dept').value,
+      location: document.getElementById('f-location').value.trim(),
+      employmentType: document.getElementById('f-type').value,
+      headcount: Number(document.getElementById('f-headcount').value) || 1,
+      startDate: document.getElementById('f-start').value,
+      description: document.getElementById('f-desc').value.trim(),
+      salaryMin: Number(document.getElementById('f-salary-min').value) || null,
+      salaryMax: Number(document.getElementById('f-salary-max').value) || null,
+    };
+  }
+
+  async function saveDraft() {
+    if (!validateForm(false)) return;
+    const btn = document.getElementById('btn-save-draft');
+    const original = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Saving…';
+    await wait(300);
+    const vals = readForm();
+    if (createMode === 'new') {
+      const id = 'REQ-' + (1043 + REQS.filter(r => r.hiringManagerId === 'priya').length);
+      REQS.unshift(Object.assign({ id, hiringManagerId: 'priya', hiringManagerStatus: 'active', status: 'draft', pipeline: [] }, vals, { lastSavedAt: new Date().toISOString().slice(0, 10) }));
+    } else {
+      const r = findReq(createReqId);
+      Object.assign(r, vals, { status: 'draft', lastSavedAt: new Date().toISOString().slice(0, 10) });
+    }
+    btn.disabled = false; btn.textContent = original;
+    renderHmList();
+    show(1);
+    showToast('Saved as draft.');
+  }
+
+  async function submitForApproval() {
+    if (!validateForm(true)) return;
+    const btn = document.getElementById('btn-submit');
+    const original = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    await wait(300);
+    const vals = readForm();
+    const wasResubmit = createMode === 'resubmit';
+    if (createMode === 'new') {
+      const id = 'REQ-' + (1043 + REQS.filter(r => r.hiringManagerId === 'priya').length);
+      REQS.unshift(Object.assign({ id, hiringManagerId: 'priya', hiringManagerStatus: 'active', status: 'pending_approval', pipeline: [] }, vals, { submittedAt: new Date().toISOString().slice(0, 10) }));
+    } else {
+      const r = findReq(createReqId);
+      Object.assign(r, vals, { status: 'pending_approval', submittedAt: new Date().toISOString().slice(0, 10), rejectedBy: null, rejectedAt: null, rejectionReason: null });
+    }
+    btn.disabled = false; btn.textContent = original;
+    renderHmList();
+    renderQueue();
+    show(1);
+    showToast(wasResubmit ? 'Resubmitted for approval.' : 'Submitted for approval.');
+  }
+
+  /* ================= Requisition Detail ================= */
+  let detailReqId = 'REQ-1020';
+  let detailRole = 'recruiter';
+
+  function populateReqSwitcher() {
+    const sel = document.getElementById('req-switcher');
+    sel.innerHTML = REQS.map(r => `<option value="${r.id}">${r.id} — ${escapeHtml(r.title)} (${STATUS_LABEL[r.status]})</option>`).join('');
+  }
+
+  function selectDetail(id) {
+    detailReqId = id;
+    document.getElementById('req-switcher').value = id;
+    renderDetail();
+  }
+
+  function openDetailAsHm(id) { detailReqId = id; detailRole = 'hiring_manager'; populateReqSwitcher(); selectDetail(id); setDetailRole('hiring_manager'); show(3); }
+  function openDetailAsRecruiter(id) { detailReqId = id; detailRole = 'recruiter'; populateReqSwitcher(); selectDetail(id); setDetailRole('recruiter'); show(3); }
+
+  function setDetailRole(role) {
+    detailRole = role;
+    document.getElementById('role-btn-hm').setAttribute('aria-pressed', role === 'hiring_manager');
+    document.getElementById('role-btn-rec').setAttribute('aria-pressed', role === 'recruiter');
+    document.getElementById('nav-my-reqs').classList.toggle('is-active', role === 'hiring_manager');
+    document.getElementById('nav-approvals').classList.toggle('is-active', role === 'recruiter');
+    document.getElementById('detail-identity').innerHTML = role === 'hiring_manager'
+      ? '<strong>Priya Nathan</strong>Hiring Manager'
+      : '<strong>Morgan Clarke</strong>HR Admin';
+    renderDetail();
+  }
+
+  function renderDetail() {
+    const r = findReq(detailReqId);
+    document.getElementById('detail-title').textContent = `${r.title} · ${r.id}`;
+    document.getElementById('detail-context').textContent = `Requisition detail — ${STATUS_LABEL[r.status]}`;
+
+    const summary = `
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:var(--space-3)">
+          <h3 class="section-title">${escapeHtml(r.title)}</h3>
+          ${statusChip(r.status)}
+        </div>
+        <dl class="kv-grid">
+          <div><dt>Department</dt><dd>${escapeHtml(r.department)}</dd></div>
+          <div><dt>Location</dt><dd>${escapeHtml(r.location)}</dd></div>
+          <div><dt>Employment type</dt><dd>${escapeHtml(r.employmentType)}</dd></div>
+          <div><dt>Headcount</dt><dd>${r.headcount}</dd></div>
+          <div><dt>Target start date</dt><dd>${formatDate(r.startDate)}</dd></div>
+          <div><dt>Salary range</dt><dd>${money(r.salaryMin)} – ${money(r.salaryMax)}</dd></div>
+        </dl>
+        <p style="margin-top:var(--space-3)">${escapeHtml(r.description)}</p>
+      </div>`;
+
+    let statusSection = '';
+    if (r.status === 'draft') {
+      statusSection = `
+        <!-- State: draft -->
+        <div class="banner banner-info">
+          <span class="banner-icon">✎</span>
+          <div><strong>This requisition is still a draft.</strong>
+          <p>${detailRole === 'hiring_manager' ? "It's only visible to you until you submit it for approval." : "Drafts aren't visible to Recruiters or HR Admins until the hiring manager submits them — shown here for prototype review only."}</p></div>
+        </div>
+        ${detailRole === 'hiring_manager' ? `<button class="btn btn-primary" onclick="openCreate('edit','${r.id}')">Edit draft</button>` : ''}`;
+    } else if (r.status === 'pending_approval') {
+      const canDecide = detailRole === 'recruiter';
+      statusSection = `
+        <!-- State: pending-approval -->
+        <div class="card">
+          <h3 class="section-title">Approval</h3>
+          <p class="text-muted">Submitted by ${findUser(r.hiringManagerId).name} on ${formatDate(r.submittedAt)}.</p>
+          <div id="reject-reason-area"></div>
+          <div style="display:flex; gap:var(--space-2); margin-top:var(--space-2)">
+            <button class="btn btn-primary" ${canDecide ? '' : 'disabled'} onclick="approveRequisition('${r.id}')">Approve</button>
+            <button class="btn btn-danger" ${canDecide ? '' : 'disabled'} onclick="showRejectReason('${r.id}')">Reject</button>
+          </div>
+          ${canDecide ? '' : `<p class="field-hint" style="margin-top:var(--space-2)">Only a Recruiter or HR Admin can approve or reject a requisition. As a Hiring Manager, it stays pending approval.</p>`}
+        </div>
+        <div class="card">
+          <h3 class="section-title">Ownership</h3>
+          <dl class="kv-grid"><div><dt>Hiring manager</dt><dd>${findUser(r.hiringManagerId).name}</dd></div></dl>
+          <button class="btn btn-secondary" disabled title="Reassignment is only available once a requisition is open.">Reassign owner</button>
+          <p class="field-hint" style="margin-top:var(--space-2)">Reassignment is only available once a requisition is open — this request stays with ${findUser(r.hiringManagerId).name} while it's pending.</p>
+        </div>`;
+    } else if (r.status === 'rejected') {
+      statusSection = `
+        <!-- State: rejected -->
+        <div class="banner banner-danger">
+          <span class="banner-icon">✕</span>
+          <div><strong>Rejected by ${escapeHtml(r.rejectedBy)} on ${formatDate(r.rejectedAt)}.</strong>
+          <p>${escapeHtml(r.rejectionReason)}</p></div>
+        </div>
+        ${detailRole === 'hiring_manager'
+          ? `<button class="btn btn-primary" onclick="openCreate('resubmit','${r.id}')">Resubmit for approval</button>`
+          : `<p class="field-hint">Only the hiring manager who owns this requisition can resubmit it.</p>`}`;
+    } else if (r.status === 'open') {
+      const hmUser = findUser(r.hiringManagerId);
+      const canReassign = detailRole === 'recruiter';
+      const formerNote = r.hiringManagerStatus === 'role_changed'
+        ? `<div class="banner banner-warning" style="margin-top:var(--space-3)"><span class="banner-icon">!</span><div><strong>${hmUser.name}'s role has changed since this requisition opened.</strong><p>It remains open with its candidate pipeline unchanged until a Recruiter or HR Admin reassigns it to a new hiring manager.</p></div></div>`
+        : '';
+      const pipelineRows = r.pipeline.length
+        ? r.pipeline.map(p => `<tr><td>${escapeHtml(p.name)}</td><td>${escapeHtml(p.stage)}</td></tr>`).join('')
+        : `<tr><td colspan="2" class="text-muted">No candidates in the pipeline yet.</td></tr>`;
+      statusSection = `
+        <!-- State: open -->
+        <div class="card">
+          <h3 class="section-title">Ownership</h3>
+          <dl class="kv-grid"><div><dt>Hiring manager</dt><dd>${hmUser.name}</dd></div><div><dt>Approved by</dt><dd>${escapeHtml(r.approvedBy)}</dd></div></dl>
+          ${formerNote}
+          <button class="btn btn-secondary" style="margin-top:var(--space-3)" ${canReassign ? '' : 'disabled'} onclick="openReassignModal('${r.id}')" title="${canReassign ? '' : 'Only a Recruiter or HR Admin can reassign a requisition.'}">Reassign owner</button>
+          ${canReassign ? '' : `<p class="field-hint" style="margin-top:var(--space-2)">Only a Recruiter or HR Admin can reassign a requisition. As a Hiring Manager, this reassignment request would be refused.</p>`}
+        </div>
+        <div class="card">
+          <h3 class="section-title">Candidate pipeline</h3>
+          <p class="text-muted">Candidates stay on the requisition even if its ownership changes.</p>
+          <table class="table"><thead><tr><th>Candidate</th><th>Stage</th></tr></thead><tbody>${pipelineRows}</tbody></table>
+        </div>`;
+    }
+
+    document.getElementById('detail-body').innerHTML = summary + statusSection;
+  }
+
+  function showRejectReason(id) {
+    document.getElementById('reject-reason-area').innerHTML = `
+      <!-- State: rejecting -->
+      <div class="field" style="margin-top:var(--space-2)">
+        <label class="field-label" for="reject-reason">Reason for rejection</label>
+        <textarea class="textarea" id="reject-reason" placeholder="Explain what needs to change before this can be resubmitted."></textarea>
+        <div class="field-error" id="reject-reason-error" hidden>Enter a reason so the hiring manager knows what to fix.</div>
+      </div>
+      <div style="display:flex; gap:var(--space-2)">
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('reject-reason-area').innerHTML=''">Cancel</button>
+        <button class="btn btn-danger btn-sm" onclick="rejectRequisition('${id}')">Confirm rejection</button>
+      </div>`;
+  }
+
+  async function approveRequisition(id) {
+    const r = findReq(id);
+    await wait(300);
+    r.status = 'open';
+    r.approvedBy = `${CURRENT_RECRUITER.name} (${CURRENT_RECRUITER.role})`;
+    r.publishedAt = new Date().toISOString().slice(0, 10);
+    renderDetail(); renderQueue(); renderHmList(); renderJobBoard();
+    populateReqSwitcher(); document.getElementById('req-switcher').value = id;
+    showToast(`Published — "${r.title}" is now open on the job board.`);
+  }
+
+  async function rejectRequisition(id) {
+    const reasonEl = document.getElementById('reject-reason');
+    const reason = reasonEl.value.trim();
+    if (!reason) { document.getElementById('reject-reason-error').hidden = false; return; }
+    await wait(300);
+    const r = findReq(id);
+    r.status = 'rejected';
+    r.rejectedBy = `${CURRENT_RECRUITER.name} (${CURRENT_RECRUITER.role})`;
+    r.rejectedAt = new Date().toISOString().slice(0, 10);
+    r.rejectionReason = reason;
+    renderDetail(); renderQueue(); renderHmList();
+    populateReqSwitcher(); document.getElementById('req-switcher').value = id;
+    showToast(`Rejected — "${r.title}" was sent back to ${findUser(r.hiringManagerId).name}.`);
+  }
+
+  /* ---- Reassign modal ---- */
+  function openReassignModal(id) {
+    const r = findReq(id);
+    document.getElementById('reassign-sub').textContent = `${r.title} (${r.id}) — currently owned by ${findUser(r.hiringManagerId).name}.`;
+    const sel = document.getElementById('reassign-select');
+    const eligible = USERS.filter(u => u.role === 'Hiring Manager' && u.id !== r.hiringManagerId);
+    const ineligible = USERS.filter(u => u.role !== 'Hiring Manager');
+    sel.innerHTML = `
+      <option value="">Select a hiring manager</option>
+      <optgroup label="Hiring managers">${eligible.map(u => `<option value="${u.id}">${u.name}</option>`).join('')}</optgroup>
+      <optgroup label="Not eligible — missing the Hiring Manager role">${ineligible.map(u => `<option value="${u.id}" disabled>${u.name} (${u.role})</option>`).join('')}</optgroup>`;
+    document.getElementById('reassign-modal').dataset.reqId = id;
+    document.getElementById('reassign-modal').style.display = 'flex';
+  }
+  function closeReassignModal() {
+    const m = document.getElementById('reassign-modal');
+    if (m) m.style.display = 'none';
+  }
+  async function confirmReassign() {
+    const modal = document.getElementById('reassign-modal');
+    const id = modal.dataset.reqId;
+    const newHmId = document.getElementById('reassign-select').value;
+    if (!newHmId) { showToast('Select a hiring manager to reassign to.'); return; }
+    const btn = document.getElementById('confirm-reassign-btn');
+    const original = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Reassigning…';
+    await wait(300);
+    const r = findReq(id);
+    r.hiringManagerId = newHmId;
+    r.hiringManagerStatus = 'active';
+    btn.disabled = false; btn.textContent = original;
+    closeReassignModal();
+    renderDetail();
+    showToast(`Reassigned to ${findUser(newHmId).name}. The candidate pipeline is unchanged.`);
+  }
+
+  /* ================= Approval Queue ================= */
+  let queueState = 'success'; // 'loading' | 'error' | 'success'
+
+  function renderQueue() {
+    const container = document.getElementById('queue-container');
+    if (queueState === 'loading') {
+      container.innerHTML = `
+        <!-- State: loading -->
+        <table class="table"><tbody>
+          ${[1,2,3].map(() => `<tr class="skeleton-row"><td colspan="5"><div class="skeleton-bar" style="width:100%"></div></td></tr>`).join('')}
+        </tbody></table>`;
+      return;
+    }
+    if (queueState === 'error') {
+      container.innerHTML = `
+        <!-- State: error -->
+        <div class="banner banner-danger">
+          <span class="banner-icon">!</span>
+          <div><strong>Couldn't load the approval queue.</strong>
+          <p>Check your connection and try again.</p>
+          <button class="btn btn-secondary btn-sm" style="margin-top:var(--space-2)" onclick="refreshQueue()">Retry</button></div>
+        </div>`;
+      return;
+    }
+    const pending = REQS.filter(r => r.status === 'pending_approval');
+    if (pending.length === 0) {
+      container.innerHTML = `
+        <!-- State: empty -->
+        <div class="empty-state">
+          <h3>No requisitions waiting on approval</h3>
+          <p>Nice work — you're all caught up.</p>
+        </div>`;
+      return;
+    }
+    const rows = pending.map(r => `
+      <tr>
+        <td><strong>${escapeHtml(r.title)}</strong><br /><span class="text-muted">${r.id}</span></td>
+        <td>${findUser(r.hiringManagerId).name}</td>
+        <td>${escapeHtml(r.department)}</td>
+        <td>${formatDate(r.submittedAt)}</td>
+        <td class="table-actions">
+          <button class="btn btn-primary btn-sm" onclick="queueApprove('${r.id}')">Approve</button>
+          <button class="btn btn-danger btn-sm" onclick="queueShowReject('${r.id}')">Reject</button>
+        </td>
+      </tr>
+      <tr class="reject-row" id="queue-reject-${r.id}" hidden><td colspan="5"></td></tr>`).join('');
+    container.innerHTML = `
+      <!-- State: success -->
+      <table class="table">
+        <thead><tr><th>Requisition</th><th>Hiring manager</th><th>Department</th><th>Submitted</th><th>Actions</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  function refreshQueue() {
+    queueState = 'loading';
+    renderQueue();
+    setTimeout(() => { queueState = 'success'; renderQueue(); }, 500);
+  }
+  function simulateQueueError() {
+    queueState = 'error';
+    renderQueue();
+  }
+
+  async function queueApprove(id) {
+    await wait(300);
+    const r = findReq(id);
+    r.status = 'open';
+    r.approvedBy = `${CURRENT_RECRUITER.name} (${CURRENT_RECRUITER.role})`;
+    r.publishedAt = new Date().toISOString().slice(0, 10);
+    renderQueue(); renderHmList(); renderJobBoard();
+    showToast(`Published — "${r.title}" is now open on the job board.`);
+  }
+
+  function queueShowReject(id) {
+    const row = document.getElementById('queue-reject-' + id);
+    row.hidden = false;
+    row.querySelector('td').innerHTML = `
+      <!-- State: rejecting -->
+      <div class="field" style="max-width:480px">
+        <label class="field-label" for="qreason-${id}">Reason for rejection</label>
+        <textarea class="textarea" id="qreason-${id}" placeholder="Explain what needs to change before this can be resubmitted."></textarea>
+        <div class="field-error" id="qreason-error-${id}" hidden>Enter a reason so the hiring manager knows what to fix.</div>
+      </div>
+      <div style="display:flex; gap:var(--space-2)">
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('queue-reject-${id}').hidden=true">Cancel</button>
+        <button class="btn btn-danger btn-sm" onclick="queueConfirmReject('${id}')">Confirm rejection</button>
+      </div>`;
+  }
+
+  async function queueConfirmReject(id) {
+    const reasonEl = document.getElementById('qreason-' + id);
+    const reason = reasonEl.value.trim();
+    if (!reason) { document.getElementById('qreason-error-' + id).hidden = false; return; }
+    await wait(300);
+    const r = findReq(id);
+    r.status = 'rejected';
+    r.rejectedBy = `${CURRENT_RECRUITER.name} (${CURRENT_RECRUITER.role})`;
+    r.rejectedAt = new Date().toISOString().slice(0, 10);
+    r.rejectionReason = reason;
+    renderQueue(); renderHmList();
+    showToast(`Rejected — "${r.title}" was sent back to ${findUser(r.hiringManagerId).name}.`);
+  }
+
+  /* ================= Candidate – Job Board ================= */
+  function renderJobBoard() {
+    const container = document.getElementById('job-board-container');
+    const q = (document.getElementById('job-search').value || '').toLowerCase().trim();
+    const open = REQS.filter(r => r.status === 'open').filter(r =>
+      !q || r.title.toLowerCase().includes(q) || r.department.toLowerCase().includes(q) || r.location.toLowerCase().includes(q));
+    if (open.length === 0) {
+      container.innerHTML = `
+        <!-- State: empty -->
+        <div class="empty-state">
+          <h3>No open roles match your search</h3>
+          <p>Try a different keyword or clear your search.</p>
+        </div>`;
+      return;
+    }
+    container.innerHTML = `
+      <!-- State: success -->
+      <div class="job-cards">
+        ${open.map(r => `
+          <div class="card">
+            <h3 class="card-title">${escapeHtml(r.title)}</h3>
+            <p class="job-card-meta">${escapeHtml(r.department)} · ${escapeHtml(r.location)} · ${escapeHtml(r.employmentType)}</p>
+            <p class="card-body">${escapeHtml(r.description)}</p>
+            <div class="job-card-footer">
+              <span class="text-muted">${money(r.salaryMin)} – ${money(r.salaryMax)}</span>
+              <button class="btn btn-primary btn-sm" onclick="viewPosting('${r.id}')">View &amp; apply</button>
+            </div>
+          </div>`).join('')}
+      </div>`;
+  }
+
+  /* ================= Candidate – Job Posting ================= */
+  let postingReqId = 'REQ-1020';
+  let applied = false;
+
+  function viewPosting(id) {
+    postingReqId = id;
+    applied = false;
+    const r = findReq(id);
+    document.getElementById('posting-btn-open').setAttribute('aria-pressed', r.status === 'open');
+    document.getElementById('posting-btn-unapproved').setAttribute('aria-pressed', r.status !== 'open');
+    document.getElementById('posting-title').textContent = r.status === 'open' ? r.title : 'Posting unavailable';
+    renderPosting();
+    show(6);
+  }
+
+  function renderPosting() {
+    const r = findReq(postingReqId);
+    const container = document.getElementById('posting-container');
+    if (r.status !== 'open') {
+      container.innerHTML = `
+        <!-- State: refused-unapproved -->
+        <div class="banner banner-warning">
+          <span class="banner-icon">!</span>
+          <div><strong>This job posting isn't open for applications yet.</strong>
+          <p>It's still under review, or no longer available. It also won't appear when browsing or searching open roles.</p></div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">${escapeHtml(r.title)}</h3>
+          <p class="job-card-meta">${escapeHtml(r.department)} · ${escapeHtml(r.location)}</p>
+          <button class="btn btn-secondary" disabled title="Applications are refused until this requisition is published.">Apply now</button>
+        </div>
+        <button class="btn btn-primary" onclick="show(5)">Browse open positions</button>`;
+      return;
+    }
+    if (applied) {
+      container.innerHTML = `
+        <!-- State: applied -->
+        <div class="banner banner-success">
+          <span class="banner-icon">✓</span>
+          <div><strong>Application submitted — ${escapeHtml(r.title)}.</strong>
+          <p>The hiring team will be in touch if there's a match.</p></div>
+        </div>`;
+      return;
+    }
+    container.innerHTML = `
+      <!-- State: open -->
+      <div class="card">
+        <h3 class="card-title">${escapeHtml(r.title)}</h3>
+        <p class="job-card-meta">${escapeHtml(r.department)} · ${escapeHtml(r.location)} · ${escapeHtml(r.employmentType)}</p>
+        <p class="card-body">${escapeHtml(r.description)}</p>
+        <dl class="kv-grid" style="margin-top:var(--space-3)">
+          <div><dt>Salary range</dt><dd>${money(r.salaryMin)} – ${money(r.salaryMax)}</dd></div>
+          <div><dt>Target start date</dt><dd>${formatDate(r.startDate)}</dd></div>
+        </dl>
+        <button class="btn btn-primary" style="margin-top:var(--space-3)" onclick="applyToPosting(this)">Apply now</button>
+      </div>`;
+  }
+
+  async function applyToPosting(btn) {
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    await wait(300);
+    applied = true;
+    renderPosting();
+    showToast('Application submitted.');
+  }
+
+  /* ---------------- Init ---------------- */
+  populateReqSwitcher();
+  renderHmList();
+  renderQueue();
+  renderJobBoard();
+  document.getElementById('req-switcher').value = detailReqId;
+  setDetailRole('recruiter');
+  viewPosting('REQ-1020');
+  show(0);
+</script>
+
+<!-- ============================================================
+     Design notes for reviewers / downstream build
+     ============================================================
+     - Two composite patterns were needed beyond the current design
+       system and are flagged here rather than silently invented:
+         1. `.chip-neutral` — a 4th status-chip variant for "Draft"
+            (the token set only defines success/warning/danger chip
+            colors). Composed from existing color-bg-subtle +
+            color-fg-muted + color-border; no new literal colors.
+            Worth promoting to a real token (e.g. chip.neutral.*) if
+            other stories also need a neutral/inactive status.
+         2. `.modal-overlay` background — uses the same alpha-blended
+            color-fg recipe tokens.css already applies for
+            --shadow-card, since there's no dedicated overlay/scrim
+            token yet.
+     - The "Prototype control" labels (role simulator, posting
+       navigation simulator) are intentionally called out as
+       prototype-only so reviewers don't mistake them for real
+       product features; the production build would instead derive
+       role from the authenticated session and reach the unapproved
+       posting via a real shared link rather than a button.
+     ============================================================ -->
+
+</body>
+</html>
+
+<!-- arc:css-inlined -->

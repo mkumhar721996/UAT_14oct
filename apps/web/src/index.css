@@ -4,11 +4,213 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-fg: #1e293b;
+  --color-bg: #ffffff;
+  --color-bg-subtle: #f8fafc;
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-fg: #ffffff;
+  --color-border: #e2e8f0;
+  --color-fg-muted: #67748b;
+  --color-success: #16985c;
+  --color-success-bg: #e1f6e8;
+  --color-danger: #db2727;
+  --color-danger-bg: #fde5e5;
+  --color-warning: #b47406;
+  --color-warning-bg: #fef3d6;
+}
+
+@layer base {
+  body {
+    @apply bg-subtle font-sans text-md text-fg;
+    line-height: 1.5;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+/* Design-system primitives, mirroring the approved prototype's class recipes. */
+@layer components {
+  .sidebar {
+    @apply flex w-[220px] shrink-0 flex-col justify-between border-r border-line bg-subtle p-4;
+  }
+  .sidebar-link {
+    @apply flex cursor-pointer items-center justify-between gap-2 rounded-sm px-3 py-2 font-medium text-fg-muted no-underline hover:bg-line hover:text-fg;
+  }
+  .sidebar-link.is-active {
+    @apply bg-primary text-primary-fg hover:bg-primary;
+  }
+  .topbar {
+    @apply flex items-center justify-between border-b border-line bg-surface px-4 py-3;
+  }
+  .content {
+    @apply max-w-[920px] flex-1 p-4;
+  }
+  .content > * + * {
+    @apply mt-4;
+  }
+  .heading-lg {
+    @apply mb-3 text-lg font-semibold text-fg;
+  }
+  .text-muted {
+    @apply text-sm text-fg-muted;
+  }
+
+  .btn {
+    @apply inline-flex cursor-pointer items-center gap-1 rounded-md border border-transparent px-4 py-2 text-md font-medium disabled:cursor-not-allowed disabled:opacity-[.55];
+  }
+  .btn-primary {
+    @apply bg-primary text-primary-fg hover:bg-primary-hover disabled:hover:bg-primary;
+  }
+  .btn-secondary {
+    @apply border-line bg-surface text-fg hover:bg-subtle;
+  }
+  .btn-danger {
+    @apply border-danger bg-surface text-danger hover:bg-danger-bg;
+  }
+  .btn-sm {
+    @apply px-3 py-1 text-sm;
+  }
+
+  .card {
+    @apply rounded-lg border border-line bg-surface p-4 shadow-card;
+  }
+  .card-title {
+    @apply mb-2 text-lg font-semibold;
+  }
+  .card-body {
+    @apply text-md text-fg-muted;
+  }
+  .section-title {
+    @apply mb-2 text-md font-semibold;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-sm px-2 py-1 text-sm font-medium;
+  }
+  .chip-success {
+    @apply bg-success-bg text-success;
+  }
+  .chip-warning {
+    @apply bg-warning-bg text-warning;
+  }
+  .chip-danger {
+    @apply bg-danger-bg text-danger;
+  }
+  .chip-neutral {
+    @apply border border-line bg-subtle text-fg-muted;
+  }
+
+  .field {
+    @apply mb-3 flex flex-col gap-1;
+  }
+  .field-label {
+    @apply text-sm font-medium text-fg;
+  }
+  .input,
+  .select,
+  .textarea {
+    @apply rounded-md border border-line bg-surface px-3 py-2 text-md text-fg focus:border-primary focus:outline-none;
+  }
+  .textarea {
+    @apply min-h-[96px] resize-y;
+  }
+  .has-error {
+    @apply border-danger;
+  }
+  .field-error {
+    @apply mt-[2px] text-sm text-danger;
+  }
+  .field-hint {
+    @apply text-sm text-fg-muted;
+  }
+
+  .table {
+    @apply w-full border-collapse text-md;
+  }
+  .table th {
+    @apply border-b border-line px-3 py-2 text-left text-sm font-semibold text-fg-muted;
+  }
+  .table td {
+    @apply border-b border-line px-3 py-2;
+  }
+
+  .banner {
+    @apply mb-3 flex items-start gap-2 rounded-md border border-line p-3 text-md;
+  }
+  .banner strong {
+    @apply block;
+  }
+  .banner p {
+    @apply mt-[2px] font-normal text-fg;
+  }
+  .banner-icon {
+    @apply font-semibold;
+  }
+  .banner-success {
+    @apply border-success bg-success-bg text-success;
+  }
+  .banner-warning {
+    @apply border-warning bg-warning-bg text-warning;
+  }
+  .banner-danger {
+    @apply border-danger bg-danger-bg text-danger;
+  }
+  .banner-info {
+    @apply border-line bg-subtle text-fg;
+  }
+
+  /* Compact dashed empty state used by the requisitions/jobs tables; distinct from the
+     full-page `.empty-state` + `.glyph` convention used by the employee-profile feature. */
+  .req-empty-state {
+    @apply rounded-lg border border-dashed border-line p-4 text-center text-fg-muted;
+  }
+  .req-empty-state h3 {
+    @apply mb-1 text-md text-fg;
+  }
+
+  .modal-overlay {
+    @apply fixed inset-0 z-[2000] flex items-center justify-center p-4;
+    /* alpha-blended color-fg, the same recipe as the card shadow */
+    background: rgb(11.76% 16.08% 23.14% / 0.5);
+  }
+  .modal {
+    @apply w-full max-w-[440px] rounded-lg border border-line bg-surface p-4 shadow-card;
+  }
+
+  .skeleton-bar {
+    @apply h-[14px] rounded-sm;
+    background: linear-gradient(
+      90deg,
+      var(--color-border) 25%,
+      var(--color-bg-subtle) 37%,
+      var(--color-border) 63%
+    );
+    background-size: 400% 100%;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .skeleton-bar {
+      animation: shimmer 1.4s ease infinite;
+    }
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
 /* Page-level additions from the approved prototype, composed only from design-system tokens. */
 * { box-sizing: border-box; }
 body { margin: 0; font-family: var(--font-family-base); }
 .sidebar-section-label { font-size: var(--font-size-sm); color: var(--color-fg-muted); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: 0.04em; padding: var(--space-2) var(--space-3) var(--space-1); }
-.sidebar-link { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); cursor: pointer; }
 .sidebar-badge { background: var(--color-primary); color: var(--color-primary-fg); font-size: 11px; font-weight: var(--font-weight-semibold); border-radius: 999px; padding: 0 6px; min-width: 18px; text-align: center; line-height: 18px; }
 .sidebar-link.is-active .sidebar-badge { background: var(--color-primary-fg); color: var(--color-primary); }
 .topbar-title { display: flex; flex-direction: column; gap: 2px; }
@@ -21,14 +223,7 @@ body { margin: 0; font-family: var(--font-family-base); }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 var(--space-4); }
 @media (max-width: 860px) { .grid-2 { grid-template-columns: 1fr; } .app-shell { flex-direction: column; } .sidebar { width: auto; display: flex; gap: var(--space-2); overflow-x: auto; } }
 .required-mark { color: var(--color-danger); margin-left: 2px; }
-.field-error { font-size: var(--font-size-sm); color: var(--color-danger); }
 .input.has-error, .select.has-error { border-color: var(--color-danger); }
-.banner { display: flex; gap: var(--space-2); align-items: flex-start; padding: var(--space-3); border-radius: var(--radius-md); font-size: var(--font-size-md); margin-bottom: var(--space-3); }
-.banner strong { display: block; margin-bottom: 2px; }
-.banner-danger { background: var(--color-danger-bg); color: var(--color-danger); }
-.banner-warning { background: var(--color-warning-bg); color: var(--color-warning); }
-.banner-success { background: var(--color-success-bg); color: var(--color-success); }
-.banner-icon { font-weight: var(--font-weight-semibold); }
 .readonly-row { display: flex; justify-content: space-between; align-items: center; padding: var(--space-2) 0; border-bottom: 1px solid var(--color-border); gap: var(--space-3); }
 .readonly-row:last-child { border-bottom: none; }
 .readonly-label { color: var(--color-fg-muted); font-size: var(--font-size-sm); }
@@ -43,7 +238,6 @@ body { margin: 0; font-family: var(--font-family-base); }
 .access-restricted { max-width: 460px; margin: 48px auto; text-align: center; }
 .access-restricted .glyph { width: 48px; height: 48px; border-radius: 50%; background: var(--color-danger-bg); color: var(--color-danger); display: flex; align-items: center; justify-content: center; font-weight: var(--font-weight-semibold); font-size: var(--font-size-lg); margin: 0 auto var(--space-3); }
 .skeleton { background: linear-gradient(90deg, var(--color-border) 25%, var(--color-bg-subtle) 37%, var(--color-border) 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; border-radius: var(--radius-sm); }
-@keyframes shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
 @media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } .toast { transition: none; } }
 .skeleton-row td { padding: var(--space-3); }
 .skeleton-line { height: 14px; }
@@ -57,7 +251,6 @@ body { margin: 0; font-family: var(--font-family-base); }
 .toast { min-width: 260px; max-width: 360px; padding: var(--space-3); border-radius: var(--radius-md); box-shadow: var(--shadow-card); background: var(--color-bg); border: 1px solid var(--color-border); border-left: 4px solid var(--color-success); transition: opacity 200ms ease-out, transform 200ms ease-out; }
 .toast.toast-danger { border-left-color: var(--color-danger); }
 .modal-backdrop { position: fixed; inset: 0; background: rgba(30, 41, 59, 0.45); display: flex; align-items: center; justify-content: center; z-index: 10001; }
-.modal { background: var(--color-bg); border-radius: var(--radius-lg); padding: var(--space-4); max-width: 420px; width: 90%; box-shadow: var(--shadow-card); }
 .modal h3 { margin: 0 0 var(--space-2); font-size: var(--font-size-lg); }
 .modal p { color: var(--color-fg-muted); }
 .modal-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4); }
@@ -66,7 +259,6 @@ body { margin: 0; font-family: var(--font-family-base); }
 .section-heading { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: var(--space-2); }
 .effective-date-field { background: var(--color-warning-bg); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-3); margin-top: 2px; margin-bottom: var(--space-3); }
 .effective-date-field .field-label { color: var(--color-warning); }
-:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 .self-badge { display: inline-flex; align-items: center; gap: var(--space-1); background: var(--color-bg-subtle); border: 1px solid var(--color-border); border-radius: 999px; padding: 2px 10px; font-size: var(--font-size-sm); color: var(--color-fg-muted); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 a.btn { text-decoration: none; }
