@@ -44,5 +44,9 @@ export interface Defect {
   actualResult: string | null
   environment: string | null
   status: string
+  priority: string | null
+  assigneeName: string | null
+  reportedBy: string
   createdAt: string
+  updatedAt: string
 }
