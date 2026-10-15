@@ -132,6 +132,12 @@ describe('Defects (e2e)', () => {
       expect((await get(d.id)).body).toMatchObject({ severity: 'Low', priority: 'P2' });
     });
 
+    it.each(['description', 'stepsToReproduce', 'severity'])('refuses a null %s with 400, not a 500', async (field) => {
+      const d = await seed('Triaged');
+      const res = await http().patch(`/defects/${d.id}`).set('Authorization', admin).send({ [field]: null });
+      expect(res.status).toBe(400);
+    });
+
     it('AC8: status and priority cannot be set through the API', async () => {
       const d = await seed('New', { priority: 'P2' });
       for (const body of [{ status: 'Triaged' }, { priority: 'P1' }]) {
