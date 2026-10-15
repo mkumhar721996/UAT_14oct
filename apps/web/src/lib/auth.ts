@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-export type Role = 'hr_admin' | 'employee'
+export type Role = 'hr_admin' | 'employee' | 'reporter'
 export interface Session {
   role: Role
   employeeId: string | null
@@ -17,7 +17,7 @@ export function readSession(): Session | null {
   if (!token) return null
   try {
     const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
-    if (payload.role !== 'hr_admin' && payload.role !== 'employee') return null
+    if (payload.role !== 'hr_admin' && payload.role !== 'employee' && payload.role !== 'reporter') return null
     return { role: payload.role, employeeId: payload.employee_id ?? null, tenantId: payload.tenant_id }
   } catch {
     return null

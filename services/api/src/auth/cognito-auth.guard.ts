@@ -1,4 +1,5 @@
 import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ROLES, Role } from '../employees/employee-fields';
 import { AuthUser } from './auth-user';
 import { TOKEN_VERIFIER, TokenVerifier } from './token-verifier';
 
@@ -19,10 +20,10 @@ export class CognitoAuthGuard implements CanActivate {
     }
 
     const { sub, tenant_id: tenantId, role, employee_id: employeeId } = claims;
-    if (typeof sub !== 'string' || typeof tenantId !== 'string' || (role !== 'hr_admin' && role !== 'employee')) {
+    if (typeof sub !== 'string' || typeof tenantId !== 'string' || !ROLES.includes(role as Role)) {
       throw new UnauthorizedException('Token is missing required claims');
     }
-    const user: AuthUser = { sub, tenantId, role, employeeId: typeof employeeId === 'string' ? employeeId : null };
+    const user: AuthUser = { sub, tenantId, role: role as Role, employeeId: typeof employeeId === 'string' ? employeeId : null };
     request.user = user;
     return true;
   }

@@ -44,6 +44,12 @@ export function Layout({
           </NavLink>
         )}
         <div className="sidebar-section-label" style={{ marginTop: 'var(--space-3)' }}>
+          QA Tracker
+        </div>
+        <NavLink to="/defects/new" className={linkClass}>
+          Defects
+        </NavLink>
+        <div className="sidebar-section-label" style={{ marginTop: 'var(--space-3)' }}>
           Self-service
         </div>
         <NavLink to="/me" className={linkClass}>

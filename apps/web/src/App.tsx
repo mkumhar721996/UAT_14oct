@@ -15,6 +15,7 @@ import EmployeeDirectoryPage from './routes/EmployeeDirectoryPage'
 import EmployeeProfileDetailPage from './routes/EmployeeProfileDetailPage'
 import MyProfilePage from './routes/MyProfilePage'
 import NewEmployeeProfilePage from './routes/NewEmployeeProfilePage'
+import ReportDefectPage from './routes/ReportDefectPage'
 import PendingChangesPage from './routes/PendingChangesPage'
 
 function Home() {
@@ -96,6 +97,7 @@ export function AppRoutes() {
           </RequireSession>
         }
       />
+      <Route path="/defects/new" element={<ReportDefectPage />} />
       <Route
         path="/me"
         element={

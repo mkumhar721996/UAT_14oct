@@ -5,7 +5,7 @@ import { vi } from 'vitest'
 import { ToastProvider } from '../components/Toast'
 import { TOKEN_KEY } from '../lib/auth'
 
-export function signIn(role: 'hr_admin' | 'employee', employeeId?: string) {
+export function signIn(role: 'hr_admin' | 'employee' | 'reporter', employeeId?: string) {
   const payload = btoa(JSON.stringify({ role, tenant_id: 'tenant-1', employee_id: employeeId }))
   localStorage.setItem(TOKEN_KEY, `header.${payload}.signature`)
 }
