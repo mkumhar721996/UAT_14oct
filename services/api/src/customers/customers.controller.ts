@@ -24,6 +24,11 @@ export class CustomersController {
     return this.customers.logIn(dto);
   }
 
+  @Get('service-types')
+  serviceTypes() {
+    return this.customers.listServiceTypes();
+  }
+
   @Get('me/bookings')
   @UseGuards(CognitoAuthGuard, RolesGuard)
   @Roles('customer')

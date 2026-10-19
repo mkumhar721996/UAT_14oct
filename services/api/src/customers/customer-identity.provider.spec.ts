@@ -18,7 +18,7 @@ describe('CognitoCustomerIdentityProvider', () => {
         const name = cmd.constructor.name;
         sent.push(name);
         if (failOn[name]) throw awsError(failOn[name]);
-        return { AuthenticationResult: { AccessToken: 'fake-token' } };
+        return { AuthenticationResult: { IdToken: 'fake-token' } };
       }),
     };
     return p;

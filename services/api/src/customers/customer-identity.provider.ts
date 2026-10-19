@@ -79,7 +79,9 @@ export class CognitoCustomerIdentityProvider implements CustomerIdentityProvider
           AuthParameters: { USERNAME: email, PASSWORD: password },
         }),
       );
-      const accessToken = res.AuthenticationResult?.AccessToken;
+      // The ID token (not the access token) carries custom:role/custom:tenant_id by default;
+      // CognitoTokenVerifier validates it as the bearer token for the same reason.
+      const accessToken = res.AuthenticationResult?.IdToken;
       return accessToken ? { accessToken } : null;
     } catch (err) {
       const name = errorName(err);

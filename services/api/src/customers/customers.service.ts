@@ -11,6 +11,7 @@ import { CreateBookingDto } from './dto/create-booking.dto';
 import { LogInDto } from './dto/log-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { Booking } from './entities/booking.entity';
+import { SERVICE_TYPES, ServiceType } from './service-types';
 
 export const INVALID_CREDENTIALS_MESSAGE = "That email and password don't match. Check your details and try again.";
 
@@ -53,6 +54,10 @@ export class CustomersService {
     if (err instanceof ProviderThrottledError) return new HttpException('Too many attempts. Wait a moment and try again.', HttpStatus.TOO_MANY_REQUESTS);
     this.logger.error(`Identity provider ${operation} failed: ${(err as Error)?.name}: ${(err as Error)?.message}`);
     return err;
+  }
+
+  listServiceTypes(): readonly ServiceType[] {
+    return SERVICE_TYPES;
   }
 
   createBooking(tenantId: string, customerSub: string, dto: CreateBookingDto): Promise<Booking> {

@@ -17,6 +17,7 @@ describe('AccountPage', () => {
     let bookings: unknown[] = []
     const api = mockApi({
       'GET /customers/me/bookings': () => bookings,
+      'GET /customers/service-types': ['Faucet repair', 'Drain cleaning', 'Water heater install', 'AC tune-up'],
       'POST /customers/me/bookings': () => {
         bookings = [{ ...booking, id: 'bk-1', serviceType: 'Faucet repair' }]
         return bookings[0]

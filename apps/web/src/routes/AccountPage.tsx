@@ -8,8 +8,6 @@ import { fmtDate } from '../lib/format'
 import type { Booking } from '../lib/types'
 import { useAsync } from '../lib/useAsync'
 
-const SERVICE_TYPES = ['Faucet repair', 'Drain cleaning', 'Water heater install', 'AC tune-up']
-
 const statusChip = (status: string) =>
   status === 'Completed' ? 'chip-success' : status === 'Cancelled' ? 'chip-danger' : 'chip-warning'
 
@@ -17,14 +15,15 @@ export default function AccountPage() {
   const toast = useToast()
   const email = getCustomerEmail()
   const { data, error, reload } = useAsync(() => apiClient.get<Booking[]>('/customers/me/bookings'))
-  const [serviceType, setServiceType] = useState(SERVICE_TYPES[0])
+  const { data: serviceTypes } = useAsync(() => apiClient.get<string[]>('/customers/service-types'))
+  const [serviceType, setServiceType] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
   const requestService = async (e: FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
     try {
-      await apiClient.post('/customers/me/bookings', { serviceType })
+      await apiClient.post('/customers/me/bookings', { serviceType: serviceType || serviceTypes?.[0] })
       toast('Booking requested')
       reload()
     } catch {
@@ -100,8 +99,13 @@ export default function AccountPage() {
                 <label className="field-label" htmlFor="booking-service">
                   Service type
                 </label>
-                <select id="booking-service" className="select" value={serviceType} onChange={(e) => setServiceType(e.target.value)}>
-                  {SERVICE_TYPES.map((s) => (
+                <select
+                  id="booking-service"
+                  className="select"
+                  value={serviceType || serviceTypes?.[0] || ''}
+                  onChange={(e) => setServiceType(e.target.value)}
+                >
+                  {serviceTypes?.map((s) => (
                     <option key={s} value={s}>
                       {s}
                     </option>
