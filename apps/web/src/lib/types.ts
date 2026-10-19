@@ -53,6 +53,8 @@ export interface Defect {
   status: string
   priority: string | null
   assigneeName: string | null
+  resolutionNote: string | null
+  reopenReason: string | null
   reportedBy: string
   createdAt: string
   updatedAt: string

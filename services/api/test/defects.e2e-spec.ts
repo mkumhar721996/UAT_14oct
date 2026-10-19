@@ -146,4 +146,47 @@ describe('Defects (e2e)', () => {
       expect((await get(d.id)).body).toMatchObject({ status: 'New', priority: 'P2' });
     });
   });
+
+  describe('transitions', () => {
+    const dev = `Bearer ${tokenFor({ sub: 'dev-1', role: 'developer' })}`;
+    const qa = `Bearer ${tokenFor({ sub: 'qa-1', role: 'qa_verifier' })}`;
+    const seed = async (status: string, extra: Record<string, unknown> = {}) => {
+      const repo = app.get(DataSource).getRepository(Defect);
+      return repo.save(repo.create({ ...validBody, tenantId: TENANT, status, reportedBy: 'rep-1', priority: null, assigneeName: null, ...extra } as Partial<Defect>) as Defect);
+    };
+    const post = (id: string, auth: string, body: object) => http().post(`/defects/${id}/transitions`).set('Authorization', auth).send(body);
+    const status = async (id: string) => (await http().get(`/defects/${id}`).set('Authorization', qa)).body.status;
+
+    it('AC6: resolving without a note is refused naming the resolution note', async () => {
+      const d = await seed('In Progress', { assigneeName: 'dev-1' });
+      const res = await post(d.id, dev, { action: 'resolve' });
+      expect(res.status).toBe(400);
+      expect(res.body.message).toContain("Resolution note can't be empty.");
+      expect(await status(d.id)).toBe('In Progress');
+    });
+    it('AC10: reopening without a reason is refused naming the reopen reason', async () => {
+      const d = await seed('Verified');
+      const res = await post(d.id, qa, { action: 'reopen' });
+      expect(res.status).toBe(400);
+      expect(res.body.message).toContain("Reopen reason can't be empty.");
+      expect(await status(d.id)).toBe('Verified');
+    });
+    it('AC15: a Developer posting a triage straight to the API gets 403', async () => {
+      const d = await seed('New');
+      expect((await post(d.id, dev, { action: 'triage', priority: 'P2' })).status).toBe(403);
+      expect(await status(d.id)).toBe('New');
+    });
+    it('rejects an empty priority on triage', async () => {
+      const d = await seed('New');
+      const res = await post(d.id, qa, { action: 'triage' });
+      expect(res.status).toBe(400);
+      expect(res.body.message).toContain("Priority can't be empty.");
+    });
+    it('QA/Verifier triages through the full stack', async () => {
+      const d = await seed('New');
+      const res = await post(d.id, qa, { action: 'triage', priority: 'P2' });
+      expect(res.status).toBe(201);
+      expect(res.body).toMatchObject({ status: 'Triaged', priority: 'P2' });
+    });
+  });
 });
