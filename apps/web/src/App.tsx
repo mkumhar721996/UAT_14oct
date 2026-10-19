@@ -15,6 +15,7 @@ import NewEmployeeProfilePage from './routes/NewEmployeeProfilePage'
 import ReportDefectPage from './routes/ReportDefectPage'
 import DefectDetailPage from './routes/DefectDetailPage'
 import DefectEditPage from './routes/DefectEditPage'
+import PageInventoryPage from './routes/PageInventoryPage'
 import PendingChangesPage from './routes/PendingChangesPage'
 
 /** Renders the HR-Admin-only page, or the access-restricted state for everyone else. */
@@ -86,6 +87,7 @@ function App() {
         <Route path="/defects/new" element={<ReportDefectPage />} />
         <Route path="/defects/:id" element={<DefectDetailPage />} />
         <Route path="/defects/:id/edit" element={<DefectEditPage />} />
+        <Route path="/page-inventory" element={<PageInventoryPage />} />
         <Route path="/me" element={<MyProfilePage />} />
         <Route
           path="/pending-changes"

@@ -49,6 +49,9 @@ export function Layout({
         <NavLink to="/defects/new" className={linkClass}>
           Defects
         </NavLink>
+        <NavLink to="/page-inventory" className={linkClass}>
+          Page inventory
+        </NavLink>
         <div className="sidebar-section-label" style={{ marginTop: 'var(--space-3)' }}>
           Self-service
         </div>
