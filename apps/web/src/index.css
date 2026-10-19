@@ -65,6 +65,9 @@ body { margin: 0; font-family: var(--font-family-base); }
 .modal h3 { margin: 0 0 var(--space-2); font-size: var(--font-size-lg); }
 .modal p { color: var(--color-fg-muted); }
 .modal-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4); }
+.desc-cell { color: var(--color-fg-muted); max-width: 360px; overflow-wrap: anywhere; }
+.desc-cell.is-empty { font-style: italic; }
+.row-actions { display: flex; gap: var(--space-2); white-space: nowrap; }
 .search-row { display: flex; gap: var(--space-2); margin-bottom: var(--space-3); align-items: center; }
 .search-row .input { max-width: 280px; }
 .section-heading { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: var(--space-2); }

@@ -39,6 +39,13 @@ export interface Booking {
   createdAt: string
 }
 
+export interface ServiceType {
+  id: string
+  name: string
+  description: string | null
+  active: boolean
+}
+
 export type DefectSeverity = 'Critical' | 'High' | 'Medium' | 'Low'
 
 export interface Defect {
