@@ -78,3 +78,39 @@ a.btn { text-decoration: none; }
 .sev-high { color: var(--color-warning); }
 .sev-medium { color: var(--color-fg); }
 .sev-low { color: var(--color-fg-muted); }
+
+/* Customer-facing surface (approved prototype, STORY-054): minimal top header, no sidebar. */
+svg.icon { width: 1.25em; height: 1.25em; flex-shrink: 0; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.site-header { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-4); background: var(--color-bg); border-bottom: 1px solid var(--color-border); }
+.brand { display: flex; align-items: center; gap: var(--space-2); font-weight: var(--font-weight-semibold); font-size: var(--font-size-lg); color: var(--color-fg); text-decoration: none; }
+.brand .icon { color: var(--color-primary); }
+.header-auth { display: flex; align-items: center; gap: var(--space-3); font-size: var(--font-size-md); }
+.header-auth .text-muted { font-size: var(--font-size-md); }
+.auth-page { min-height: calc(100vh - 57px); display: flex; align-items: center; justify-content: center; padding: var(--space-4); }
+.auth-card { width: 100%; max-width: 420px; }
+.auth-card .card-title { margin-bottom: var(--space-1); }
+.auth-sub { margin: 0 0 var(--space-4) 0; }
+.form-alert { display: flex; align-items: flex-start; gap: var(--space-2); background: var(--color-danger-bg); color: var(--color-danger); border: 1px solid var(--color-danger); border-radius: var(--radius-md); padding: var(--space-3); margin-bottom: var(--space-3); font-size: var(--font-size-md); }
+.form-alert .icon { flex-shrink: 0; margin-top: 2px; }
+.password-field { position: relative; }
+.password-field .input { width: 100%; padding-right: 40px; }
+.password-toggle { position: absolute; right: var(--space-2); top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--color-fg-muted); display: flex; align-items: center; padding: var(--space-1); border-radius: var(--radius-sm); }
+.password-toggle:hover { color: var(--color-fg); }
+.auth-switch { margin-top: var(--space-4); text-align: center; font-size: var(--font-size-md); color: var(--color-fg-muted); }
+.auth-switch a { color: var(--color-primary); font-weight: var(--font-weight-medium); text-decoration: none; }
+.auth-switch a:hover { text-decoration: underline; }
+.auth-card form .btn-primary { width: 100%; justify-content: center; }
+.success-card { text-align: center; }
+.success-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--color-success-bg); color: var(--color-success); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-3) auto; }
+.account-page { max-width: 760px; margin: 0 auto; padding: var(--space-4); }
+.account-page > .card { margin-bottom: var(--space-4); }
+.bookings-empty { text-align: center; padding: var(--space-4) var(--space-3); color: var(--color-fg-muted); }
+.bookings-empty .icon { color: var(--color-fg-muted); margin-bottom: var(--space-2); }
+.quick-booking-row { display: flex; gap: var(--space-3); align-items: flex-end; flex-wrap: wrap; }
+.quick-booking-row .field { flex: 1; min-width: 200px; margin-bottom: 0; }
+.admin-preview-card { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+.denied-page { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 57px); padding: var(--space-4); }
+.denied-card { max-width: 440px; text-align: center; }
+.denied-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--color-danger-bg); color: var(--color-danger); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-3) auto; }
+.denied-icon .icon { width: 28px; height: 28px; }
+@media (max-width: 480px) { .quick-booking-row { flex-direction: column; align-items: stretch; } }

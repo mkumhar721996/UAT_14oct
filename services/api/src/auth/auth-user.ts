@@ -1,4 +1,4 @@
-import { Role } from '../employees/employee-fields';
+import { Role } from './roles';
 
 export interface AuthUser {
   sub: string;

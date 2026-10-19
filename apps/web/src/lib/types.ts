@@ -32,6 +32,13 @@ export interface ChangeRequest {
   submittedAt: string
 }
 
+export interface Booking {
+  id: string
+  serviceType: string
+  status: string
+  createdAt: string
+}
+
 export type DefectSeverity = 'Critical' | 'High' | 'Medium' | 'Low'
 
 export interface Defect {

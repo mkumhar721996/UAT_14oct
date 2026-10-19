@@ -38,6 +38,29 @@ describe('App', () => {
     },
   )
 
+  it.each(['/employees', '/employees/new', '/defects/new', '/me', '/pending-changes', '/nowhere'])(
+    'AC4: a logged-in customer sees Access denied on %s and nothing is requested',
+    (path) => {
+      signIn('customer')
+      const api = mockApi({})
+      renderApp(path)
+      expect(screen.getByText('Access denied')).toBeInTheDocument()
+      expect(api).not.toHaveBeenCalled()
+    },
+  )
+
+  it('a customer lands on My account', async () => {
+    signIn('customer')
+    mockApi({ 'GET /customers/me/bookings': [] })
+    renderApp('/account')
+    expect(await screen.findByText('My account')).toBeInTheDocument()
+  })
+
+  it('visitors can reach the sign-up and log-in pages', () => {
+    renderApp('/signup')
+    expect(screen.getByText('Create your account')).toBeInTheDocument()
+  })
+
   it('AC2/AC13: editing a core field requires an effective date, then saves it', async () => {
     signIn('hr_admin')
     const api = mockApi({
