@@ -1,7 +1,9 @@
 import type { RevalidationRegistry } from '../drupal/revalidation-registry';
 
 export interface PageCache {
-  getOrCompose<T>(tag: string, ttlMs: number, compose: () => Promise<T>): Promise<T>;
+  getOrCompose<T>(tag: string, ttlMs: number, compose: () => Promise<T>,
+    cacheable?: (value: T) => boolean,
+  ): Promise<T>;
 }
 
 // Tag-keyed composed-page cache: recomposes on a missing entry, an explicit stale mark, or an
@@ -11,7 +13,12 @@ export function createPageCache(revalidation: RevalidationRegistry, now: () => n
   const inFlight = new Map<string, Promise<unknown>>();
 
   return {
-    async getOrCompose<T>(tag: string, ttlMs: number, compose: () => Promise<T>): Promise<T> {
+    async getOrCompose<T>(
+      tag: string,
+      ttlMs: number,
+      compose: () => Promise<T>,
+      cacheable: (value: T) => boolean = () => true,
+    ): Promise<T> {
       const entry = entries.get(tag);
       if (entry && !revalidation.isStale(tag) && now() - entry.cachedAt < ttlMs) {
         return entry.value as T;
@@ -24,7 +31,8 @@ export function createPageCache(revalidation: RevalidationRegistry, now: () => n
           // Clear before composing so a stale mark set mid-compose is not lost.
           revalidation.clearStale(tag);
           const value = await compose();
-          entries.set(tag, { value, cachedAt: now() });
+          if (cacheable(value)) entries.set(tag, { value, cachedAt: now() });
+          else entries.delete(tag);
           return value;
         } finally {
           inFlight.delete(tag);

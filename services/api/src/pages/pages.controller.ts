@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import type { RevalidationRegistry } from '../drupal/revalidation-registry';
 import type { PageCache } from './page-cache';
-import { PageNotFoundError, PagesService } from './pages.service';
+import { isCacheablePage, PageNotFoundError, PagesService } from './pages.service';
 import { PAGE_CACHE, REVALIDATION_REGISTRY } from './pages.tokens';
 import { RevalidationSecretGuard } from './revalidation-secret.guard';
 
@@ -37,6 +37,7 @@ export class PagesController {
     try {
       return await this.cache.getOrCompose(`node:${id}`, pageCacheTtlMs(), () =>
         this.pages.composeClientWorkPage(id),
+        isCacheablePage,
       );
     } catch (error) {
       if (error instanceof PageNotFoundError) throw new NotFoundException(error.message);

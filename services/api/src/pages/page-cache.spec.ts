@@ -73,4 +73,14 @@ describe('createPageCache', () => {
     await cache.getOrCompose('node:1', 1000, compose);
     expect(compose).toHaveBeenCalledTimes(2);
   });
+
+  it('does not cache a value the cacheable predicate rejects', async () => {
+    const cache = createPageCache(createRevalidationRegistry());
+    const compose = vi.fn().mockResolvedValueOnce('degraded').mockResolvedValueOnce('good');
+    const good = (v: string) => v === 'good';
+    await expect(cache.getOrCompose('node:1', 60000, compose, good)).resolves.toBe('degraded');
+    await expect(cache.getOrCompose('node:1', 60000, compose, good)).resolves.toBe('good');
+    await cache.getOrCompose('node:1', 60000, compose, good);
+    expect(compose).toHaveBeenCalledTimes(2);
+  });
 });

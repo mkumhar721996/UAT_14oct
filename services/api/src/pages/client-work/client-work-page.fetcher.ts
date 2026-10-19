@@ -2,6 +2,7 @@ import type { JsonApiResource, JsonApiResourceIdentifier } from '../../drupal/js
 import { createTypedFetcher } from '../../drupal/typed-fetcher';
 
 export interface ClientWorkNode {
+  published: boolean;
   title: string;
   body: string;
   heroImage: { url: string; alt: string } | null;
@@ -18,6 +19,7 @@ export function parseClientWorkNode(resource: JsonApiResource): ClientWorkNode {
   const heroUrl = asString(attributes.field_hero_image_url);
   const refs = relationships?.field_paragraphs?.data;
   return {
+    published: attributes.status === true,
     title: asString(attributes.title),
     body: bodyHtml,
     heroImage: heroUrl ? { url: heroUrl, alt: asString(attributes.field_hero_image_alt) } : null,

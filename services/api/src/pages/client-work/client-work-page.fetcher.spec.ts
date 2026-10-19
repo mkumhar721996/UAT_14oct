@@ -13,6 +13,7 @@ describe('clientWorkPageFetcher', () => {
       type: 'node--client_work',
       id: 'p1',
       attributes: {
+        status: true,
         title: 'Acme Redesign',
         body: { value: '<p>raw</p>', processed: '<p>We helped Acme.</p>' },
         field_hero_image_url: '/h.jpg',
@@ -23,6 +24,7 @@ describe('clientWorkPageFetcher', () => {
       },
     });
     await expect(clientWorkPageFetcher.fetchById('p1', ENV)).resolves.toEqual({
+      published: true,
       title: 'Acme Redesign',
       body: '<p>We helped Acme.</p>',
       heroImage: { url: '/h.jpg', alt: 'Acme hero' },
@@ -33,6 +35,7 @@ describe('clientWorkPageFetcher', () => {
   it('AC1: empty fields stay empty, with no placeholder', async () => {
     respond({ type: 'node--client_work', id: 'p1', attributes: { title: null, body: null } });
     await expect(clientWorkPageFetcher.fetchById('p1', ENV)).resolves.toEqual({
+      published: false,
       title: '',
       body: '',
       heroImage: null,

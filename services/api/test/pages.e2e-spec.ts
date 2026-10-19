@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createTestApp } from './support/create-test-app';
 
 const SECRET = 'test-secret';
@@ -9,6 +9,8 @@ describe('Pages (e2e)', () => {
   let app: INestApplication;
   let bodyText = 'v1';
   let missing = true;
+  let published = true;
+  let withBroken = false;
   const http = () => request(app.getHttpServer());
   const fetchMock = vi.fn();
 
@@ -24,6 +26,8 @@ describe('Pages (e2e)', () => {
   beforeEach(() => {
     bodyText = 'v1';
     missing = true;
+    published = true;
+    withBroken = false;
     fetchMock.mockReset();
     fetchMock.mockImplementation(async (url: string) => {
       const { pathname } = new URL(url);
@@ -34,13 +38,13 @@ describe('Pages (e2e)', () => {
             data: {
               type: 'node--client_work',
               id: 'x',
-              attributes: { title: 'T', body: { processed: `<p>${bodyText}</p>` } },
+              attributes: { status: published, title: 'T', body: { processed: `<p>${bodyText}</p>` } },
               relationships: {
                 field_paragraphs: {
                   data: [
                     { type: 'paragraph--quote', id: 'q1' },
                     { type: 'paragraph--legacy_quote', id: 'l1' },
-                    { type: 'paragraph--legacy_cta', id: 'broken' },
+                    ...(withBroken ? [{ type: 'paragraph--legacy_cta', id: 'broken' }] : []),
                   ],
                 },
               },
@@ -56,6 +60,8 @@ describe('Pages (e2e)', () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock as any);
   });
 
+  afterEach(() => vi.restoreAllMocks());
+
   const nodeCalls = () => fetchMock.mock.calls.filter(([u]) => String(u).includes('/jsonapi/node/client_work/')).length;
   const revalidate = (id: string, tag: unknown, secret: string | undefined = SECRET) => {
     const req = http().post('/pages/revalidate');
@@ -64,6 +70,7 @@ describe('Pages (e2e)', () => {
   };
 
   it('AC1-3: composes real content with native, fragment and failed paragraphs isolated', async () => {
+    withBroken = true;
     const res = await http().get('/pages/client-work/page-0');
     expect(res.status).toBe(200);
     expect(res.body.title).toBe('T');
@@ -100,6 +107,20 @@ describe('Pages (e2e)', () => {
     const res = await http().get('/pages/client-work/missing-id');
     expect(res.status).toBe(200);
     expect(res.body.title).toBe('T');
+  });
+
+  it('never serves an unpublished node, and does not cache that 404', async () => {
+    published = false;
+    expect((await http().get('/pages/client-work/draft-1')).status).toBe(404);
+    published = true;
+    expect((await http().get('/pages/client-work/draft-1')).status).toBe(200);
+  });
+
+  it('does not cache a page with a failed paragraph', async () => {
+    withBroken = true;
+    await http().get('/pages/client-work/page-degraded');
+    await http().get('/pages/client-work/page-degraded');
+    expect(nodeCalls()).toBe(2);
   });
 
   it('AC6: recomposes after the fallback TTL', async () => {
