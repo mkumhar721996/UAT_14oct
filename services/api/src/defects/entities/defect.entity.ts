@@ -39,6 +39,12 @@ export class Defect {
   @Column({ name: 'assignee_name', type: 'text', nullable: true })
   assigneeName!: string | null;
 
+  @Column({ name: 'resolution_note', type: 'text', nullable: true })
+  resolutionNote!: string | null;
+
+  @Column({ name: 'reopen_reason', type: 'text', nullable: true })
+  reopenReason!: string | null;
+
   @Column({ name: 'reported_by', type: 'text' })
   reportedBy!: string;
 
