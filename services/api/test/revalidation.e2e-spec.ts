@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { REVALIDATION_REGISTRY } from '../src/revalidation/revalidation.module';
+import { REVALIDATION_REGISTRY } from '../src/revalidation/revalidation.tokens';
 import { createTestApp } from './support/create-test-app';
 
 describe('Revalidation (e2e)', () => {
@@ -27,10 +27,10 @@ describe('Revalidation (e2e)', () => {
   });
 
   it('AC2: an absent or wrong secret is refused and nothing is marked stale', async () => {
-    expect((await http().post('/revalidation').send({ tag: 'landing-page:1' })).status).toBe(401);
-    const wrong = await http().post('/revalidation').set('x-revalidation-secret', 'wrong-value').send({ tag: 'landing-page:1' });
+    expect((await http().post('/revalidation').send({ tag: 'landing-page:refused' })).status).toBe(401);
+    const wrong = await http().post('/revalidation').set('x-revalidation-secret', 'wrong-value').send({ tag: 'landing-page:refused' });
     expect(wrong.status).toBe(401);
-    expect(registry().isStale('landing-page:1')).toBe(false);
+    expect(registry().isStale('landing-page:refused')).toBe(false);
   });
 
   it('AC3: each of the five renderers is accepted', async () => {
