@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-export type Role = 'hr_admin' | 'employee' | 'reporter' | 'customer' | 'admin'
+export type Role = 'hr_admin' | 'employee' | 'reporter' | 'customer' | 'admin' | 'developer' | 'qa_verifier'
 export interface Session {
   sub: string
   role: Role
@@ -8,7 +8,7 @@ export interface Session {
   tenantId: string
 }
 
-const ROLES: Role[] = ['hr_admin', 'employee', 'reporter', 'customer', 'admin']
+const ROLES: Role[] = ['hr_admin', 'employee', 'reporter', 'customer', 'admin', 'developer', 'qa_verifier']
 
 export const TOKEN_KEY = 'arc.accessToken'
 export const EMAIL_KEY = 'arc.customerEmail'
