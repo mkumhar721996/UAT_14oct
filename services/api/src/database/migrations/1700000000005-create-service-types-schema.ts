@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateServiceTypesSchema1700000000004 implements MigrationInterface {
-  name = 'CreateServiceTypesSchema1700000000004';
+export class CreateServiceTypesSchema1700000000005 implements MigrationInterface {
+  name = 'CreateServiceTypesSchema1700000000005';
 
   async up(q: QueryRunner): Promise<void> {
     await q.query(`CREATE EXTENSION IF NOT EXISTS pgcrypto`);

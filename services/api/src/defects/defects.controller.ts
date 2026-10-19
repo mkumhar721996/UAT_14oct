@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { AuthUser } from '../auth/auth-user';
 import { CognitoAuthGuard } from '../auth/cognito-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
@@ -6,6 +6,7 @@ import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { DefectsService } from './defects.service';
 import { CreateDefectDto } from './dto/create-defect.dto';
+import { UpdateDefectDto } from './dto/update-defect.dto';
 
 @Controller('defects')
 @UseGuards(CognitoAuthGuard, RolesGuard)
@@ -16,5 +17,15 @@ export class DefectsController {
   @Roles('reporter')
   create(@CurrentUser() user: AuthUser, @Body() dto: CreateDefectDto) {
     return this.defects.createDefect(user.tenantId, dto, user.sub);
+  }
+
+  @Get(':id')
+  getOne(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string) {
+    return this.defects.getDefect(user.tenantId, id);
+  }
+
+  @Patch(':id')
+  update(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateDefectDto) {
+    return this.defects.updateDefect(user.tenantId, id, user, dto);
   }
 }

@@ -3,11 +3,13 @@ import type { ReactElement } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { vi } from 'vitest'
 import { ToastProvider } from '../components/Toast'
-import { TOKEN_KEY } from '../lib/auth'
+import { TOKEN_KEY, type Role } from '../lib/auth'
 
-export function signIn(role: 'hr_admin' | 'employee' | 'reporter' | 'customer' | 'admin', employeeId?: string) {
+export function signIn(role: Role, employeeId?: string, sub = 'test-sub') {
   // Mirrors a real Cognito ID token, where custom attributes are namespaced under `custom:`.
-  const payload = btoa(JSON.stringify({ 'custom:role': role, 'custom:tenant_id': 'tenant-1', 'custom:employee_id': employeeId }))
+  const payload = btoa(
+    JSON.stringify({ sub, 'custom:role': role, 'custom:tenant_id': 'tenant-1', 'custom:employee_id': employeeId }),
+  )
   localStorage.setItem(TOKEN_KEY, `header.${payload}.signature`)
 }
 

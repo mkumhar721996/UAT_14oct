@@ -33,6 +33,10 @@ body { margin: 0; font-family: var(--font-family-base); }
 .readonly-row:last-child { border-bottom: none; }
 .readonly-label { color: var(--color-fg-muted); font-size: var(--font-size-sm); }
 .readonly-value { font-weight: var(--font-weight-medium); text-align: right; white-space: pre-line; }
+.readonly-row.align-top { align-items: flex-start; }
+.readonly-value.text-left { text-align: left; max-width: 480px; margin-left: auto; }
+.readonly-hint { display: block; font-size: var(--font-size-sm); color: var(--color-fg-muted); font-weight: var(--font-weight-regular); font-style: normal; margin-top: 2px; }
+.field-lock { font-size: var(--font-size-sm); }
 .readonly-value.mono, .mono { font-family: var(--font-family-mono); }
 .readonly-value.muted { color: var(--color-fg-muted); font-weight: var(--font-weight-regular); font-style: italic; }
 .active-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); margin-top: var(--space-3); }
