@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { ROLES, Role } from '../employees/employee-fields';
+import { ROLES, Role } from './roles';
 import { AuthUser } from './auth-user';
 import { TOKEN_VERIFIER, TokenVerifier } from './token-verifier';
 
