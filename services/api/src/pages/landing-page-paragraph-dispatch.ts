@@ -19,6 +19,10 @@ const LEGACY_PARAGRAPH_TYPES = [
 
 export const LEGACY_FRAGMENT_ENDPOINT = '/paragraph/fragment';
 
+// Contract shared with apps/web/src/components/paragraphs/ParagraphDispatcher.tsx, which special-cases
+// this componentKey to render an HTML fragment instead of a native component. Keep both in sync.
+export const LEGACY_HTML_FRAGMENT_KEY = 'LegacyHtmlFragment';
+
 export function registerLandingPageParagraphDispatch(registry: ResourceRegistry): void {
   for (const { jsonApiType, endpoint, componentKey } of NATIVE_PARAGRAPH_TYPES) {
     registry.register({
@@ -36,7 +40,7 @@ export function registerLandingPageParagraphDispatch(registry: ResourceRegistry)
   for (const jsonApiType of LEGACY_PARAGRAPH_TYPES) {
     registry.register({
       jsonApiType,
-      componentKey: 'LegacyHtmlFragment',
+      componentKey: LEGACY_HTML_FRAGMENT_KEY,
       fetcher: createLegacyFragmentFetcher({ jsonApiType, endpoint: LEGACY_FRAGMENT_ENDPOINT }),
     });
   }

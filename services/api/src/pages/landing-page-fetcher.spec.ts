@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createResourceRegistry, resolveResources } from '../drupal/resource-registry';
 import { createLandingPageFetcher } from './landing-page-fetcher';
-import { registerLandingPageParagraphDispatch } from './landing-page-paragraph-dispatch';
+import { LEGACY_HTML_FRAGMENT_KEY, registerLandingPageParagraphDispatch } from './landing-page-paragraph-dispatch';
 
 const ENV = { DRUPAL_BASE_URL: 'http://local.docksal.site', DRUPAL_ACCESS_TOKEN: 'test-token' };
 
@@ -51,6 +51,6 @@ describe('registerLandingPageParagraphDispatch', () => {
     const types = ['promo', 'cta', 'testimonial', 'media_embed', 'accordion', 'table'].map((t) => `paragraph--legacy_${t}`);
     const out = await resolveResources(registry, types.map((type) => ({ type, id: 'x' })), ENV);
     expect(out).toHaveLength(6);
-    for (const r of out) expect(r).toMatchObject({ status: 'resolved', componentKey: 'LegacyHtmlFragment', data: { html: '<p>legacy</p>' } });
+    for (const r of out) expect(r).toMatchObject({ status: 'resolved', componentKey: LEGACY_HTML_FRAGMENT_KEY, data: { html: '<p>legacy</p>' } });
   });
 });

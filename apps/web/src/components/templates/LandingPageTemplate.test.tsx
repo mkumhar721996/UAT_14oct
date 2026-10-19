@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { LEGACY_HTML_FRAGMENT_KEY } from '../paragraphs/ParagraphDispatcher'
 import { LandingPageTemplate } from './LandingPageTemplate'
 
 describe('LandingPageTemplate', () => {
@@ -17,7 +18,7 @@ describe('LandingPageTemplate', () => {
           contentType: 'landing_page',
           title: 'T',
           paragraphs: [
-            { status: 'resolved', jsonApiType: 'paragraph--legacy_promo', componentKey: 'LegacyHtmlFragment', data: { html: '<p>50% off</p>' } },
+            { status: 'resolved', jsonApiType: 'paragraph--legacy_promo', componentKey: LEGACY_HTML_FRAGMENT_KEY, data: { html: '<p>50% off</p>' } },
             { status: 'unresolved', jsonApiType: 'paragraph--unknown' },
           ],
         }}

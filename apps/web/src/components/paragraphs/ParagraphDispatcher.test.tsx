@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { ParagraphDispatcher } from './ParagraphDispatcher'
+import { LEGACY_HTML_FRAGMENT_KEY, ParagraphDispatcher } from './ParagraphDispatcher'
 
 const Fixture = ({ data }: { data: unknown }) => <div data-testid="native">{(data as { text: string }).text}</div>
 
@@ -11,7 +11,7 @@ describe('ParagraphDispatcher', () => {
   })
 
   it('AC4: renders a legacy paragraph from its HTML fragment', () => {
-    render(<ParagraphDispatcher paragraph={{ status: 'resolved', jsonApiType: 'paragraph--legacy_promo', componentKey: 'LegacyHtmlFragment', data: { html: '<p>50% off</p>' } }} />)
+    render(<ParagraphDispatcher paragraph={{ status: 'resolved', jsonApiType: 'paragraph--legacy_promo', componentKey: LEGACY_HTML_FRAGMENT_KEY, data: { html: '<p>50% off</p>' } }} />)
     expect(screen.getByText('50% off')).toBeInTheDocument()
   })
 

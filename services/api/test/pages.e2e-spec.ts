@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { LEGACY_HTML_FRAGMENT_KEY } from '../src/pages/landing-page-paragraph-dispatch';
 import { createTestApp } from './support/create-test-app';
 
 type Ref = [string, string];
@@ -80,7 +81,7 @@ describe('Pages (e2e)', () => {
     mockLandingPageNode('lp-3', { paragraphs: [['paragraph--legacy_promo', 'p-9']] });
     responses.set('/paragraph/fragment/p-9', { body: '<div class="promo">50% off</div>' });
     const res = await http().get('/pages/landing-page/lp-3');
-    expect(res.body.paragraphs[0]).toMatchObject({ status: 'resolved', componentKey: 'LegacyHtmlFragment' });
+    expect(res.body.paragraphs[0]).toMatchObject({ status: 'resolved', componentKey: LEGACY_HTML_FRAGMENT_KEY });
     expect(res.body.paragraphs[0].data.html).toContain('50% off');
   });
 
