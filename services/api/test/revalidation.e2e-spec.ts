@@ -43,15 +43,16 @@ describe('Revalidation (e2e)', () => {
     await http().post('/revalidation').send({ tag: 'node:lp-5' }).expect(401);
   });
 
-  it('observability: accepted and rejected revalidations are logged, without the token, so they are distinguishable from "never called"', async () => {
+  it('observability: accepted revalidations are logged with their tag; rejected ones are logged without it, and never with the token', async () => {
     const logSpy = vi.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
     const warnSpy = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
 
     await http().post('/revalidation').set('Authorization', 'Bearer test-revalidation-token').send({ tag: 'node:lp-5' }).expect(201);
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('revalidation_outcome count=1 outcome=accepted tag=node:lp-5'));
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('revalidation_outcome count=1 outcome=accepted tag="node:lp-5"'));
 
     await http().post('/revalidation').set('Authorization', 'Bearer wrong').send({ tag: 'node:lp-5' }).expect(401);
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('revalidation_outcome count=1 outcome=rejected tag=node:lp-5'));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('revalidation_outcome count=1 outcome=rejected'));
+    expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('lp-5'));
     expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('wrong'));
 
     logSpy.mockRestore();
@@ -60,5 +61,13 @@ describe('Revalidation (e2e)', () => {
 
   it('rejects a body without a tag', async () => {
     await http().post('/revalidation').set('Authorization', 'Bearer test-revalidation-token').send({}).expect(400);
+  });
+
+  it('security: rejects a tag containing control characters instead of accepting a forged log line', async () => {
+    await http()
+      .post('/revalidation')
+      .set('Authorization', 'Bearer test-revalidation-token')
+      .send({ tag: 'node:lp-5\r\nFAKE LOG LINE outcome=accepted' })
+      .expect(400);
   });
 });

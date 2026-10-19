@@ -66,11 +66,27 @@ describe('createPageCache', () => {
     expect(await cache.get('t', reval, async () => 'new')).toBe('new');
   });
 
-  it('re-marks the tag stale when the build fails', async () => {
+  it('re-marks the tag stale when the build fails, if it was already explicitly marked stale', async () => {
     const cache = createPageCache<number>({ ttlMs: 1000 });
     const reval = createRevalidationRegistry();
     reval.markStale('t');
     await expect(cache.get('t', reval, async () => Promise.reject(new Error('boom')))).rejects.toThrow('boom');
     expect(reval.isStale('t')).toBe(true);
+  });
+
+  it('re-marks the tag stale when a rebuild of an existing cache entry fails', async () => {
+    const cache = createPageCache<number>({ ttlMs: 1000 });
+    const reval = createRevalidationRegistry();
+    await cache.get('t', reval, async () => 1);
+    reval.markStale('t');
+    await expect(cache.get('t', reval, async () => Promise.reject(new Error('boom')))).rejects.toThrow('boom');
+    expect(reval.isStale('t')).toBe(true);
+  });
+
+  it('does not originate a stale mark from a failed build for a tag that was never cached and never explicitly revalidated', async () => {
+    const cache = createPageCache<number>({ ttlMs: 1000 });
+    const reval = createRevalidationRegistry();
+    await expect(cache.get('t', reval, async () => Promise.reject(new Error('boom')))).rejects.toThrow('boom');
+    expect(reval.isStale('t')).toBe(false);
   });
 });

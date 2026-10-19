@@ -1,7 +1,9 @@
 import { ParagraphList } from '../paragraphs/ParagraphRenderer'
 import { paragraphDispatchTable as defaultParagraphDispatchTable, type ParagraphDispatchTable } from '../../lib/paragraphs/paragraphDispatchTable'
 import { toParagraphInstances, type DrupalNode } from '../../lib/templates/types'
-import { registerLandingPageParagraphTypes } from './landingPageParagraphDispatch'
+// Side-effect import: registers landing-page paragraph types into the default table at module
+// init (see registerLandingPageParagraphTypes), once, before this template ever renders.
+import './landingPageParagraphDispatch'
 
 export function LandingPageTemplate({
   node,
@@ -11,7 +13,6 @@ export function LandingPageTemplate({
   paragraphDispatchTable?: ParagraphDispatchTable
 }) {
   const paragraphInstances = toParagraphInstances(node.paragraphs)
-  registerLandingPageParagraphTypes(paragraphInstances, table)
 
   return (
     <article data-testid="landing-page-template">

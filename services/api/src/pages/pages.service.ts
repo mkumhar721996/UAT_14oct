@@ -9,6 +9,11 @@ import { registerLandingPageParagraphDispatch } from './landing-page-paragraph-d
 // Placeholder fallback TTL: no value is specified by the story.
 export const LANDING_PAGE_CACHE_TTL_MS = 5 * 60 * 1000;
 
+// Short negative-cache window for a transient ('failed') item: long enough to absorb a brief
+// Drupal hiccup without hammering it on every request, short enough that the cache isn't
+// serving degraded content for anywhere near the full fallback TTL.
+export const TRANSIENT_FAILURE_RETRY_MS = 15 * 1000;
+
 export interface LandingPageContent {
   contentType: 'landing_page';
   pageId: string;
@@ -46,10 +51,14 @@ export class PagesService implements OnModuleInit {
         const error = item.status === 'failed' ? ` error=${item.error}` : '';
         this.logger.warn(`landing_page_item_unresolved count=1 pageId=${pageId} jsonApiType=${item.jsonApiType} status=${item.status}${error}`);
       }
-      if (unresolved.length > 0) {
-        // A transient Drupal error shouldn't poison the cache for the full fallback TTL: force
-        // the next request to retry instead of serving this degraded snapshot until it expires.
-        this.revalidation.markStale(tag);
+      // 'unresolved' (no fetcher registered for that type) is permanent, not a cache-freshness
+      // problem: it will look exactly the same on every rebuild, so the normal TTL/on-demand
+      // revalidation governs it like any other content. Only a 'failed' item (a fetch that threw,
+      // e.g. a transient 5xx) gets a short, bounded retry window -- marking stale on every
+      // request here would make the page cache a no-op for any page with a permanently
+      // unresolved item, since every rebuild would re-trigger the full Drupal fan-out.
+      if (unresolved.some((item) => item.status === 'failed')) {
+        setTimeout(() => this.revalidation.markStale(tag), TRANSIENT_FAILURE_RETRY_MS).unref();
       }
       return {
         contentType: 'landing_page',
