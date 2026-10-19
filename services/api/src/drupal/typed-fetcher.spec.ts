@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { DrupalFetchError } from './drupal-client';
 import { createTypedFetcher } from './typed-fetcher';
 
 const ENV = { DRUPAL_BASE_URL: 'http://local.docksal.site', DRUPAL_ACCESS_TOKEN: 'test-token' };
@@ -79,5 +80,32 @@ describe('createTypedFetcher', () => {
       parse: (r) => r,
     });
     expect(fetcher.cacheStrategy).toBe('static-revalidatable');
+  });
+
+  it('encodes the id and include values in the request', async () => {
+    const fetchMock = mockFetch();
+    const fetcher = createTypedFetcher({
+      jsonApiType: 'example--article',
+      endpoint: '/jsonapi/example/article',
+      include: ['field_a'],
+      cacheStrategy: 'static-revalidatable',
+      parse: (r) => r,
+    });
+    await fetcher.fetchById('a/b?c#d', ENV);
+    const url = new URL(fetchMock.mock.calls[0][0] as string);
+    expect(url.pathname).toBe('/jsonapi/example/article/a%2Fb%3Fc%23d');
+    expect(url.searchParams.get('include')).toBe('field_a');
+  });
+
+  it('throws DrupalFetchError when the body has no resource object', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async () => new Response('{"data":[]}', { status: 200 }));
+    const fetcher = createTypedFetcher({
+      jsonApiType: 'example--article',
+      endpoint: '/jsonapi/example/article',
+      include: [],
+      cacheStrategy: 'static-revalidatable',
+      parse: (r) => r,
+    });
+    await expect(fetcher.fetchById('1', ENV)).rejects.toBeInstanceOf(DrupalFetchError);
   });
 });

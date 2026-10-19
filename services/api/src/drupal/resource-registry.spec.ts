@@ -66,4 +66,21 @@ describe('resource registry', () => {
       { status: 'resolved', jsonApiType: 'example--quote', componentKey: 'QuoteParagraph', data: { text: 'quoted' } },
     ]);
   });
+
+  it('isolates a rejecting fetcher so siblings still resolve (AC10)', async () => {
+    const registry = createResourceRegistry();
+    registry.register({
+      jsonApiType: 'example--broken',
+      fetcher: { jsonApiType: 'example--broken', cacheStrategy: 'per-request', fetchById: async () => { throw new Error('boom'); } },
+    });
+    registry.register({ jsonApiType: 'example--quote', fetcher: fixtureFetcher('example--quote', { text: 'q' }), componentKey: 'QuoteParagraph' });
+    const resolved = await resolveResources(registry, [
+      { type: 'example--broken', id: '1' },
+      { type: 'example--quote', id: '2' },
+    ]);
+    expect(resolved).toEqual([
+      { status: 'failed', jsonApiType: 'example--broken', error: 'boom' },
+      { status: 'resolved', jsonApiType: 'example--quote', componentKey: 'QuoteParagraph', data: { text: 'q' } },
+    ]);
+  });
 });

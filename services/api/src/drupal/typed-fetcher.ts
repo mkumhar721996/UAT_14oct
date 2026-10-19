@@ -1,4 +1,4 @@
-import { fetchDrupalResource } from './drupal-client';
+import { DrupalFetchError, fetchDrupalResource } from './drupal-client';
 import type { JsonApiResource } from './jsonapi-types';
 
 // Metadata only: a future rendering layer decides prebuilt-vs-live serving from this tag.
@@ -23,11 +23,19 @@ export function createTypedFetcher<T>(definition: TypedResourceDefinition<T>): T
     jsonApiType: definition.jsonApiType,
     cacheStrategy: definition.cacheStrategy,
     async fetchById(id, env = process.env) {
-      const query = definition.include.length > 0 ? `?include=${definition.include.join(',')}` : '';
-      const body = (await fetchDrupalResource(`${definition.endpoint}/${id}${query}`, env)) as {
-        data: JsonApiResource;
-      };
-      return definition.parse(body.data);
+      const query =
+        definition.include.length > 0
+          ? `?include=${definition.include.map(encodeURIComponent).join(',')}`
+          : '';
+      const body = (await fetchDrupalResource(
+        `${definition.endpoint}/${encodeURIComponent(id)}${query}`,
+        env,
+      )) as { data?: unknown } | null;
+      const data = body?.data as JsonApiResource | undefined;
+      if (!data || Array.isArray(data) || typeof data !== 'object' || typeof data.attributes !== 'object') {
+        throw new DrupalFetchError(`Drupal response for ${definition.jsonApiType} "${id}" is not a resource object`);
+      }
+      return definition.parse(data);
     },
   };
 }
