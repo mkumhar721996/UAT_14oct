@@ -14,11 +14,23 @@ import MyProfilePage from './routes/MyProfilePage'
 import NewEmployeeProfilePage from './routes/NewEmployeeProfilePage'
 import ReportDefectPage from './routes/ReportDefectPage'
 import PendingChangesPage from './routes/PendingChangesPage'
+import ServiceTypesPage from './routes/ServiceTypesPage'
 
 /** Renders the HR-Admin-only page, or the access-restricted state for everyone else. */
 function RequireHrAdmin({ title, message, children }: { title: string; message: string; children: ReactNode }) {
   const auth = useAuth()
   if (auth?.role === 'hr_admin') return <>{children}</>
+  return (
+    <Layout title={title}>
+      <AccessRestricted message={message} />
+    </Layout>
+  )
+}
+
+/** Renders the Admin-only page, or the access-restricted state for everyone else. */
+function RequireAdmin({ title, message, children }: { title: string; message: string; children: ReactNode }) {
+  const auth = useAuth()
+  if (auth?.role === 'admin') return <>{children}</>
   return (
     <Layout title={title}>
       <AccessRestricted message={message} />
@@ -89,6 +101,14 @@ function App() {
             <RequireHrAdmin title="Pending changes" message="Only HR Admins can review pending changes.">
               <PendingChangesPage />
             </RequireHrAdmin>
+          }
+        />
+        <Route
+          path="/service-types"
+          element={
+            <RequireAdmin title="Service types" message="Only Admins can manage the service catalog.">
+              <ServiceTypesPage />
+            </RequireAdmin>
           }
         />
       </Routes>

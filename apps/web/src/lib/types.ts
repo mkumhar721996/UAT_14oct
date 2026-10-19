@@ -1,3 +1,10 @@
+export interface ServiceType {
+  id: string
+  name: string
+  description: string | null
+  active: boolean
+}
+
 export type CoreField = 'jobTitle' | 'department' | 'contractType' | 'salary'
 
 export interface Employee {

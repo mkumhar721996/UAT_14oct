@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 
-export type Role = 'hr_admin' | 'employee' | 'reporter' | 'customer'
+export type Role = 'hr_admin' | 'employee' | 'reporter' | 'customer' | 'admin'
 export interface Session {
   role: Role
   employeeId: string | null
   tenantId: string
 }
 
-const ROLES: Role[] = ['hr_admin', 'employee', 'reporter', 'customer']
+const ROLES: Role[] = ['hr_admin', 'employee', 'reporter', 'customer', 'admin']
 
 export const TOKEN_KEY = 'arc.accessToken'
 export const EMAIL_KEY = 'arc.customerEmail'
