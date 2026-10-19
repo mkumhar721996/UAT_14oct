@@ -4,6 +4,7 @@ import { AccessRestricted, Layout } from './components/Layout'
 import { ToastProvider } from './components/Toast'
 import { useAuth } from './lib/auth'
 import AccountPage from './routes/AccountPage'
+import ClientWorkPage from './routes/ClientWorkPage'
 import CustomerAccessDeniedPage from './routes/CustomerAccessDeniedPage'
 import EditEmployeeProfilePage from './routes/EditEmployeeProfilePage'
 import LogInPage from './routes/LogInPage'
@@ -37,6 +38,7 @@ function App() {
         <Routes>
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LogInPage />} />
+          <Route path="/client-work/:pageId" element={<ClientWorkPage />} />
           <Route
             path="*"
             element={

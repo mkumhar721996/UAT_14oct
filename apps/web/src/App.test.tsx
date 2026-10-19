@@ -26,6 +26,13 @@ describe('App', () => {
     expect(screen.getByText(/sign in required/i)).toBeInTheDocument()
   })
 
+  it('AC1: a client-work page is publicly viewable without a session', async () => {
+    mockApi({ 'GET /pages/client-work/p1': { title: 'Acme Redesign', body: '', heroImage: null, paragraphs: [] } })
+    renderApp('/client-work/p1')
+    expect(await screen.findByRole('heading', { name: 'Acme Redesign' })).toBeInTheDocument()
+    expect(screen.queryByText(/sign in required/i)).not.toBeInTheDocument()
+  })
+
   it.each(['/employees/new', '/employees/u1/edit', '/pending-changes'])(
     'AC3: a non-HR-Admin sees access restricted on %s and nothing is requested',
     (path) => {

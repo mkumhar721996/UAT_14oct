@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fetchDrupalResource } from './drupal-client';
+import { DrupalFetchError, fetchDrupalHtmlFragment, fetchDrupalResource } from './drupal-client';
 
 const PATH = '/jsonapi/node/article';
 
@@ -66,5 +66,24 @@ describe('fetchDrupalResource', () => {
       /DRUPAL_ACCESS_TOKEN/,
     );
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe('fetchDrupalHtmlFragment', () => {
+  const ENV = { DRUPAL_BASE_URL: 'https://drupal.test', DRUPAL_ACCESS_TOKEN: 'test-token' };
+
+  it('returns the response body as text with bearer auth', async () => {
+    const fetchMock = vi
+      .spyOn(globalThis, 'fetch')
+      .mockImplementation(async () => new Response('<p>legacy</p>', { status: 200 }));
+    await expect(fetchDrupalHtmlFragment('/fragments/quote/1', ENV)).resolves.toBe('<p>legacy</p>');
+    expect(fetchMock).toHaveBeenCalledWith('https://drupal.test/fragments/quote/1', {
+      headers: { Authorization: 'Bearer test-token' },
+    });
+  });
+
+  it('rejects with DrupalFetchError on a non-OK status', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async () => new Response('nope', { status: 500 }));
+    await expect(fetchDrupalHtmlFragment('/x', ENV)).rejects.toBeInstanceOf(DrupalFetchError);
   });
 });

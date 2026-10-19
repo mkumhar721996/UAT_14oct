@@ -1,0 +1,2 @@
+export const PAGE_CACHE = Symbol('PAGE_CACHE');
+export const REVALIDATION_REGISTRY = Symbol('REVALIDATION_REGISTRY');

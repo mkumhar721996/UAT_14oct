@@ -9,7 +9,8 @@ import { ServicesTemplate } from './ServicesTemplate'
 const TEMPLATE_RENDERERS: Record<TemplateType, (props: { node: DrupalNode }) => JSX.Element> = {
   HomePage: HomePageTemplate,
   LandingPage: LandingPageTemplate,
-  ClientWork: ClientWorkTemplate,
+  // The router only knows the node's type, not its content; the real page data comes from ClientWorkPage.
+  ClientWork: () => <ClientWorkTemplate node={{ title: '', body: '', heroImage: null, paragraphs: [] }} />,
   Partner: PartnerTemplate,
   Services: ServicesTemplate,
 }
