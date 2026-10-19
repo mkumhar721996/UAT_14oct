@@ -3,11 +3,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CustomersModule } from './customers/customers.module';
 import { DatabaseModule } from './database/typeorm.module';
+import { InventoryModule } from './inventory/inventory.module';
 import { DefectsModule } from './defects/defects.module';
 import { EmployeesModule } from './employees/employees.module';
 
 @Module({
-  imports: [DatabaseModule, EmployeesModule, DefectsModule, CustomersModule],
+  imports: [DatabaseModule, EmployeesModule, DefectsModule, CustomersModule, InventoryModule],
   controllers: [AppController],
   providers: [AppService],
 })
