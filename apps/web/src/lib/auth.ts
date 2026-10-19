@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 
-export type Role = 'hr_admin' | 'employee' | 'reporter' | 'customer'
+export type Role = 'hr_admin' | 'employee' | 'reporter' | 'customer' | 'admin'
 export interface Session {
+  sub: string
   role: Role
   employeeId: string | null
   tenantId: string
 }
 
-const ROLES: Role[] = ['hr_admin', 'employee', 'reporter', 'customer']
+const ROLES: Role[] = ['hr_admin', 'employee', 'reporter', 'customer', 'admin']
 
 export const TOKEN_KEY = 'arc.accessToken'
 export const EMAIL_KEY = 'arc.customerEmail'
@@ -44,7 +45,7 @@ export function readSession(): Session | null {
     const tenantId = payload['custom:tenant_id'] ?? payload.tenant_id
     const employeeId = payload['custom:employee_id'] ?? payload.employee_id ?? null
     if (!ROLES.includes(role)) return null
-    return { role, employeeId, tenantId }
+    return { sub: payload.sub, role, employeeId, tenantId }
   } catch {
     return null
   }
