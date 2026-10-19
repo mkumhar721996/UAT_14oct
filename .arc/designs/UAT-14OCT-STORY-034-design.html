@@ -1,0 +1,915 @@
+<!doctype html>
+<!--
+  UAT-14OCT-STORY-034: Defect Detail View & Edit
+  App nav: left sidebar (Defects) + top bar — same console pattern as the rest of this product
+  (see UAT-14OCT-STORY-033, Defect Creation). This prototype continues DEF-241, the defect
+  created in that story, so a reviewer can see the same record move through its lifecycle.
+  Standalone, self-contained prototype. All data lives in the DEFECT_RECORD script block and
+  is mutated only in memory (no network, no localStorage).
+
+  Design decisions worth flagging for reviewers:
+  - "Signed in as" and "Defect status" are prototype-only controls (title="Design-review only")
+    that let a reviewer drive every ACID state without a real backend. They are not proposed
+    product UI.
+  - Priority is never editable from this screen in any role. The work item's scope explicitly
+    excludes status/workflow actions, and priority is assigned by the triage workflow — so it
+    is always shown read-only here. That also makes AC7 (priority unchanged when severity
+    changes) true by construction rather than by a special case.
+  - Reporters can edit Description and Steps to reproduce only before Triaged (AC2/AC3).
+    Admins gain edit rights to those same two fields once the defect enters Triaged (AC5) —
+    editing rights hand off from Reporter to Admin at the triage boundary. Severity stays
+    editable by Admins at any status (AC4). No status control exists anywhere in the edit
+    form, for any role (AC8).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Defect Detail &amp; Edit — Design Prototype</title>
+<style>
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-fg: #1e293b; /** Primary text color on light surfaces */
+  --color-bg: #ffffff; /** Default page/app background */
+  --color-bg-subtle: #f8fafc; /** Secondary surface used for panels and alternating rows */
+  --color-primary: #2563eb; /** Brand/action color for primary buttons and links */
+  --color-primary-hover: #1d4ed8; /** Hover state for primary actions */
+  --color-primary-fg: #ffffff; /** Text/icon color on top of primary-colored surfaces */
+  --color-border: #e2e8f0; /** Default border color for inputs, cards and dividers */
+  --color-fg-muted: #67748b; /** Secondary text color for captions and helper text */
+  --color-success: #16985c; /** Positive status and success chip color */
+  --color-success-bg: #e1f6e8; /** Background for success chips */
+  --color-danger: #db2727; /** Destructive action and error status color */
+  --color-danger-bg: #fde5e5; /** Background for danger/error chips */
+  --color-warning: #b47406; /** Warning status color */
+  --color-warning-bg: #fef3d6; /** Background for warning chips */
+  --font-family-base: Inter, ui-sans-serif, system-ui, sans-serif; /** Default UI typeface */
+  --font-family-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace; /** Monospace typeface for code and identifiers */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --line-height-base: 1.5; /** Default line-height multiplier for body text */
+  --font-size-sm: 12px; /** Helper text, captions, chip labels */
+  --font-size-md: 14px; /** Default body and control text */
+  --font-size-lg: 18px; /** Section headings */
+  --space-1: 4px; /** Tightest spacing, icon-to-label gaps */
+  --space-2: 8px; /** Compact spacing inside controls */
+  --space-3: 12px; /** Default spacing between stacked elements */
+  --space-4: 16px; /** Section and card padding */
+  --radius-sm: 4px; /** Chips and small controls */
+  --radius-md: 6px; /** Buttons and inputs */
+  --radius-lg: 10px; /** Cards and panels */
+  --shadow-card: 0px 1px 3px 0px rgb(11.76% 16.08% 23.14% / 0.08); /** Resting elevation for cards */
+  --border-default: 1px solid rgb(88.63% 90.98% 94.12%); /** Default 1px hairline border */
+  --button-primary-background: var(--color-primary);
+  --button-primary-background-hover: var(--color-primary-hover);
+  --button-primary-foreground: var(--color-primary-fg);
+  --button-primary-radius: var(--radius-md);
+  --button-primary-padding-y: var(--space-2);
+  --button-primary-padding-x: var(--space-4);
+  --button-secondary-background: var(--color-bg);
+  --button-secondary-foreground: var(--color-fg);
+  --button-secondary-border: var(--color-border);
+  --card-default-background: var(--color-bg);
+  --card-default-border: var(--color-border);
+  --card-default-radius: var(--radius-lg);
+  --card-default-padding: var(--space-4);
+}
+
+</style>
+<style>
+/* Layout primitives */
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-base);
+}
+
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--color-bg-subtle);
+  border-right: 1px solid var(--color-border);
+  padding: var(--space-4);
+}
+
+.sidebar-link {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-fg-muted);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.sidebar-link:hover {
+  background: var(--color-border);
+  color: var(--color-fg);
+}
+
+.sidebar-link.is-active {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1;
+  padding: var(--space-4);
+}
+
+/* Typography */
+
+.heading-lg {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.text-muted {
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+  border-radius: var(--button-primary-radius);
+  padding: var(--button-primary-padding-y) var(--button-primary-padding-x);
+}
+
+.btn-primary:hover {
+  background: var(--button-primary-background-hover);
+}
+
+.btn-secondary {
+  background: var(--button-secondary-background);
+  color: var(--button-secondary-foreground);
+  border: 1px solid var(--button-secondary-border);
+}
+
+.btn-secondary:hover {
+  background: var(--color-bg-subtle);
+}
+
+/* Cards */
+
+.card {
+  background: var(--card-default-background);
+  border: 1px solid var(--card-default-border);
+  border-radius: var(--card-default-radius);
+  padding: var(--card-default-padding);
+  box-shadow: var(--shadow-card);
+}
+
+.card-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.card-body {
+  font-size: var(--font-size-md);
+  color: var(--color-fg-muted);
+}
+
+/* Chips */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+}
+
+.chip-success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.chip-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.chip-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+/* Form controls */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.field-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-fg);
+}
+
+.input,
+.select,
+.textarea {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  color: var(--color-fg);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+/* Table */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-md);
+}
+
+.table th {
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+</style>
+<style>
+  /* ---- Page-level additions, composed only from design-system tokens ---- */
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--color-bg-subtle); font-family: var(--font-family-base); }
+  .screen { display: none; }
+  .app-shell { min-height: calc(100vh - 46px); }
+  :focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+  .sidebar-section-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: var(--space-2) var(--space-3) var(--space-1);
+  }
+
+  .topbar { flex-wrap: wrap; row-gap: var(--space-2); }
+  .topbar-title { display: flex; flex-direction: column; gap: 2px; }
+  .topbar-title h1 { margin: 0; font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); }
+  .topbar-actions { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+  .crumb { font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+  .crumb a { color: var(--color-fg-muted); text-decoration: none; cursor: pointer; }
+  .crumb a:hover { color: var(--color-primary); text-decoration: underline; }
+  .crumb .sep { margin: 0 var(--space-1); }
+
+  .role-switcher { display: flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+  .role-switcher select.select { padding: var(--space-1) var(--space-2); font-size: var(--font-size-sm); }
+
+  /* Status chip: "New" and "Triaged" are lifecycle states, not success/warning/danger signals
+     owned by this story (status transitions belong to Project & Workspace Organization), so
+     status gets one quiet, consistent treatment here rather than inventing new chip colors. */
+  .chip-neutral { background: var(--color-bg-subtle); color: var(--color-fg-muted); border: 1px solid var(--color-border); }
+
+  /* Severity is risk level, not status, so it is deliberately NOT rendered with the reserved
+     chip-success/warning/danger classes (those are reserved for status). Each level pairs a
+     distinct icon with its label so meaning never depends on color alone. */
+  .severity-tag { display: inline-flex; align-items: center; gap: var(--space-1); font-weight: var(--font-weight-medium); font-size: var(--font-size-sm); white-space: nowrap; }
+  .sev-critical { color: var(--color-danger); }
+  .sev-high { color: var(--color-warning); }
+  .sev-medium { color: var(--color-fg); }
+  .sev-low { color: var(--color-fg-muted); }
+
+  .readonly-row { display: flex; justify-content: space-between; align-items: flex-start; padding: var(--space-2) 0; border-bottom: 1px solid var(--color-border); gap: var(--space-4); }
+  .readonly-row:last-child { border-bottom: none; }
+  .readonly-label { color: var(--color-fg-muted); font-size: var(--font-size-sm); flex-shrink: 0; width: 180px; }
+  .readonly-value { font-weight: var(--font-weight-medium); text-align: right; white-space: pre-line; }
+  .readonly-value.mono { font-family: var(--font-family-mono); }
+  .readonly-value.muted { color: var(--color-fg-muted); font-weight: var(--font-weight-regular); font-style: italic; }
+  .readonly-value.text-left { text-align: left; max-width: 480px; margin-left: auto; }
+  .readonly-hint { display: block; font-size: var(--font-size-sm); color: var(--color-fg-muted); font-weight: var(--font-weight-regular); font-style: normal; margin-top: 2px; }
+
+  .field-hint { font-size: var(--font-size-sm); color: var(--color-fg-muted); }
+  .field-error { font-size: var(--font-size-sm); color: var(--color-danger); margin-top: 2px; }
+  .input.has-error, .select.has-error, .textarea.has-error { border-color: var(--color-danger); }
+  .field-lock { font-size: var(--font-size-sm); }
+
+  .banner { display: flex; gap: var(--space-2); align-items: flex-start; padding: var(--space-3); border-radius: var(--radius-md); font-size: var(--font-size-md); margin-bottom: var(--space-3); }
+  .banner strong { display: block; margin-bottom: 2px; }
+  .banner-danger { background: var(--color-danger-bg); color: var(--color-danger); }
+  .banner-warning { background: var(--color-warning-bg); color: var(--color-warning); }
+  .banner-success { background: var(--color-success-bg); color: var(--color-success); }
+  .banner-icon { font-weight: var(--font-weight-semibold); }
+
+  .skeleton { background: linear-gradient(90deg, var(--color-border) 25%, var(--color-bg-subtle) 37%, var(--color-border) 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; border-radius: var(--radius-sm); height: 14px; margin: var(--space-2) 0; }
+  @keyframes shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+  @media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
+
+  .toast-wrap { position: fixed; bottom: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: var(--space-2); }
+  .toast { min-width: 260px; max-width: 360px; padding: var(--space-3); border-radius: var(--radius-md); box-shadow: var(--shadow-card); font-size: var(--font-size-md); background: var(--color-bg); border: 1px solid var(--color-border); border-left: 4px solid var(--color-success); opacity: 0; transform: translateY(8px); transition: opacity 200ms ease-out, transform 200ms ease-out; }
+  .toast.toast-danger { border-left-color: var(--color-danger); }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+
+  @media (max-width: 860px) {
+    .app-shell { flex-direction: column; }
+    .sidebar { width: auto; display: flex; gap: var(--space-2); overflow-x: auto; }
+    .readonly-row { flex-direction: column; gap: var(--space-1); }
+    .readonly-label { width: auto; }
+    .readonly-value { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Reviewer bar -->
+<div id="review-bar" style="position:fixed;top:0;left:0;right:0;z-index:9999;
+  display:flex;align-items:center;gap:10px;padding:8px 16px;
+  background:var(--color-bg);border-bottom:1px solid var(--color-border);font-size:13px;font-family:var(--font-family-base)">
+  <span style="font-family:var(--font-family-mono);color:var(--color-fg-muted)">UAT-14OCT-STORY-034</span>
+  <button id="prev-btn">← Prev</button>
+  <span id="screen-label" style="flex:1;text-align:center;font-weight:600;color:var(--color-fg)"></span>
+  <button id="next-btn">Next →</button>
+</div>
+<div style="height:46px"></div><!-- spacer -->
+<style>#review-bar button { background:none; border:none; color:var(--color-primary); cursor:pointer; font-size:13px; font-family:var(--font-family-base); padding:4px 8px; }
+#review-bar button:hover { text-decoration: underline; }</style>
+
+<div id="screens">
+
+<!-- ============================================================ -->
+<!-- Screen 1: Defect Detail -->
+<!-- Notes:
+     - Shows the defect's full record, current status and assignee for any signed-in user who
+       can see it (AC1): ID, title, status, severity, priority, assignee, reporter, created
+       date, description, steps to reproduce, expected/actual result and environment.
+     - "Signed in as" and "Defect status" (top right) are prototype-only controls — in the real
+       product, role and status come from the session and the defect's workflow, not a picker.
+       They drive every permission state in this prototype, including the Edit screen.
+     - "Edit defect" is the one primary action in this view and is always present; what happens
+       after it's clicked depends on the signed-in user's rights, proven on the Edit screen
+       (mirrors the authorization-at-point-of-attempt pattern from Defect Creation, AC6).
+     - States: loading skeleton -> success (populated record) -> error (demo link only).
+-->
+<div class="screen" data-name="Defect Detail">
+  <div class="app-shell">
+    <nav class="sidebar" id="sidebar-detail"></nav>
+    <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+      <div class="topbar">
+        <div class="topbar-title">
+          <h1>DEF-241</h1>
+          <span class="crumb">Defects<span class="sep">/</span>DEF-241</span>
+        </div>
+        <div class="topbar-actions">
+          <div class="role-switcher">
+            <label for="role-select-1">Signed in as</label>
+            <select class="select" id="role-select-1">
+              <option value="reporter">Jordan Blake (Reporter)</option>
+              <option value="admin">Dana Whitfield (Admin)</option>
+              <option value="viewer">Sam Ortiz (QA Engineer, no edit rights)</option>
+            </select>
+          </div>
+          <div class="role-switcher">
+            <label for="status-select-1">Defect status</label>
+            <select class="select" id="status-select-1" title="Design-review only">
+              <option value="New">New</option>
+              <option value="Triaged">Triaged</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="btn-edit-defect">Edit defect</button>
+        </div>
+      </div>
+      <div class="content">
+        <div id="detail-body"></div>
+        <div id="detail-error" style="display:none; margin-top:var(--space-3);"></div>
+        <p class="text-muted" style="margin-top:var(--space-3);">
+          <button class="btn btn-secondary" id="btn-simulate-detail-error" title="Design-review only">Simulate load error</button>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- Screen 2: Edit Defect -->
+<!-- Notes:
+     - Rendered per the "Signed in as" / "Defect status" state set on the Detail screen, so a
+       reviewer can step through every AC by switching those two controls and returning here.
+     - Reporter + New: Description and Steps to reproduce are editable; saving updates the
+       record immediately (AC2).
+     - Reporter + Triaged: Description and Steps to reproduce are shown disabled with a banner
+       explaining the lock; there is nothing to save, so no Save button is offered (AC3).
+     - Admin, any status: Severity is always editable (AC4). Description and Steps to reproduce
+       become editable only once the defect is Triaged (AC5) — before that they're shown
+       disabled with a note, since AC2/AC3 reserve that edit to the Reporter pre-triage.
+     - Admin + Triaged with Priority already set: Priority is always a read-only row in this
+       form (it's assigned by the triage workflow, out of this story's scope), so saving a new
+       Severity never touches it — confirmed in the save banner (AC7).
+     - No status field appears anywhere in this form, for any role (AC8).
+     - Viewer (neither Reporter nor Admin): every field is disabled and the attempt is refused
+       with an authorization banner and toast; there is no path to save a change (AC6).
+-->
+<div class="screen" data-name="Edit Defect">
+  <div class="app-shell">
+    <nav class="sidebar" id="sidebar-edit"></nav>
+    <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+      <div class="topbar">
+        <div class="topbar-title">
+          <h1>Edit defect</h1>
+          <span class="crumb"><a data-nav="0">Defects</a><span class="sep">/</span><a data-nav="0">DEF-241</a><span class="sep">/</span>Edit</span>
+        </div>
+        <div class="topbar-actions">
+          <div class="role-switcher">
+            <label for="role-select-2">Signed in as</label>
+            <select class="select" id="role-select-2">
+              <option value="reporter">Jordan Blake (Reporter)</option>
+              <option value="admin">Dana Whitfield (Admin)</option>
+              <option value="viewer">Sam Ortiz (QA Engineer, no edit rights)</option>
+            </select>
+          </div>
+          <div class="role-switcher">
+            <label for="status-select-2">Defect status</label>
+            <select class="select" id="status-select-2" title="Design-review only">
+              <option value="New">New</option>
+              <option value="Triaged">Triaged</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <div id="edit-body"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+/* ============================================================
+   Fixture data — continues DEF-241 from Defect Creation
+   (UAT-14OCT-STORY-033). Everything lives in memory; nothing
+   is persisted or sent over the network.
+   ============================================================ */
+const DEFECT_RECORD = {
+  id: 'DEF-241',
+  title: 'Checkout button unresponsive on Safari',
+  reporter: 'Jordan Blake',
+  createdAt: '2026-10-13T09:15:00',
+  updatedAt: '2026-10-13T09:15:00',
+  severity: 'Critical',
+  description: 'Tapping "Place order" does nothing in Safari on iOS; no error and no network request fires.',
+  steps: '1. Add any item to the cart\n2. Go to checkout\n3. Fill in payment details\n4. Tap "Place order" on Safari iOS',
+  expected: 'The order is placed and the confirmation screen appears.',
+  actual: 'Nothing happens. No error message, no loading state.',
+  environment: 'iOS 17.4, Safari, production'
+};
+
+/* Status, priority and assignee are driven by the "Defect status" demo control rather than
+   stored per-role, since they belong to the defect's workflow (out of this story's scope). */
+const STATUS_WORKFLOW = {
+  New: { priority: '', assignee: '' },
+  Triaged: { priority: 'P2', assignee: 'Marcus Webb' }
+};
+
+const SEVERITIES = [
+  { value: 'Critical', icon: '⛔', cls: 'sev-critical' },
+  { value: 'High', icon: '▲', cls: 'sev-high' },
+  { value: 'Medium', icon: '◆', cls: 'sev-medium' },
+  { value: 'Low', icon: '▽', cls: 'sev-low' }
+];
+
+let state = { role: 'reporter', status: 'New' };
+
+/* ---------- helpers ---------- */
+function $(id) { return document.getElementById(id); }
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function fmtDateTime(iso) { const d = new Date(iso); return d.toLocaleString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); }
+function severityMeta(value) { return SEVERITIES.find(s => s.value === value) || SEVERITIES[2]; }
+function severityTag(value) {
+  const s = severityMeta(value);
+  return `<span class="severity-tag ${s.cls}"><span aria-hidden="true">${s.icon}</span>${s.value}</span>`;
+}
+function statusChip(value) { return `<span class="chip chip-neutral">${escapeHtml(value)}</span>`; }
+
+function showToast(message, type) {
+  const wrap = $('toast-wrap');
+  const el = document.createElement('div');
+  el.className = 'toast' + (type === 'danger' ? ' toast-danger' : '');
+  el.textContent = message;
+  wrap.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 220); }, 3400);
+}
+
+function sidebarHtml() {
+  return `
+    <div class="sidebar-section-label">QA Tracker</div>
+    <a class="sidebar-link is-active" data-nav="0">Defects</a>
+  `;
+}
+
+/* ============================================================
+   Screen navigation (reviewer bar)
+   ============================================================ */
+const screens = Array.from(document.querySelectorAll('.screen'));
+let cur = 0;
+function show(i) {
+  cur = Math.max(0, Math.min(screens.length - 1, i));
+  screens.forEach((s, j) => s.style.display = j === cur ? 'block' : 'none');
+  document.getElementById('screen-label').textContent = `${cur + 1} / ${screens.length}: ${screens[cur].dataset.name}`;
+  window.scrollTo(0, 0);
+  if (cur === 0) renderDetail(false);
+  if (cur === 1) renderEdit();
+}
+document.getElementById('prev-btn').onclick = () => show(cur - 1);
+document.getElementById('next-btn').onclick = () => show(cur + 1);
+document.addEventListener('keydown', e => {
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+  if (e.key === 'ArrowRight') show(cur + 1);
+  if (e.key === 'ArrowLeft') show(cur - 1);
+});
+document.addEventListener('click', e => {
+  const nav = e.target.closest('[data-nav]');
+  if (nav) { show(parseInt(nav.dataset.nav, 10)); }
+});
+
+/* ============================================================
+   "Signed in as" / "Defect status" demo controls (synced across
+   both screens so a reviewer's choice carries through Edit).
+   ============================================================ */
+function syncControls() {
+  ['role-select-1', 'role-select-2'].forEach(id => { const el = $(id); if (el) el.value = state.role; });
+  ['status-select-1', 'status-select-2'].forEach(id => { const el = $(id); if (el) el.value = state.status; });
+}
+['role-select-1', 'role-select-2'].forEach(id => {
+  document.addEventListener('change', e => {
+    if (e.target.id === id) { state.role = e.target.value; syncControls(); renderDetail(false); renderEdit(); }
+  });
+});
+['status-select-1', 'status-select-2'].forEach(id => {
+  document.addEventListener('change', e => {
+    if (e.target.id === id) { state.status = e.target.value; syncControls(); renderDetail(false); renderEdit(); }
+  });
+});
+
+/* ============================================================
+   Screen 1: Defect Detail
+   ============================================================ */
+function detailRows() {
+  const wf = STATUS_WORKFLOW[state.status];
+  const d = DEFECT_RECORD;
+  const optionalRow = (label, value) => `
+    <div class="readonly-row"><span class="readonly-label">${label}</span><span class="readonly-value text-left${value ? '' : ' muted'}">${value ? escapeHtml(value) : 'Not set'}</span></div>`;
+  return `
+    <div class="card" style="max-width:720px;">
+      <h3 class="card-title">${escapeHtml(d.title)}</h3>
+      <div class="readonly-row"><span class="readonly-label">Defect ID</span><span class="readonly-value mono">${d.id}</span></div>
+      <div class="readonly-row"><span class="readonly-label">Status</span><span class="readonly-value">${statusChip(state.status)}</span></div>
+      <div class="readonly-row"><span class="readonly-label">Severity</span><span class="readonly-value">${severityTag(d.severity)}</span></div>
+      <div class="readonly-row"><span class="readonly-label">Priority</span><span class="readonly-value${wf.priority ? '' : ' muted'}">${wf.priority ? escapeHtml(wf.priority) : 'Not set'}<span class="readonly-hint">Set by the triage workflow</span></span></div>
+      <div class="readonly-row"><span class="readonly-label">Assignee</span><span class="readonly-value${wf.assignee ? '' : ' muted'}">${wf.assignee ? escapeHtml(wf.assignee) : 'Not assigned'}</span></div>
+      <div class="readonly-row"><span class="readonly-label">Reporter</span><span class="readonly-value">${escapeHtml(d.reporter)}</span></div>
+      <div class="readonly-row"><span class="readonly-label">Created</span><span class="readonly-value">${fmtDateTime(d.createdAt)}</span></div>
+      <div class="readonly-row"><span class="readonly-label">Last updated</span><span class="readonly-value">${fmtDateTime(d.updatedAt)}</span></div>
+      <div class="readonly-row"><span class="readonly-label">Description</span><span class="readonly-value text-left">${escapeHtml(d.description)}</span></div>
+      <div class="readonly-row"><span class="readonly-label">Steps to reproduce</span><span class="readonly-value text-left">${escapeHtml(d.steps)}</span></div>
+      ${optionalRow('Expected result', d.expected)}
+      ${optionalRow('Actual result', d.actual)}
+      ${optionalRow('Environment / build version', d.environment)}
+    </div>`;
+}
+
+function renderDetail(loading) {
+  $('sidebar-detail').innerHTML = sidebarHtml();
+  $('detail-error').style.display = 'none';
+  $('detail-error').innerHTML = '';
+  if (loading) {
+    /* State: loading */
+    $('detail-body').innerHTML = `
+      <div class="card" style="max-width:720px;">
+        <div class="skeleton" style="width:60%; height:20px;"></div>
+        ${Array.from({ length: 7 }).map(() => '<div class="skeleton"></div>').join('')}
+      </div>`;
+    return;
+  }
+  /* State: success */
+  $('detail-body').innerHTML = detailRows();
+}
+
+$('btn-simulate-detail-error').addEventListener('click', () => {
+  /* State: error */
+  $('detail-body').innerHTML = '';
+  $('detail-error').style.display = 'block';
+  $('detail-error').innerHTML = `
+    <div class="banner banner-danger"><span class="banner-icon">&#9888;</span><div><strong>Couldn't load this defect</strong>Something went wrong fetching DEF-241. <a href="#" id="btn-retry-detail" style="color:inherit;text-decoration:underline;">Try again</a>.</div></div>`;
+  $('btn-retry-detail').addEventListener('click', (e) => { e.preventDefault(); renderDetail(true); setTimeout(() => renderDetail(false), 260); });
+});
+
+$('btn-edit-defect').addEventListener('click', () => {
+  if (state.role === 'viewer') { showToast("Edit refused — you don't have permission to change this defect.", 'danger'); }
+  show(1);
+});
+
+/* ============================================================
+   Screen 2: Edit Defect
+   ============================================================ */
+function readonlyField(label, valueHtml) {
+  return `<div class="readonly-row"><span class="readonly-label">${label}</span><span class="readonly-value">${valueHtml}</span></div>`;
+}
+
+function renderEdit() {
+  $('sidebar-edit').innerHTML = sidebarHtml();
+  const d = DEFECT_RECORD;
+  const wf = STATUS_WORKFLOW[state.status];
+  const isTriaged = state.status === 'Triaged';
+
+  if (state.role === 'viewer') {
+    /* State: unauthorized (AC6) */
+    $('edit-body').innerHTML = `
+      <div class="banner banner-danger"><span class="banner-icon">&#9888;</span><div><strong>You don't have permission to do that</strong>Editing DEF-241 is limited to its reporter, Jordan Blake (before it's triaged), or an Admin. Ask one of them to make this change.</div></div>
+      <div class="card" style="max-width:720px;">
+        <h3 class="card-title">${escapeHtml(d.title)}</h3>
+        ${readonlyField('Status', statusChip(state.status))}
+        ${readonlyField('Severity', severityTag(d.severity))}
+        ${readonlyField('Priority', wf.priority ? escapeHtml(wf.priority) : '<span class="muted">Not set</span>')}
+        <div class="field" style="margin-top:var(--space-3);">
+          <label class="field-label" for="ed-description-viewer">Description</label>
+          <textarea class="textarea" id="ed-description-viewer" disabled>${escapeHtml(d.description)}</textarea>
+        </div>
+        <div class="field">
+          <label class="field-label" for="ed-steps-viewer">Steps to reproduce</label>
+          <textarea class="textarea" id="ed-steps-viewer" disabled>${escapeHtml(d.steps)}</textarea>
+        </div>
+        <button class="btn btn-secondary" data-nav="0">Back to defect</button>
+      </div>`;
+    return;
+  }
+
+  if (state.role === 'reporter' && isTriaged) {
+    /* State: locked-for-reporter (AC3) */
+    $('edit-body').innerHTML = `
+      <div class="banner banner-warning"><span class="banner-icon">&#128274;</span><div><strong>Locked after triage</strong>DEF-241 has entered Triaged, so its description and reproduction details can no longer be changed by the reporter. Ask an Admin to update them.</div></div>
+      <div class="card" style="max-width:720px;">
+        <h3 class="card-title">${escapeHtml(d.title)}</h3>
+        ${readonlyField('Status', statusChip(state.status))}
+        ${readonlyField('Severity', severityTag(d.severity))}
+        ${readonlyField('Priority', wf.priority ? escapeHtml(wf.priority) : '<span class="muted">Not set</span>')}
+        ${readonlyField('Assignee', wf.assignee ? escapeHtml(wf.assignee) : '<span class="muted">Not assigned</span>')}
+        <div class="field" style="margin-top:var(--space-3);">
+          <label class="field-label field-lock" for="ed-description-locked">&#128274; Description</label>
+          <textarea class="textarea" id="ed-description-locked" disabled>${escapeHtml(d.description)}</textarea>
+        </div>
+        <div class="field">
+          <label class="field-label field-lock" for="ed-steps-locked">&#128274; Steps to reproduce</label>
+          <textarea class="textarea" id="ed-steps-locked" disabled>${escapeHtml(d.steps)}</textarea>
+        </div>
+        <button class="btn btn-secondary" data-nav="0">Back to defect</button>
+      </div>`;
+    return;
+  }
+
+  if (state.role === 'reporter') {
+    /* State: editable-for-reporter (AC2) */
+    $('edit-body').innerHTML = `
+      <div id="edit-reporter-banner"></div>
+      <div class="card" style="max-width:720px;">
+        <h3 class="card-title">${escapeHtml(d.title)}</h3>
+        ${readonlyField('Status', statusChip(state.status))}
+        ${readonlyField('Severity', severityTag(d.severity))}
+        ${readonlyField('Priority', wf.priority ? escapeHtml(wf.priority) : '<span class="muted">Not set</span>')}
+        <p class="field-hint" style="margin:var(--space-3) 0 0;">You can edit the description and reproduction details until this defect is triaged.</p>
+        <form id="reporter-edit-form">
+          <div class="field" style="margin-top:var(--space-2);">
+            <label class="field-label" for="ed-description">Description<span class="required-mark">*</span></label>
+            <textarea class="textarea" id="ed-description">${escapeHtml(d.description)}</textarea>
+            <div class="field-error" id="err-ed-description" style="display:none;"></div>
+          </div>
+          <div class="field">
+            <label class="field-label" for="ed-steps">Steps to reproduce<span class="required-mark">*</span></label>
+            <textarea class="textarea" id="ed-steps">${escapeHtml(d.steps)}</textarea>
+            <div class="field-error" id="err-ed-steps" style="display:none;"></div>
+          </div>
+          <div style="display:flex; gap:var(--space-2); margin-top:var(--space-2);">
+            <button type="submit" class="btn btn-primary" id="btn-save-reporter">Save changes</button>
+            <button type="button" class="btn btn-secondary" data-nav="0">Cancel</button>
+          </div>
+        </form>
+      </div>`;
+    $('reporter-edit-form').addEventListener('submit', onSubmitReporterEdit);
+    return;
+  }
+
+  /* role === 'admin' */
+  /* State: editable-for-admin (AC4, AC5, AC7, AC8) */
+  const descLocked = !isTriaged;
+  $('edit-body').innerHTML = `
+    <div id="edit-admin-banner"></div>
+    <div class="card" style="max-width:720px;">
+      <h3 class="card-title">${escapeHtml(d.title)}</h3>
+      ${readonlyField('Status', statusChip(state.status) + '<span class="readonly-hint">Status changes aren\'t made here — use the defect\'s workflow actions.</span>')}
+      ${readonlyField('Priority', (wf.priority ? escapeHtml(wf.priority) : '<span class="muted">Not set</span>') + '<span class="readonly-hint">Set by the triage workflow — stays unchanged when you update severity.</span>')}
+      ${readonlyField('Assignee', wf.assignee ? escapeHtml(wf.assignee) : '<span class="muted">Not assigned</span>')}
+      <form id="admin-edit-form">
+        <div class="field" style="margin-top:var(--space-3);">
+          <label class="field-label" for="ed-severity">Severity<span class="required-mark">*</span></label>
+          <select class="select" id="ed-severity">
+            ${SEVERITIES.map(s => `<option value="${s.value}" ${d.severity === s.value ? 'selected' : ''}>${s.value}</option>`).join('')}
+          </select>
+          <p class="field-hint">Admins can change severity at any status.</p>
+        </div>
+        <div class="field">
+          <label class="field-label field-lock" for="ed-description-admin">${descLocked ? '&#128274; ' : ''}Description${descLocked ? '' : '<span class="required-mark">*</span>'}</label>
+          <textarea class="textarea" id="ed-description-admin" ${descLocked ? 'disabled' : ''}>${escapeHtml(d.description)}</textarea>
+          <div class="field-error" id="err-ed-description-admin" style="display:none;"></div>
+          ${descLocked ? '<p class="field-hint">Becomes editable for Admins once this defect is triaged.</p>' : ''}
+        </div>
+        <div class="field">
+          <label class="field-label field-lock" for="ed-steps-admin">${descLocked ? '&#128274; ' : ''}Steps to reproduce${descLocked ? '' : '<span class="required-mark">*</span>'}</label>
+          <textarea class="textarea" id="ed-steps-admin" ${descLocked ? 'disabled' : ''}>${escapeHtml(d.steps)}</textarea>
+          <div class="field-error" id="err-ed-steps-admin" style="display:none;"></div>
+        </div>
+        <div style="display:flex; gap:var(--space-2); margin-top:var(--space-2);">
+          <button type="submit" class="btn btn-primary" id="btn-save-admin">Save changes</button>
+          <button type="button" class="btn btn-secondary" data-nav="0">Cancel</button>
+        </div>
+      </form>
+    </div>`;
+  $('admin-edit-form').addEventListener('submit', onSubmitAdminEdit);
+}
+
+async function onSubmitReporterEdit(e) {
+  e.preventDefault();
+  const values = { description: $('ed-description').value.trim(), steps: $('ed-steps').value.trim() };
+
+  ['description', 'steps'].forEach(k => {
+    $('ed-' + k).classList.remove('has-error');
+    $('err-ed-' + k).style.display = 'none';
+  });
+  const missing = [];
+  if (!values.description) missing.push({ key: 'description', label: 'Description' });
+  if (!values.steps) missing.push({ key: 'steps', label: 'Steps to reproduce' });
+  if (missing.length > 0) {
+    /* State: validation-error */
+    missing.forEach(f => {
+      $('ed-' + f.key).classList.add('has-error');
+      const errEl = $('err-ed-' + f.key);
+      errEl.textContent = `${f.label} can't be empty.`;
+      errEl.style.display = 'block';
+    });
+    $('edit-reporter-banner').innerHTML = `
+      <div class="banner banner-danger"><span class="banner-icon">&#9888;</span><div><strong>Can't save this change</strong>Missing required field${missing.length > 1 ? 's' : ''}: ${missing.map(f => f.label).join(', ')}.</div></div>`;
+    $('ed-' + missing[0].key).focus();
+    return;
+  }
+
+  $('edit-reporter-banner').innerHTML = '';
+  const btn = $('btn-save-reporter');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  await wait(300);
+
+  DEFECT_RECORD.description = values.description;
+  DEFECT_RECORD.steps = values.steps;
+  DEFECT_RECORD.updatedAt = new Date().toISOString();
+
+  btn.disabled = false; btn.textContent = 'Save changes';
+  /* State: success (AC2) */
+  $('edit-reporter-banner').innerHTML = `
+    <div class="banner banner-success"><span class="banner-icon">&#10003;</span><div><strong>Changes saved</strong>The description and reproduction details for DEF-241 have been updated.</div></div>`;
+  showToast('DEF-241 updated.');
+  renderDetail(false);
+}
+
+async function onSubmitAdminEdit(e) {
+  e.preventDefault();
+  const isTriaged = state.status === 'Triaged';
+  const wf = STATUS_WORKFLOW[state.status];
+  const values = { severity: $('ed-severity').value };
+  let descriptionChanged = false;
+
+  if (isTriaged) {
+    values.description = $('ed-description-admin').value.trim();
+    values.steps = $('ed-steps-admin').value.trim();
+
+    ['description', 'steps'].forEach(k => {
+      $('ed-' + k + '-admin').classList.remove('has-error');
+      $('err-ed-' + k + '-admin').style.display = 'none';
+    });
+    const missing = [];
+    if (!values.description) missing.push({ key: 'description', label: 'Description' });
+    if (!values.steps) missing.push({ key: 'steps', label: 'Steps to reproduce' });
+    if (missing.length > 0) {
+      /* State: validation-error */
+      missing.forEach(f => {
+        $('ed-' + f.key + '-admin').classList.add('has-error');
+        const errEl = $('err-ed-' + f.key + '-admin');
+        errEl.textContent = `${f.label} can't be empty.`;
+        errEl.style.display = 'block';
+      });
+      $('edit-admin-banner').innerHTML = `
+        <div class="banner banner-danger"><span class="banner-icon">&#9888;</span><div><strong>Can't save this change</strong>Missing required field${missing.length > 1 ? 's' : ''}: ${missing.map(f => f.label).join(', ')}.</div></div>`;
+      $('ed-' + missing[0].key + '-admin').focus();
+      return;
+    }
+    descriptionChanged = values.description !== DEFECT_RECORD.description || values.steps !== DEFECT_RECORD.steps;
+  }
+
+  const severityChanged = values.severity !== DEFECT_RECORD.severity;
+  $('edit-admin-banner').innerHTML = '';
+  const btn = $('btn-save-admin');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  await wait(300);
+
+  DEFECT_RECORD.severity = values.severity;
+  if (isTriaged) { DEFECT_RECORD.description = values.description; DEFECT_RECORD.steps = values.steps; }
+  DEFECT_RECORD.updatedAt = new Date().toISOString();
+
+  btn.disabled = false; btn.textContent = 'Save changes';
+
+  /* State: success (AC4, AC5, AC7) */
+  const parts = [];
+  if (severityChanged) parts.push(`Severity updated to ${values.severity}.`);
+  if (descriptionChanged) parts.push('Description and reproduction details updated.');
+  if (parts.length === 0) parts.push('No fields were changed.');
+  if (wf.priority) parts.push(`Priority remains ${wf.priority} — unchanged.`);
+
+  $('edit-admin-banner').innerHTML = `
+    <div class="banner banner-success"><span class="banner-icon">&#10003;</span><div><strong>Changes saved</strong>${parts.join(' ')}</div></div>`;
+  showToast('DEF-241 updated.');
+  renderDetail(false);
+  renderEdit();
+}
+
+/* ============================================================
+   Initial render
+   ============================================================ */
+syncControls();
+renderDetail(true);
+setTimeout(() => renderDetail(false), 260);
+renderEdit();
+show(0);
+</script>
+</body>
+</html>
+
+<!-- arc:css-inlined -->

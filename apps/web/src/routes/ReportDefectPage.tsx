@@ -1,26 +1,17 @@
 import { useState, type FormEvent } from 'react'
 import { Banner } from '../components/Banner'
+import { SeverityTag, StatusChip } from '../components/DefectTags'
 import { Layout } from '../components/Layout'
 import { useToast } from '../components/Toast'
 import { apiClient } from '../lib/apiClient'
 import { useAuth } from '../lib/auth'
-import { DEFECT_SEVERITIES, REQUIRED_DEFECT_FIELDS, SEVERITY_META } from '../lib/defectFields'
+import { DEFECT_SEVERITIES, REQUIRED_DEFECT_FIELDS } from '../lib/defectFields'
 import { fmtDateTime } from '../lib/format'
-import type { Defect, DefectSeverity } from '../lib/types'
+import type { Defect } from '../lib/types'
 
 const EMPTY = { title: '', description: '', severity: '', stepsToReproduce: '', expectedResult: '', actualResult: '', environment: '' }
 type Draft = typeof EMPTY
 type RequiredKey = (typeof REQUIRED_DEFECT_FIELDS)[number]['key']
-
-function SeverityTag({ severity }: { severity: DefectSeverity }) {
-  const meta = SEVERITY_META[severity]
-  return (
-    <span className={`severity-tag ${meta.className}`}>
-      <span aria-hidden="true">{meta.icon}</span>
-      {severity}
-    </span>
-  )
-}
 
 function OptionalRow({ label, value }: { label: string; value: string | null }) {
   return (
@@ -93,7 +84,7 @@ export default function ReportDefectPage() {
           <div className="readonly-row">
             <span className="readonly-label">Status</span>
             <span className="readonly-value">
-              <span className="chip chip-neutral">{saved.status}</span>
+              <StatusChip status={saved.status} />
             </span>
           </div>
           <div className="readonly-row">
