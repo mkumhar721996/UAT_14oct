@@ -1,17 +1,17 @@
 import { ParagraphList } from '../paragraphs/ParagraphRenderer'
-import type { ParagraphDispatchTable } from '../../lib/paragraphs/paragraphDispatchTable'
-import { isResolvedParagraph, toParagraphInstances, type DrupalNode } from '../../lib/templates/types'
-import { ParagraphDispatcher } from '../paragraphs/ParagraphDispatcher'
+import { paragraphDispatchTable as defaultParagraphDispatchTable, type ParagraphDispatchTable } from '../../lib/paragraphs/paragraphDispatchTable'
+import { toParagraphInstances, type DrupalNode } from '../../lib/templates/types'
+import { registerLandingPageParagraphTypes } from './landingPageParagraphDispatch'
 
 export function LandingPageTemplate({
   node,
-  paragraphDispatchTable: table,
+  paragraphDispatchTable: table = defaultParagraphDispatchTable,
 }: {
   node: DrupalNode
   paragraphDispatchTable?: ParagraphDispatchTable
 }) {
-  const resolvedParagraphs = (node.paragraphs ?? []).filter(isResolvedParagraph)
   const paragraphInstances = toParagraphInstances(node.paragraphs)
+  registerLandingPageParagraphTypes(paragraphInstances, table)
 
   return (
     <article data-testid="landing-page-template">
@@ -19,9 +19,6 @@ export function LandingPageTemplate({
       {node.bodyHtml && <div className="landing-page-body" dangerouslySetInnerHTML={{ __html: node.bodyHtml }} />}
       {(node.images ?? []).map((img) => (
         <img key={img.url} src={img.url} alt={img.alt} />
-      ))}
-      {resolvedParagraphs.map((p, i) => (
-        <ParagraphDispatcher key={i} paragraph={p} />
       ))}
       <ParagraphList paragraphs={paragraphInstances} table={table} />
     </article>

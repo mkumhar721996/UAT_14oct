@@ -93,4 +93,15 @@ describe('Pages (e2e)', () => {
     expect(second.body).toEqual(first.body);
     expect(fetchMock.mock.calls.length).toBe(callsAfterFirst);
   });
+
+  it('observability: a page with an unresolved item is retried on the next request instead of being cached for the full TTL', async () => {
+    mockLandingPageNode('lp-5', { paragraphs: [['paragraph--unregistered', 'p-1']] });
+    const before = fetchMock.mock.calls.length;
+    const first = await http().get('/pages/landing-page/lp-5');
+    expect(first.body.paragraphs[0].status).toBe('unresolved');
+    const callsAfterFirst = fetchMock.mock.calls.length;
+    expect(callsAfterFirst).toBeGreaterThan(before);
+    await http().get('/pages/landing-page/lp-5');
+    expect(fetchMock.mock.calls.length).toBeGreaterThan(callsAfterFirst);
+  });
 });

@@ -8,9 +8,9 @@ export interface DrupalNode {
   title?: string
   bodyHtml?: string
   images?: Array<{ url: string; alt: string }>
-  // LandingPageTemplate's backend-resolved paragraphs (ResolvedParagraph) and the generic
-  // paragraph-dispatch-table paragraphs (ParagraphInstance) are both routed through this field
-  // until the two paragraph systems are unified.
+  // A backend that already resolved its paragraphs' content (ResolvedParagraph) and one that
+  // hasn't (plain ParagraphInstance) are both accepted here; toParagraphInstances normalizes
+  // either shape into the dispatch table's canonical ParagraphInstance.
   paragraphs?: Array<ResolvedParagraph | ParagraphInstance>
 }
 
@@ -25,7 +25,11 @@ export function isResolvedParagraph(p: ResolvedParagraph | ParagraphInstance): p
   return 'status' in p
 }
 
-/** Narrows a DrupalNode's mixed paragraphs field down to the generic ParagraphInstance entries. */
+/** Normalizes a DrupalNode's mixed paragraphs field into the dispatch table's ParagraphInstance shape. */
 export function toParagraphInstances(paragraphs: DrupalNode['paragraphs']): ParagraphInstance[] {
-  return (paragraphs ?? []).filter((p): p is ParagraphInstance => !isResolvedParagraph(p))
+  return (paragraphs ?? []).map((p, index) =>
+    isResolvedParagraph(p)
+      ? { type: p.jsonApiType, id: String(index), status: p.status, componentKey: p.componentKey, data: p.data }
+      : p,
+  )
 }

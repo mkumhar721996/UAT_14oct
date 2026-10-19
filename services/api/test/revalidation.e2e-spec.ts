@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, Logger } from '@nestjs/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createTestApp } from './support/create-test-app';
@@ -41,6 +41,21 @@ describe('Revalidation (e2e)', () => {
   it('AC6: an invalid token is refused and does not revalidate', async () => {
     await http().post('/revalidation').set('Authorization', 'Bearer wrong').send({ tag: 'node:lp-5' }).expect(401);
     await http().post('/revalidation').send({ tag: 'node:lp-5' }).expect(401);
+  });
+
+  it('observability: accepted and rejected revalidations are logged, without the token, so they are distinguishable from "never called"', async () => {
+    const logSpy = vi.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
+    const warnSpy = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+
+    await http().post('/revalidation').set('Authorization', 'Bearer test-revalidation-token').send({ tag: 'node:lp-5' }).expect(201);
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('revalidation_outcome count=1 outcome=accepted tag=node:lp-5'));
+
+    await http().post('/revalidation').set('Authorization', 'Bearer wrong').send({ tag: 'node:lp-5' }).expect(401);
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('revalidation_outcome count=1 outcome=rejected tag=node:lp-5'));
+    expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('wrong'));
+
+    logSpy.mockRestore();
+    warnSpy.mockRestore();
   });
 
   it('rejects a body without a tag', async () => {

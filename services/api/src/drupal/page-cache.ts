@@ -1,4 +1,7 @@
+import { Logger } from '@nestjs/common';
 import type { RevalidationRegistry } from './revalidation-registry';
+
+const logger = new Logger('PageCache');
 
 // Serve cached unless explicitly marked stale (on-demand revalidation) or past the fallback TTL.
 export function createPageCache<T>(options: { ttlMs: number }) {
@@ -8,7 +11,13 @@ export function createPageCache<T>(options: { ttlMs: number }) {
     async get(tag: string, revalidation: RevalidationRegistry, build: () => Promise<T>): Promise<T> {
       const cached = entries.get(tag);
       const withinTtl = !!cached && Date.now() - cached.renderedAt < options.ttlMs;
-      if (cached && withinTtl && !revalidation.isStale(tag)) return cached.data;
+      const stale = !!cached && revalidation.isStale(tag);
+      if (cached && withinTtl && !stale) {
+        logger.log('page_cache_result count=1 result=hit');
+        return cached.data;
+      }
+      // Bounded label set (hit/miss/stale/ttl_expired): safe to log, never derived from the tag itself.
+      logger.log(`page_cache_result count=1 result=${!cached ? 'miss' : stale ? 'stale' : 'ttl_expired'}`);
       // Concurrent cold requests share one build, unless a revalidation landed since it started.
       const pending = inFlight.get(tag);
       if (pending && !revalidation.isStale(tag)) return pending;

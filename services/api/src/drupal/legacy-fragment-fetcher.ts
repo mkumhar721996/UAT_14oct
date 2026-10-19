@@ -11,7 +11,7 @@ export function createLegacyFragmentFetcher(definition: {
     jsonApiType: definition.jsonApiType,
     cacheStrategy: 'static-revalidatable',
     async fetchById(id, env = process.env) {
-      const raw = await fetchDrupalHtmlFragment(`${definition.endpoint}/${encodeURIComponent(id)}`, env);
+      const raw = await fetchDrupalHtmlFragment(`${definition.endpoint}/${encodeURIComponent(id)}`, env, definition.jsonApiType);
       return { html: sanitizeCmsHtml(raw) };
     },
   };

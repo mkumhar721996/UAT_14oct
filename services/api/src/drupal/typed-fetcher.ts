@@ -30,6 +30,7 @@ export function createTypedFetcher<T>(definition: TypedResourceDefinition<T>): T
       const body = (await fetchDrupalResource(
         `${definition.endpoint}/${encodeURIComponent(id)}${query}`,
         env,
+        definition.jsonApiType,
       )) as { data?: unknown } | null;
       const data = body?.data as JsonApiResource | undefined;
       if (!data || Array.isArray(data) || typeof data !== 'object' || typeof data.attributes !== 'object') {
