@@ -6,6 +6,7 @@ import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { DefectsService } from './defects.service';
 import { CreateDefectDto } from './dto/create-defect.dto';
+import { TransitionDefectDto } from './dto/transition-defect.dto';
 import { UpdateDefectDto } from './dto/update-defect.dto';
 
 @Controller('defects')
@@ -27,5 +28,10 @@ export class DefectsController {
   @Patch(':id')
   update(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateDefectDto) {
     return this.defects.updateDefect(user.tenantId, id, user, dto);
+  }
+
+  @Post(':id/transitions')
+  transition(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string, @Body() dto: TransitionDefectDto) {
+    return this.defects.transitionDefect(user.tenantId, id, user, dto);
   }
 }
