@@ -19,7 +19,12 @@ export class CognitoAuthGuard implements CanActivate {
       throw new UnauthorizedException('Invalid token');
     }
 
-    const { sub, tenant_id: tenantId, role, employee_id: employeeId } = claims;
+    // Cognito ID tokens carry custom attributes under a `custom:` prefix; plain claim names are
+    // kept as a fallback for tokens minted outside Cognito's custom-attribute mechanism.
+    const { sub } = claims;
+    const tenantId = claims['custom:tenant_id'] ?? claims.tenant_id;
+    const role = claims['custom:role'] ?? claims.role;
+    const employeeId = claims['custom:employee_id'] ?? claims.employee_id;
     if (typeof sub !== 'string' || typeof tenantId !== 'string' || !ROLES.includes(role as Role)) {
       throw new UnauthorizedException('Token is missing required claims');
     }

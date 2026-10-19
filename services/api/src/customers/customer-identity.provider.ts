@@ -5,8 +5,13 @@ import {
   AdminSetUserPasswordCommand,
   CognitoIdentityProviderClient,
 } from '@aws-sdk/client-cognito-identity-provider';
+import { Logger } from '@nestjs/common';
+import { createHash } from 'node:crypto';
 
 export const CUSTOMER_IDENTITY_PROVIDER = Symbol('CUSTOMER_IDENTITY_PROVIDER');
+
+/** Email is PII; log a short, non-reversible fingerprint instead of the address itself. */
+const hashEmail = (email: string) => createHash('sha256').update(email).digest('hex').slice(0, 16);
 
 export class EmailAlreadyRegisteredError extends Error {}
 /** The identity provider's password policy rejected the password. */
@@ -27,6 +32,7 @@ const errorName = (err: unknown) => (err as Error).name;
 
 /** Creates/authenticates customers in Cognito; the client is built lazily so the app boots without AWS env set. */
 export class CognitoCustomerIdentityProvider implements CustomerIdentityProvider {
+  private readonly logger = new Logger(CognitoCustomerIdentityProvider.name);
   private client?: CognitoIdentityProviderClient;
 
   private cognito(): CognitoIdentityProviderClient {
@@ -62,7 +68,12 @@ export class CognitoCustomerIdentityProvider implements CustomerIdentityProvider
       // Don't leave a user stuck in FORCE_CHANGE_PASSWORD, which would burn the email address.
       await this.cognito()
         .send(new AdminDeleteUserCommand({ UserPoolId, Username: email }))
-        .catch(() => undefined);
+        .catch((deleteErr) => {
+          // Structured so a log-based metric can count "signup_rollback_failed" occurrences.
+          this.logger.error(
+            `signup_rollback_failed count=1 op=AdminDeleteUserCommand email_hash=${hashEmail(email)} error=${errorName(deleteErr)}: ${(deleteErr as Error).message}`,
+          );
+        });
       if (errorName(err) === 'InvalidPasswordException') throw new InvalidPasswordError((err as Error).message);
       if (THROTTLE_ERRORS.includes(errorName(err))) throw new ProviderThrottledError(errorName(err));
       throw err;

@@ -10,7 +10,7 @@ import { FakeDataSource } from './fake-data-source';
 export const TENANT = '11111111-1111-4111-8111-111111111111';
 
 /** Tokens in tests are JSON claims encoded as "test:<json>"; no real Cognito or Postgres is used. */
-export const tokenFor = (claims: Record<string, unknown>) => `test:${JSON.stringify({ tenant_id: TENANT, ...claims })}`;
+export const tokenFor = (claims: Record<string, unknown>) => `test:${JSON.stringify({ 'custom:tenant_id': TENANT, ...claims })}`;
 
 export async function createTestApp(): Promise<INestApplication> {
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })

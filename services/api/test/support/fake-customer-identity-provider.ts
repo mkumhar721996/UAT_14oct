@@ -15,6 +15,7 @@ export class FakeCustomerIdentityProvider implements CustomerIdentityProvider {
   async login(email: string, password: string): Promise<{ accessToken: string } | null> {
     const account = this.accounts.get(email);
     if (!account || account.password !== password) return null;
-    return { accessToken: this.tokenFor({ sub: account.sub, role: 'customer', employee_id: null }) };
+    // Mirrors a real Cognito ID token, where custom attributes are namespaced under `custom:`.
+    return { accessToken: this.tokenFor({ sub: account.sub, 'custom:role': 'customer', 'custom:employee_id': null }) };
   }
 }

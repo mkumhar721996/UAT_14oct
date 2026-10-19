@@ -51,7 +51,11 @@ export class CustomersService {
   /** Maps identity-provider failures to client-meaningful HTTP errors; anything else is logged (never with credentials) and rethrown. */
   private translate(operation: string, err: unknown): unknown {
     if (err instanceof InvalidPasswordError) return new BadRequestException('Choose a stronger password that meets the password requirements.');
-    if (err instanceof ProviderThrottledError) return new HttpException('Too many attempts. Wait a moment and try again.', HttpStatus.TOO_MANY_REQUESTS);
+    if (err instanceof ProviderThrottledError) {
+      // Structured so a log-based metric can count Cognito call outcomes by op/outcome.
+      this.logger.warn(`cognito_call_outcome count=1 op=${operation} outcome=throttled error=${(err as Error).message}`);
+      return new HttpException('Too many attempts. Wait a moment and try again.', HttpStatus.TOO_MANY_REQUESTS);
+    }
     this.logger.error(`Identity provider ${operation} failed: ${(err as Error)?.name}: ${(err as Error)?.message}`);
     return err;
   }

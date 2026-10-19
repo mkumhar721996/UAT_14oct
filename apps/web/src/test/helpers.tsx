@@ -6,7 +6,8 @@ import { ToastProvider } from '../components/Toast'
 import { TOKEN_KEY } from '../lib/auth'
 
 export function signIn(role: 'hr_admin' | 'employee' | 'reporter' | 'customer', employeeId?: string) {
-  const payload = btoa(JSON.stringify({ role, tenant_id: 'tenant-1', employee_id: employeeId }))
+  // Mirrors a real Cognito ID token, where custom attributes are namespaced under `custom:`.
+  const payload = btoa(JSON.stringify({ 'custom:role': role, 'custom:tenant_id': 'tenant-1', 'custom:employee_id': employeeId }))
   localStorage.setItem(TOKEN_KEY, `header.${payload}.signature`)
 }
 

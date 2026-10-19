@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   CognitoCustomerIdentityProvider,
@@ -42,6 +43,15 @@ describe('CognitoCustomerIdentityProvider', () => {
     const p = provider({ AdminSetUserPasswordCommand: 'InternalErrorException' });
     await expect(p.signUp('a@example.com', 'test-password')).rejects.toThrow('InternalErrorException');
     expect(sent).toContain('AdminDeleteUserCommand');
+  });
+
+  it('logs (without the email or password) when the rollback delete itself fails, and still rejects with the original error', async () => {
+    const errorSpy = vi.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+    const p = provider({ AdminSetUserPasswordCommand: 'InvalidPasswordException', AdminDeleteUserCommand: 'InternalErrorException' });
+    await expect(p.signUp('a@example.com', 'test-password')).rejects.toBeInstanceOf(InvalidPasswordError);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('signup_rollback_failed'));
+    expect(errorSpy.mock.calls[0][0]).not.toContain('a@example.com');
+    errorSpy.mockRestore();
   });
 
   it('maps an existing username to EmailAlreadyRegisteredError', async () => {

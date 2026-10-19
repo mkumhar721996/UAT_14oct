@@ -32,14 +32,19 @@ export function clearToken(): void {
   notify()
 }
 
-/** Decodes (does not verify — the API does) the claims of the signed-in user's access token. */
+/** Decodes (does not verify — the API does) the claims of the signed-in user's ID token. */
 export function readSession(): Session | null {
   const token = getToken()
   if (!token) return null
   try {
     const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
-    if (!ROLES.includes(payload.role)) return null
-    return { role: payload.role, employeeId: payload.employee_id ?? null, tenantId: payload.tenant_id }
+    // Cognito ID tokens carry custom attributes under a `custom:` prefix; plain claim names are
+    // kept as a fallback for tokens minted outside Cognito's custom-attribute mechanism.
+    const role = payload['custom:role'] ?? payload.role
+    const tenantId = payload['custom:tenant_id'] ?? payload.tenant_id
+    const employeeId = payload['custom:employee_id'] ?? payload.employee_id ?? null
+    if (!ROLES.includes(role)) return null
+    return { role, employeeId, tenantId }
   } catch {
     return null
   }
