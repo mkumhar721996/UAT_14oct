@@ -23,3 +23,19 @@ export async function fetchDrupalResource(
   }
   return response.json();
 }
+
+// Raw-text sibling of fetchDrupalResource for rendered-HTML responses (legacy paragraph fragments).
+export async function fetchDrupalHtmlFragment(
+  path: string,
+  env: NodeJS.ProcessEnv = process.env,
+): Promise<string> {
+  const config = loadDrupalConfig(env);
+  const url = new URL(path, config.baseUrl).toString();
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${config.accessToken}` },
+  });
+  if (!response.ok) {
+    throw new DrupalFetchError(`Drupal request to ${path} failed with status ${response.status}`);
+  }
+  return response.text();
+}

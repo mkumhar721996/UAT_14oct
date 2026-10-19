@@ -21,6 +21,13 @@ afterEach(() => {
 })
 
 describe('App', () => {
+  it('shows a landing page to a signed-out visitor', async () => {
+    mockApi({ 'GET /pages/landing-page/lp-1': { contentType: 'landing_page', title: 'Autumn Sale' } })
+    renderApp('/pages/landing-page/lp-1')
+    expect(await screen.findByText('Autumn Sale')).toBeInTheDocument()
+    expect(screen.queryByText(/sign in required/i)).not.toBeInTheDocument()
+  })
+
   it('asks for sign-in when there is no session', () => {
     renderApp('/employees')
     expect(screen.getByText(/sign in required/i)).toBeInTheDocument()

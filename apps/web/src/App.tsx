@@ -2,7 +2,8 @@ import type { ReactNode } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AccessRestricted, Layout } from './components/Layout'
 import { ToastProvider } from './components/Toast'
-import { useAuth } from './lib/auth'
+import { useAuth, type Session } from './lib/auth'
+import LandingPageRoute from './routes/LandingPageRoute'
 import AccountPage from './routes/AccountPage'
 import CustomerAccessDeniedPage from './routes/CustomerAccessDeniedPage'
 import EditEmployeeProfilePage from './routes/EditEmployeeProfilePage'
@@ -29,11 +30,9 @@ function RequireHrAdmin({ title, message, children }: { title: string; message: 
   )
 }
 
-function App() {
-  const auth = useAuth()
+function InternalApp({ auth }: { auth: Session | null }) {
   if (!auth) {
     return (
-      <ToastProvider>
         <Routes>
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LogInPage />} />
@@ -47,23 +46,19 @@ function App() {
             }
           />
         </Routes>
-      </ToastProvider>
     )
   }
   // Customers get only their own account page; every internal (HR/QA console) page is denied.
   if (auth.role === 'customer') {
     return (
-      <ToastProvider>
         <Routes>
           <Route path="/" element={<Navigate to="/account" replace />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="*" element={<CustomerAccessDeniedPage />} />
         </Routes>
-      </ToastProvider>
     )
   }
   return (
-    <ToastProvider>
       <Routes>
         <Route path="/" element={<Navigate to="/employees" replace />} />
         <Route path="/employees" element={<EmployeeDirectoryPage />} />
@@ -97,6 +92,18 @@ function App() {
             </RequireHrAdmin>
           }
         />
+      </Routes>
+  )
+}
+
+function App() {
+  const auth = useAuth()
+  return (
+    <ToastProvider>
+      <Routes>
+        {/* Public marketing content: reachable regardless of sign-in state. */}
+        <Route path="/pages/landing-page/:pageId" element={<LandingPageRoute />} />
+        <Route path="*" element={<InternalApp auth={auth} />} />
       </Routes>
     </ToastProvider>
   )

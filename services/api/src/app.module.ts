@@ -6,9 +6,11 @@ import { DatabaseModule } from './database/typeorm.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { DefectsModule } from './defects/defects.module';
 import { EmployeesModule } from './employees/employees.module';
+import { DrupalModule } from './drupal/drupal.module';
+import { PagesModule } from './pages/pages.module';
 
 @Module({
-  imports: [DatabaseModule, EmployeesModule, DefectsModule, CustomersModule, InventoryModule],
+  imports: [DatabaseModule, EmployeesModule, DefectsModule, CustomersModule, InventoryModule, DrupalModule, PagesModule],
   controllers: [AppController],
   providers: [AppService],
 })
