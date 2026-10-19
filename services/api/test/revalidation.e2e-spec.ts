@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createTestApp } from './support/create-test-app';
 
 let title = 'Before';
@@ -21,6 +21,9 @@ describe('Revalidation (e2e)', () => {
         )) as any,
     );
     app = await createTestApp();
+  });
+  beforeEach(() => {
+    title = 'Before';
   });
   afterAll(async () => {
     await app.close();

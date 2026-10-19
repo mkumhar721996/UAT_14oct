@@ -1,4 +1,4 @@
-import sanitizeHtml from 'sanitize-html';
+import { sanitizeCmsHtml } from './html-sanitizer';
 import { fetchDrupalHtmlFragment } from './drupal-client';
 import type { TypedFetcher } from './typed-fetcher';
 
@@ -12,7 +12,7 @@ export function createLegacyFragmentFetcher(definition: {
     cacheStrategy: 'static-revalidatable',
     async fetchById(id, env = process.env) {
       const raw = await fetchDrupalHtmlFragment(`${definition.endpoint}/${encodeURIComponent(id)}`, env);
-      return { html: sanitizeHtml(raw) };
+      return { html: sanitizeCmsHtml(raw) };
     },
   };
 }

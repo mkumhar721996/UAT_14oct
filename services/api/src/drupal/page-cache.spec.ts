@@ -42,4 +42,35 @@ describe('createPageCache', () => {
     await cache.get('a', reval, async () => 'a');
     expect(await cache.get('b', reval, async () => 'b')).toBe('b');
   });
+
+  it('coalesces concurrent cold requests into one build', async () => {
+    const cache = createPageCache<number>({ ttlMs: 1000 });
+    const reval = createRevalidationRegistry();
+    const build = vi.fn(async () => 1);
+    await Promise.all([cache.get('t', reval, build), cache.get('t', reval, build)]);
+    expect(build).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps a revalidation that arrives mid-build so the next request rebuilds', async () => {
+    const cache = createPageCache<string>({ ttlMs: 1000 });
+    const reval = createRevalidationRegistry();
+    let release!: () => void;
+    const gate = new Promise<void>((r) => (release = r));
+    const first = cache.get('t', reval, async () => {
+      await gate;
+      return 'old';
+    });
+    reval.markStale('t');
+    release();
+    expect(await first).toBe('old');
+    expect(await cache.get('t', reval, async () => 'new')).toBe('new');
+  });
+
+  it('re-marks the tag stale when the build fails', async () => {
+    const cache = createPageCache<number>({ ttlMs: 1000 });
+    const reval = createRevalidationRegistry();
+    reval.markStale('t');
+    await expect(cache.get('t', reval, async () => Promise.reject(new Error('boom')))).rejects.toThrow('boom');
+    expect(reval.isStale('t')).toBe(true);
+  });
 });
