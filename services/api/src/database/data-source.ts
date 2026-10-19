@@ -7,10 +7,11 @@ import { EmploymentHistoryEntry } from '../employees/entities/employment-history
 import { PageReview } from '../inventory/entities/page-review.entity';
 import { PendingChangeRequest } from '../employees/entities/pending-change-request.entity';
 import { ServiceType } from '../service-types/entities/service-type.entity';
-import { CreateServiceTypesSchema1700000000006 } from './migrations/1700000000006-create-service-types-schema';
+import { CreateServiceTypesSchema1700000000007 } from './migrations/1700000000007-create-service-types-schema';
 import { CreatePageReviewsSchema1700000000005 } from './migrations/1700000000005-create-page-reviews-schema';
 import { CreateBookingsSchema1700000000003 } from './migrations/1700000000003-create-bookings-schema';
 import { CreateEmployeesSchema1700000000000 } from './migrations/1700000000000-create-employees-schema';
+import { AddDefectWorkflowNotes1700000000006 } from './migrations/1700000000006-add-defect-workflow-notes';
 import { AddDefectPriorityAssignee1700000000004 } from './migrations/1700000000004-add-defect-priority-assignee';
 import { CreateDefectsSchema1700000000002 } from './migrations/1700000000002-create-defects-schema';
 import { UniquePendingChangeRequest1700000000001 } from './migrations/1700000000001-unique-pending-change-request';
@@ -26,7 +27,8 @@ export const dataSourceOptions = (): DataSourceOptions => ({
     CreateBookingsSchema1700000000003,
     AddDefectPriorityAssignee1700000000004,
     CreatePageReviewsSchema1700000000005,
-    CreateServiceTypesSchema1700000000006,
+    AddDefectWorkflowNotes1700000000006,
+    CreateServiceTypesSchema1700000000007,
   ],
 });
 
