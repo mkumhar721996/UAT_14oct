@@ -57,3 +57,17 @@ export interface Defect {
   createdAt: string
   updatedAt: string
 }
+
+export type TemplateType = 'HomePage' | 'LandingPage' | 'ClientWork' | 'Partner' | 'Services'
+
+export type ReviewResult = 'pass' | 'fail'
+
+export interface InventoryEntry {
+  pageId: string
+  templateType: TemplateType
+  title: string
+  path: string | null
+  reviewerName: string | null
+  reviewDate: string | null
+  status: ReviewResult | null
+}
