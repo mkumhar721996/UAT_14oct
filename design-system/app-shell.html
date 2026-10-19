@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>App Shell</title>
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="prototype-utils.css" />
+<style>
+  body { margin: 0; font-family: var(--font-family-base); color: var(--color-fg); background: var(--color-bg); }
+
+  .shell-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  .shell-menu-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    color: var(--color-fg);
+    font-size: var(--font-size-lg);
+    line-height: 1;
+    padding: var(--space-1) var(--space-2);
+    margin-right: var(--space-2);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+  }
+
+  .shell-menu-btn:hover { background: var(--color-bg-subtle); }
+  .shell-menu-btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+  .sidebar-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 var(--space-1);
+    margin-left: var(--space-1);
+    border-radius: var(--radius-sm);
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .sidebar-link[aria-current="page"] {
+    background: var(--color-primary);
+    color: var(--color-primary-fg);
+  }
+
+  .shell-footer {
+    padding: var(--space-3) var(--space-4);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .sidebar[hidden] { display: none; }
+
+  @media (min-width: 1024px) {
+    .sidebar[hidden] { display: block; }
+  }
+
+  @media (max-width: 1023px) {
+    .shell-menu-btn { display: inline-flex; }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 240px;
+      max-width: 80vw;
+      z-index: 20;
+      overflow-y: auto;
+      box-shadow: var(--shadow-card);
+    }
+  }
+</style>
+</head>
+<body>
+
+<div data-arc-shell class="app-shell">
+  <nav class="sidebar" id="primary-nav" hidden aria-label="Main">
+    <div class="sidebar-section-label">HR Console</div>
+    <a class="sidebar-link" href="#" data-nav-key="employees">Employees</a>
+    <a class="sidebar-link" href="#" data-nav-key="pending-changes">
+      Pending changes
+      <span class="sidebar-badge">2</span>
+    </a>
+    <div class="sidebar-section-label" style="margin-top: var(--space-3)">QA Tracker</div>
+    <a class="sidebar-link" href="#" data-nav-key="defects">Defects</a>
+    <a class="sidebar-link" href="#" data-nav-key="page-inventory">Page inventory</a>
+    <div class="sidebar-section-label" style="margin-top: var(--space-3)">Self-service</div>
+    <a class="sidebar-link" href="#" data-nav-key="me">My profile</a>
+  </nav>
+
+  <div class="shell-main">
+    <header class="topbar">
+      <button
+        type="button"
+        class="shell-menu-btn"
+        data-toggle="primary-nav"
+        aria-controls="primary-nav"
+        aria-label="Toggle navigation"
+      >&#9776;</button>
+      <div class="topbar-title">
+        <h1 class="heading-lg" style="margin: 0;">Page title</h1>
+      </div>
+      <div class="topbar-actions"></div>
+    </header>
+
+    <main class="content" data-arc-content></main>
+
+    <footer class="shell-footer">
+      <span class="text-muted">HR &amp; QA internal tools</span>
+    </footer>
+  </div>
+</div>
+
+</body>
+</html>
