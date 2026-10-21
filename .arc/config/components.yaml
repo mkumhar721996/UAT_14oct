@@ -1,0 +1,68 @@
+version: 1
+components:
+  comp_web_app:
+    name: Web App
+    kind: web_ui
+    directory: apps/web
+    stack:
+      choices:
+        styling: tailwind css
+        language: typescript
+        framework: react+vite
+        package_manager: pnpm
+        testing_tool_e2e: playwright
+        testing_tool_unit: vitest
+      notes: SPA client for all user types, RBAC-driven views
+  comp_api_service:
+    name: API Service
+    kind: api_service
+    directory: services/api
+    stack:
+      choices:
+        language: typescript
+        framework: nestjs
+        package_manager: pnpm
+        testing_tool_e2e: supertest
+        testing_tool_unit: vitest
+      notes: Unified API, domain-organized internally; data owned by Relational Database
+        component
+  comp_worker:
+    name: Worker
+    kind: worker
+    directory: services/worker
+    stack:
+      choices:
+        language: typescript
+        package_manager: pnpm
+        testing_tool_unit: vitest
+      notes: Plain Node.js worker consuming SQS; no user-facing surface to e2e test
+  comp_relational_database:
+    name: Relational Database
+    kind: infrastructure
+    stack:
+      choices:
+        managed_service: Amazon RDS for PostgreSQL 16
+  comp_object_storage:
+    name: Object Storage
+    kind: managed_service
+    stack:
+      choices:
+        managed_service: Amazon S3
+  comp_job_queue:
+    name: Job Queue
+    kind: infrastructure
+    stack:
+      choices:
+        managed_service: Amazon SQS
+  comp_identity_provider:
+    name: Identity Provider
+    kind: managed_service
+    stack:
+      choices:
+        managed_service: Amazon Cognito
+  comp_email_delivery:
+    name: Email Delivery
+    kind: managed_service
+    stack:
+      choices:
+        managed_service: Amazon SES
