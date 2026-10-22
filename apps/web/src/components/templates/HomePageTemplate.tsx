@@ -1,6 +1,6 @@
 import { ParagraphList } from '../paragraphs/ParagraphRenderer'
 import type { ParagraphDispatchTable } from '../../lib/paragraphs/paragraphDispatchTable'
-import type { DrupalNode } from '../../lib/templates/types'
+import { toParagraphInstances, type DrupalNode } from '../../lib/templates/types'
 
 export function HomePageTemplate({
   node,
@@ -12,7 +12,7 @@ export function HomePageTemplate({
   return (
     <div data-testid="home-page-template">
       {node.contentType}
-      <ParagraphList paragraphs={node.paragraphs ?? []} table={table} />
+      <ParagraphList paragraphs={toParagraphInstances(node.paragraphs)} table={table} />
     </div>
   )
 }

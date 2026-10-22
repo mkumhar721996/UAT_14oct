@@ -20,7 +20,7 @@ export async function fetchPublishedPages(env: NodeJS.ProcessEnv = process.env):
   for (const templateType of TEMPLATE_TYPES) {
     let next: string | undefined = `/jsonapi/node/${PAGE_CONTENT_TYPES[templateType]}?filter[status]=1`;
     while (next) {
-      const body = (await fetchDrupalResource(next, env)) as CollectionBody;
+      const body = (await fetchDrupalResource(next, env, templateType)) as CollectionBody;
       for (const resource of body.data ?? []) {
         pages.push({
           pageId: resource.id,
