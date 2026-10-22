@@ -53,6 +53,12 @@ export function Layout({
           Page inventory
         </NavLink>
         <div className="sidebar-section-label" style={{ marginTop: 'var(--space-3)' }}>
+          Service Catalog
+        </div>
+        <NavLink to="/service-types" className={linkClass}>
+          Service types
+        </NavLink>
+        <div className="sidebar-section-label" style={{ marginTop: 'var(--space-3)' }}>
           Self-service
         </div>
         <NavLink to="/me" className={linkClass}>

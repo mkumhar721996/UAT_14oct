@@ -26,6 +26,14 @@ describe('App', () => {
     expect(screen.getByText(/sign in required/i)).toBeInTheDocument()
   })
 
+  it('a non-admin sees access restricted on /service-types and nothing is requested', () => {
+    signIn('employee', 'u2')
+    const api = mockApi({})
+    renderApp('/service-types')
+    expect(screen.getByText('Access restricted')).toBeInTheDocument()
+    expect(api.mock.calls.filter(([, i]) => i?.method && i.method !== 'GET')).toHaveLength(0)
+  })
+
   it.each(['/employees/new', '/employees/u1/edit', '/pending-changes'])(
     'AC3: a non-HR-Admin sees access restricted on %s and nothing is requested',
     (path) => {
@@ -38,7 +46,7 @@ describe('App', () => {
     },
   )
 
-  it.each(['/employees', '/employees/new', '/defects/new', '/me', '/pending-changes', '/nowhere'])(
+  it.each(['/employees', '/employees/new', '/defects/new', '/me', '/pending-changes', '/service-types', '/nowhere'])(
     'AC4: a logged-in customer sees Access denied on %s and nothing is requested',
     (path) => {
       signIn('customer')
