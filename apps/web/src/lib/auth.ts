@@ -45,6 +45,7 @@ export function readSession(): Session | null {
     const tenantId = payload['custom:tenant_id'] ?? payload.tenant_id
     const employeeId = payload['custom:employee_id'] ?? payload.employee_id ?? null
     if (!ROLES.includes(role)) return null
+    if (typeof payload.exp === 'number' && payload.exp * 1000 <= Date.now()) return null
     return { sub: payload.sub, role, employeeId, tenantId }
   } catch {
     return null

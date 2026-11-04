@@ -25,7 +25,8 @@ export default function LogInPage() {
       const { accessToken } = await apiClient.post<{ accessToken: string }>('/customers/login', { email: email.trim(), password })
       storeToken(accessToken, email.trim().toLowerCase())
       toast('Logged in')
-      navigate('/account')
+      const next = (location.state as { next?: string } | null)?.next
+      navigate(next?.startsWith('/expenses') ? next : '/account')
     } catch (err) {
       setAlert(err instanceof ApiError && err.status === 401 ? INVALID_CREDENTIALS : 'Something went wrong. Try again.')
     } finally {
