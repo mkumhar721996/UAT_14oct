@@ -97,4 +97,37 @@ describe('App', () => {
     expect(screen.getByText('Designer')).toBeInTheDocument()
     expect(api.mock.calls.some(([, i]) => i?.method === 'PATCH')).toBe(false)
   })
+
+  it('Sign-in AC2: signing in from /signin lands in Expenses', async () => {
+    const payload = btoa(JSON.stringify({ sub: 'test-sub', 'custom:role': 'customer' }))
+    mockApi({ 'POST /customers/login': { accessToken: `header.${payload}.signature` } })
+    renderApp('/signin')
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'dana@example.com' } })
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'test-password' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }))
+    expect(await screen.findByRole('heading', { name: 'Expenses' })).toBeInTheDocument()
+  })
+
+  it.each(['customer', 'hr_admin'] as const)('Sign-in AC8: a signed-in %s opening /signin lands in Expenses', async (role) => {
+    signIn(role)
+    mockApi({})
+    renderApp('/signin')
+    expect(await screen.findByRole('heading', { name: 'Expenses' })).toBeInTheDocument()
+  })
+
+  it.each([
+    ['/login', null],
+    ['/signup', null],
+    ['/', null],
+    ['/account', 'customer'],
+    ['/expenses', 'customer'],
+  ] as const)('Sign-in AC7: %s shows nothing that opens Sign-in', async (path, role) => {
+    if (role) signIn(role)
+    mockApi({})
+    renderApp(path)
+    await screen.findAllByRole('heading')
+    expect(document.querySelector('a[href="/signin"]')).toBeNull()
+    expect(screen.queryByRole('button', { name: /sign in/i })).toBeNull()
+    expect(screen.queryByRole('link', { name: /sign in/i })).toBeNull()
+  })
 })

@@ -6,7 +6,9 @@ import { useAuth } from './lib/auth'
 import AccountPage from './routes/AccountPage'
 import CustomerAccessDeniedPage from './routes/CustomerAccessDeniedPage'
 import EditEmployeeProfilePage from './routes/EditEmployeeProfilePage'
+import ExpensesPage from './routes/ExpensesPage'
 import LogInPage from './routes/LogInPage'
+import SignInPage from './routes/SignInPage'
 import SignUpPage from './routes/SignUpPage'
 import EmployeeDirectoryPage from './routes/EmployeeDirectoryPage'
 import EmployeeProfileDetailPage from './routes/EmployeeProfileDetailPage'
@@ -37,6 +39,7 @@ function App() {
         <Routes>
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LogInPage />} />
+          <Route path="/signin" element={<SignInPage />} />
           <Route
             path="*"
             element={
@@ -57,6 +60,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/account" replace />} />
           <Route path="/account" element={<AccountPage />} />
+          <Route path="/expenses" element={<ExpensesPage />} />
+          <Route path="/signin" element={<Navigate to="/expenses" replace />} />
           <Route path="*" element={<CustomerAccessDeniedPage />} />
         </Routes>
       </ToastProvider>
@@ -67,6 +72,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/employees" replace />} />
         <Route path="/employees" element={<EmployeeDirectoryPage />} />
+        <Route path="/expenses" element={<ExpensesPage />} />
+        <Route path="/signin" element={<Navigate to="/expenses" replace />} />
         <Route
           path="/employees/new"
           element={
