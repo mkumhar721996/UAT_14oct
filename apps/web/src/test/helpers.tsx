@@ -5,10 +5,16 @@ import { vi } from 'vitest'
 import { ToastProvider } from '../components/Toast'
 import { TOKEN_KEY, type Role } from '../lib/auth'
 
-export function signIn(role: Role, employeeId?: string, sub = 'test-sub') {
+export function signIn(role: Role, employeeId?: string, sub = 'test-sub', opts: { exp?: number } = {}) {
   // Mirrors a real Cognito ID token, where custom attributes are namespaced under `custom:`.
   const payload = btoa(
-    JSON.stringify({ sub, 'custom:role': role, 'custom:tenant_id': 'tenant-1', 'custom:employee_id': employeeId }),
+    JSON.stringify({
+      sub,
+      'custom:role': role,
+      'custom:tenant_id': 'tenant-1',
+      'custom:employee_id': employeeId,
+      exp: opts.exp,
+    }),
   )
   localStorage.setItem(TOKEN_KEY, `header.${payload}.signature`)
 }

@@ -98,3 +98,61 @@ describe('App', () => {
     expect(api.mock.calls.some(([, i]) => i?.method === 'PATCH')).toBe(false)
   })
 })
+
+describe('Expenses access gate', () => {
+  const expired = { exp: Math.floor(Date.now() / 1000) - 60 }
+  const loginHeading = () => screen.getByRole('heading', { name: 'Log in' })
+  const expensesHeading = () => screen.queryByRole('heading', { name: 'Expenses' })
+
+  it.each(['/expenses', '/expenses/123'])('AC1: signed-out %s shows Log-in', (path) => {
+    renderApp(path)
+    expect(loginHeading()).toBeInTheDocument()
+  })
+
+  it('AC2: signed-out open of /expenses requests nothing and shows no expenses', () => {
+    const api = mockApi({})
+    renderApp('/expenses')
+    expect(api).not.toHaveBeenCalled()
+    expect(expensesHeading()).not.toBeInTheDocument()
+  })
+
+  it('AC3: a signed-in employee sees Expenses', () => {
+    signIn('employee', 'u2')
+    mockApi({})
+    renderApp('/expenses')
+    expect(expensesHeading()).toBeInTheDocument()
+  })
+
+  it('a signed-in customer is denied Expenses (internal console area) and nothing is requested', () => {
+    signIn('customer')
+    const api = mockApi({})
+    renderApp('/expenses')
+    expect(screen.getByText('Access denied')).toBeInTheDocument()
+    expect(expensesHeading()).not.toBeInTheDocument()
+    expect(api).not.toHaveBeenCalled()
+  })
+
+  it('AC4: after logging in from the Expenses redirect the Expenses screen is shown', async () => {
+    const accessToken = `header.${btoa(JSON.stringify({ sub: 's', 'custom:role': 'employee', 'custom:tenant_id': 't' }))}.sig`
+    mockApi({ 'POST /customers/login': { accessToken } })
+    renderApp('/expenses/123')
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'dana@example.com' } })
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'test-password' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
+    expect(await screen.findByRole('heading', { name: 'Expenses' })).toBeInTheDocument()
+  })
+
+  it('AC5: an expired session shows Log-in', () => {
+    signIn('employee', 'u2', 'test-sub', expired)
+    renderApp('/expenses')
+    expect(loginHeading()).toBeInTheDocument()
+  })
+
+  it('AC6: an expired session requests nothing and shows no expenses', () => {
+    signIn('employee', 'u2', 'test-sub', expired)
+    const api = mockApi({})
+    renderApp('/expenses')
+    expect(api).not.toHaveBeenCalled()
+    expect(expensesHeading()).not.toBeInTheDocument()
+  })
+})

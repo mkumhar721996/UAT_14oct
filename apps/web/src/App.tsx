@@ -6,6 +6,7 @@ import { useAuth } from './lib/auth'
 import AccountPage from './routes/AccountPage'
 import CustomerAccessDeniedPage from './routes/CustomerAccessDeniedPage'
 import EditEmployeeProfilePage from './routes/EditEmployeeProfilePage'
+import ExpensesPage from './routes/ExpensesPage'
 import LogInPage from './routes/LogInPage'
 import SignUpPage from './routes/SignUpPage'
 import EmployeeDirectoryPage from './routes/EmployeeDirectoryPage'
@@ -37,6 +38,7 @@ function App() {
         <Routes>
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LogInPage />} />
+          <Route path="/expenses/*" element={<Navigate to="/login" replace state={{ next: '/expenses' }} />} />
           <Route
             path="*"
             element={
@@ -66,6 +68,7 @@ function App() {
     <ToastProvider>
       <Routes>
         <Route path="/" element={<Navigate to="/employees" replace />} />
+        <Route path="/expenses" element={<ExpensesPage />} />
         <Route path="/employees" element={<EmployeeDirectoryPage />} />
         <Route
           path="/employees/new"
