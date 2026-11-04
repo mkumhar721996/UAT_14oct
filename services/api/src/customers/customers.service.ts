@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, HttpException, HttpStatus, Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, HttpException, HttpStatus, Inject, Injectable, InternalServerErrorException, Logger, UnauthorizedException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import {
   CUSTOMER_IDENTITY_PROVIDER,
@@ -26,15 +26,26 @@ export class CustomersService {
     @Inject(CUSTOMER_IDENTITY_PROVIDER) private readonly identity: CustomerIdentityProvider,
   ) {}
 
-  async signUp(dto: SignUpDto): Promise<{ email: string }> {
+  /** Creates the account, then signs it in so the caller lands signed in with one round trip. */
+  async signUp(dto: SignUpDto): Promise<{ email: string; accessToken: string }> {
     const email = normaliseEmail(dto.email);
     try {
-      await this.identity.signUp(email, dto.password);
+      await this.identity.signUp(email, dto.password, dto.name.trim());
     } catch (err) {
       if (err instanceof EmailAlreadyRegisteredError) throw new ConflictException(`An account with ${email} already exists. Log in instead.`);
       throw this.translate('signUp', err);
     }
-    return { email };
+    let session: { accessToken: string } | null;
+    try {
+      session = await this.identity.login(email, dto.password);
+    } catch (err) {
+      throw this.translate('logIn', err);
+    }
+    if (!session) {
+      this.logger.error('Identity provider returned no session right after a successful signUp');
+      throw new InternalServerErrorException('Your account was created but we could not sign you in. Log in to continue.');
+    }
+    return { email, accessToken: session.accessToken };
   }
 
   async logIn(dto: LogInDto): Promise<{ accessToken: string }> {

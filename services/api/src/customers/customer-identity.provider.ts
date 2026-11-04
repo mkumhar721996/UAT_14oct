@@ -20,7 +20,7 @@ export class InvalidPasswordError extends Error {}
 export class ProviderThrottledError extends Error {}
 
 export interface CustomerIdentityProvider {
-  signUp(email: string, password: string): Promise<void>;
+  signUp(email: string, password: string, name: string): Promise<void>;
   /** Resolves null when the credentials don't match (wrong password or unknown email). */
   login(email: string, password: string): Promise<{ accessToken: string } | null>;
 }
@@ -39,7 +39,7 @@ export class CognitoCustomerIdentityProvider implements CustomerIdentityProvider
     return (this.client ??= new CognitoIdentityProviderClient({}));
   }
 
-  async signUp(email: string, password: string): Promise<void> {
+  async signUp(email: string, password: string, name: string): Promise<void> {
     const tenantId = process.env.CUSTOMER_TENANT_ID;
     if (!tenantId || !UUID.test(tenantId)) throw new Error('CUSTOMER_TENANT_ID must be set to a uuid before customers can sign up');
     const UserPoolId = process.env.COGNITO_USER_POOL_ID;
@@ -52,6 +52,7 @@ export class CognitoCustomerIdentityProvider implements CustomerIdentityProvider
           UserAttributes: [
             { Name: 'email', Value: email },
             { Name: 'email_verified', Value: 'true' },
+            { Name: 'name', Value: name },
             { Name: 'custom:role', Value: 'customer' },
             { Name: 'custom:tenant_id', Value: tenantId },
           ],

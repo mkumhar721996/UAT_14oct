@@ -33,22 +33,29 @@ describe('CognitoCustomerIdentityProvider', () => {
     delete process.env.CUSTOMER_TENANT_ID;
   });
 
+  it('sets the name attribute when creating the user', async () => {
+    const p = provider();
+    await p.signUp('a@example.com', 'test-password', 'Dana');
+    const create = (p as any).client.send.mock.calls[0][0];
+    expect(create.input.UserAttributes).toContainEqual({ Name: 'name', Value: 'Dana' });
+  });
+
   it('rolls back the half-created user and reports a policy failure when the password is rejected', async () => {
     const p = provider({ AdminSetUserPasswordCommand: 'InvalidPasswordException' });
-    await expect(p.signUp('a@example.com', 'test-password')).rejects.toBeInstanceOf(InvalidPasswordError);
+    await expect(p.signUp('a@example.com', 'test-password', 'Dana')).rejects.toBeInstanceOf(InvalidPasswordError);
     expect(sent).toEqual(['AdminCreateUserCommand', 'AdminSetUserPasswordCommand', 'AdminDeleteUserCommand']);
   });
 
   it('rolls back and rethrows on any other set-password failure', async () => {
     const p = provider({ AdminSetUserPasswordCommand: 'InternalErrorException' });
-    await expect(p.signUp('a@example.com', 'test-password')).rejects.toThrow('InternalErrorException');
+    await expect(p.signUp('a@example.com', 'test-password', 'Dana')).rejects.toThrow('InternalErrorException');
     expect(sent).toContain('AdminDeleteUserCommand');
   });
 
   it('logs (without the email or password) when the rollback delete itself fails, and still rejects with the original error', async () => {
     const errorSpy = vi.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
     const p = provider({ AdminSetUserPasswordCommand: 'InvalidPasswordException', AdminDeleteUserCommand: 'InternalErrorException' });
-    await expect(p.signUp('a@example.com', 'test-password')).rejects.toBeInstanceOf(InvalidPasswordError);
+    await expect(p.signUp('a@example.com', 'test-password', 'Dana')).rejects.toBeInstanceOf(InvalidPasswordError);
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('signup_rollback_failed'));
     expect(errorSpy.mock.calls[0][0]).not.toContain('a@example.com');
     errorSpy.mockRestore();
@@ -56,7 +63,7 @@ describe('CognitoCustomerIdentityProvider', () => {
 
   it('maps an existing username to EmailAlreadyRegisteredError', async () => {
     const p = provider({ AdminCreateUserCommand: 'UsernameExistsException' });
-    await expect(p.signUp('a@example.com', 'test-password')).rejects.toBeInstanceOf(EmailAlreadyRegisteredError);
+    await expect(p.signUp('a@example.com', 'test-password', 'Dana')).rejects.toBeInstanceOf(EmailAlreadyRegisteredError);
   });
 
   it('fails fast without calling Cognito when CUSTOMER_TENANT_ID is missing or not a uuid', async () => {
@@ -64,7 +71,7 @@ describe('CognitoCustomerIdentityProvider', () => {
       if (value === undefined) delete process.env.CUSTOMER_TENANT_ID;
       else process.env.CUSTOMER_TENANT_ID = value;
       const p = provider();
-      await expect(p.signUp('a@example.com', 'test-password')).rejects.toThrow(/CUSTOMER_TENANT_ID/);
+      await expect(p.signUp('a@example.com', 'test-password', 'Dana')).rejects.toThrow(/CUSTOMER_TENANT_ID/);
       expect(sent).toEqual([]);
     }
   });

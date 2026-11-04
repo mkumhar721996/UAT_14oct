@@ -6,6 +6,7 @@ import { useAuth } from './lib/auth'
 import AccountPage from './routes/AccountPage'
 import CustomerAccessDeniedPage from './routes/CustomerAccessDeniedPage'
 import EditEmployeeProfilePage from './routes/EditEmployeeProfilePage'
+import ExpensesPage from './routes/ExpensesPage'
 import LogInPage from './routes/LogInPage'
 import SignUpPage from './routes/SignUpPage'
 import EmployeeDirectoryPage from './routes/EmployeeDirectoryPage'
@@ -57,6 +58,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/account" replace />} />
           <Route path="/account" element={<AccountPage />} />
+          <Route path="/expenses" element={<ExpensesPage />} />
           <Route path="*" element={<CustomerAccessDeniedPage />} />
         </Routes>
       </ToastProvider>

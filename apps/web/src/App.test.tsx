@@ -56,6 +56,13 @@ describe('App', () => {
     expect(await screen.findByText('My account')).toBeInTheDocument()
   })
 
+  it('AC11: a signed-in customer reloading on Expenses still sees it without a log-in', () => {
+    signIn('customer')
+    renderApp('/expenses')
+    expect(screen.getByRole('heading', { name: 'Expenses' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Log in' })).not.toBeInTheDocument()
+  })
+
   it('visitors can reach the sign-up and log-in pages', () => {
     renderApp('/signup')
     expect(screen.getByText('Create your account')).toBeInTheDocument()

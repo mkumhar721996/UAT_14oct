@@ -7,7 +7,7 @@ export class FakeCustomerIdentityProvider implements CustomerIdentityProvider {
 
   constructor(private readonly tokenFor: (claims: Record<string, unknown>) => string) {}
 
-  async signUp(email: string, password: string): Promise<void> {
+  async signUp(email: string, password: string, _name: string): Promise<void> {
     if (this.accounts.has(email)) throw new EmailAlreadyRegisteredError(email);
     this.accounts.set(email, { password, sub: randomUUID() });
   }

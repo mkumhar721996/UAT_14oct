@@ -7,7 +7,7 @@ describe('Customers (e2e)', () => {
   let app: INestApplication;
   const http = () => request(app.getHttpServer());
   const password = 'test-password';
-  const signUp = (email: string) => http().post('/customers/signup').send({ email, password });
+  const signUp = (email: string) => http().post('/customers/signup').send({ name: 'Dana', email, password });
   const logIn = async (email: string) => (await http().post('/customers/login').send({ email, password })).body.accessToken as string;
 
   beforeAll(async () => {
@@ -24,14 +24,27 @@ describe('Customers (e2e)', () => {
     expect(typeof res.body.accessToken).toBe('string');
   });
 
-  it('AC1: signing up twice with the same email is rejected', async () => {
+  it('signup returns a token that opens the customer account', async () => {
+    const res = await signUp('auto@example.com').expect(201);
+    expect(res.body.email).toBe('auto@example.com');
+    await http().get('/customers/me/bookings').set('Authorization', `Bearer ${res.body.accessToken}`).expect(200);
+  });
+
+  it('AC1: signing up twice with the same email is rejected without a token', async () => {
     await signUp('dup@example.com').expect(201);
     const res = await signUp('Dup@Example.com');
     expect(res.status).toBe(409);
+    expect(res.body.accessToken).toBeUndefined();
+  });
+
+  it('a missing or blank name is rejected and creates no account', async () => {
+    await http().post('/customers/signup').send({ email: 'noname@example.com', password }).expect(400);
+    await http().post('/customers/signup').send({ name: '   ', email: 'noname@example.com', password }).expect(400);
+    await http().post('/customers/login').send({ email: 'noname@example.com', password }).expect(401);
   });
 
   it('AC1: a short password is rejected', async () => {
-    await http().post('/customers/signup').send({ email: 'short@example.com', password: 'short' }).expect(400);
+    await http().post('/customers/signup').send({ name: 'Dana', email: 'short@example.com', password: 'short' }).expect(400);
   });
 
   it('AC2: logging in with correct credentials grants access to the customer account', async () => {
