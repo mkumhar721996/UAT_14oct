@@ -116,11 +116,20 @@ describe('Expenses access gate', () => {
     expect(expensesHeading()).not.toBeInTheDocument()
   })
 
-  it.each([['employee', 'u2'], ['customer', undefined]] as const)('AC3: signed-in %s sees Expenses', (role, id) => {
-    signIn(role, id)
+  it('AC3: a signed-in employee sees Expenses', () => {
+    signIn('employee', 'u2')
     mockApi({})
     renderApp('/expenses')
     expect(expensesHeading()).toBeInTheDocument()
+  })
+
+  it('a signed-in customer is denied Expenses (internal console area) and nothing is requested', () => {
+    signIn('customer')
+    const api = mockApi({})
+    renderApp('/expenses')
+    expect(screen.getByText('Access denied')).toBeInTheDocument()
+    expect(expensesHeading()).not.toBeInTheDocument()
+    expect(api).not.toHaveBeenCalled()
   })
 
   it('AC4: after logging in from the Expenses redirect the Expenses screen is shown', async () => {

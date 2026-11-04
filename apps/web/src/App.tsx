@@ -59,7 +59,6 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/account" replace />} />
           <Route path="/account" element={<AccountPage />} />
-          <Route path="/expenses" element={<ExpensesPage />} />
           <Route path="*" element={<CustomerAccessDeniedPage />} />
         </Routes>
       </ToastProvider>
