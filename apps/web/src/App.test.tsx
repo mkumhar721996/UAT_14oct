@@ -21,6 +21,14 @@ afterEach(() => {
 })
 
 describe('App', () => {
+  it('routes /expenses to the Expenses page and links it in the sidebar', async () => {
+    signIn('employee', 'u2')
+    mockApi({ 'GET /expenses': [] })
+    renderApp('/expenses')
+    expect(await screen.findByText('No expenses recorded yet.')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Expenses' })).toHaveAttribute('href', '/expenses')
+  })
+
   it('asks for sign-in when there is no session', () => {
     renderApp('/employees')
     expect(screen.getByText(/sign in required/i)).toBeInTheDocument()

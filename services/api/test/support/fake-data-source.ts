@@ -22,14 +22,26 @@ class FakeRepository {
     return row;
   }
 
-  async find(opts: { where?: Row } = {}): Promise<Row[]> {
-    return this.rows.filter((r) => matches(r, opts.where)).map((r) => ({ ...r }));
+  async find(opts: { where?: Row; order?: Record<string, 'ASC' | 'DESC'> } = {}): Promise<Row[]> {
+    const found = this.rows.filter((r) => matches(r, opts.where)).map((r) => ({ ...r }));
+    const keys = Object.entries(opts.order ?? {});
+    return keys.length ? found.sort((a, b) => compareBy(a, b, keys)) : found;
   }
 
   async findOne(opts: { where?: Row }): Promise<Row | null> {
     const found = this.rows.find((r) => matches(r, opts.where));
     return found ? { ...found } : null;
   }
+}
+
+function compareBy(a: Row, b: Row, keys: [string, 'ASC' | 'DESC'][]): number {
+  for (const [key, dir] of keys) {
+    const x = a[key] instanceof Date ? a[key].getTime() : a[key];
+    const y = b[key] instanceof Date ? b[key].getTime() : b[key];
+    if (x === y) continue;
+    return (x < y ? -1 : 1) * (dir === 'DESC' ? -1 : 1);
+  }
+  return 0;
 }
 
 function matches(row: Row, where?: Row): boolean {

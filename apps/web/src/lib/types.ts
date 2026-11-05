@@ -73,3 +73,14 @@ export interface InventoryEntry {
   reviewDate: string | null
   status: ReviewResult | null
 }
+
+export interface Expense {
+  id: string
+  /** Numeric string from the API, e.g. "12.50". */
+  amount: string
+  /** Calendar date, YYYY-MM-DD. */
+  expenseDate: string
+  merchant: string
+  category: string
+  note: string | null
+}
