@@ -193,6 +193,78 @@ describe('ExpensesPage', () => {
     expect(screen.getByLabelText('Currency')).toHaveValue('EUR')
   })
 
+  it('sums cents exactly and counts expenses and categories in the total card', async () => {
+    mockApi({ 'GET /expenses': [ex('1', '0.10', '2026-05-01', 'Food', 'A'), ex('2', '0.20', '2026-05-02', 'Food', 'B'), ex('3', '1.00', '2026-05-03', 'Travel', 'C')] })
+    render()
+    expect(await screen.findByTestId('month-total')).toHaveTextContent('$1.30')
+    expect(screen.getByText('3 expenses in 2 categories')).toBeInTheDocument()
+  })
+
+  it('totals and chart ignore the category filter', async () => {
+    mockApi({ 'GET /expenses': mayFoodTravel })
+    render()
+    await screen.findByTestId('month-total')
+    pick('Category', 'Food')
+    expect(screen.getByTestId('month-total')).toHaveTextContent('$25.00')
+    expect(screen.getByRole('img', { name: /Food \$20\.00, Travel \$5\.00/ })).toBeInTheDocument()
+  })
+
+  it('All months total covers every expense', async () => {
+    mockApi({ 'GET /expenses': mayAndApril })
+    render()
+    await screen.findByTestId('month-total')
+    pick('Month', 'all')
+    expect(screen.getByTestId('month-total')).toHaveTextContent('$33.00')
+  })
+
+  it('shows the note and an empty cell when there is none', async () => {
+    mockApi({ 'GET /expenses': [ex('1', '3.00', '2026-05-03', 'Food', 'Cafe', 'team lunch'), ex('2', '4.00', '2026-05-04', 'Food', 'Deli')] })
+    render()
+    expect(await screen.findByRole('cell', { name: 'team lunch' })).toBeInTheDocument()
+    const rows = screen.getAllByRole('row').slice(1)
+    expect(within(rows[1]).getAllByRole('cell')[3]).toHaveTextContent('')
+  })
+
+  it('search is case-insensitive and combines with the month filter', async () => {
+    mockApi({ 'GET /expenses': mayAndApril })
+    render()
+    await screen.findByTestId('month-total')
+    fireEvent.change(screen.getByLabelText('Search merchant or note'), { target: { value: 'DELI' } })
+    expect(screen.getByText('No expenses match these filters')).toBeInTheDocument()
+    pick('Month', 'all')
+    expect(screen.getByRole('cell', { name: 'Deli-april' })).toBeInTheDocument()
+  })
+
+  it('category options come from the data, sorted', async () => {
+    mockApi({ 'GET /expenses': [ex('1', '1.00', '2026-05-01', 'Travel', 'A'), ex('2', '1.00', '2026-05-02', 'Food', 'B')] })
+    render()
+    await screen.findByTestId('month-total')
+    const names = within(screen.getByLabelText('Category')).getAllByRole('option').map((o) => o.textContent)
+    expect(names).toEqual(['All categories', 'Food', 'Travel'])
+  })
+
+  it('shows no spending in the chart for a month without expenses', async () => {
+    mockApi({ 'GET /expenses': [ex('a', '8.00', '2026-04-28', 'Food', 'Deli-april')] })
+    render()
+    expect(await screen.findByTestId('month-total')).toHaveTextContent('$0.00')
+    expect(screen.getByText('No spending in this period')).toBeInTheDocument()
+  })
+
+  it('a failed retry keeps the error banner', async () => {
+    mockApi({ 'GET /expenses': () => errorResponse(500, 'boom') })
+    render()
+    fireEvent.click(await screen.findByRole('button', { name: 'Try again' }))
+    expect(await screen.findByRole('alert')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument()
+  })
+
+  it('does not show the top-bar Add expense button in the error state', async () => {
+    mockApi({ 'GET /expenses': () => errorResponse(500, 'boom') })
+    render()
+    await screen.findByRole('alert')
+    expect(screen.queryByRole('button', { name: 'Add expense' })).not.toBeInTheDocument()
+  })
+
   it('currency: INR shows rupees and a saved INR is preselected', async () => {
     localStorage.setItem('arc.expenses.currency.test-sub', 'INR')
     mockApi({ 'GET /expenses': mayFoodTravel })

@@ -34,6 +34,27 @@ describe('expenses helpers', () => {
   it('searches merchant and note', () => {
     expect(filterExpenses(all, { category: 'all', month: 'all', search: 'WORK' }).map((x) => x.id)).toEqual(['travel-5-may'])
   })
+  it('adds decimals without floating-point drift', () => {
+    expect(totalCents([e('a', '0.10', '2026-05-01', 'Food'), e('b', '0.20', '2026-05-01', 'Food')])).toBe(30)
+    expect(totalCents([])).toBe(0)
+  })
+
+  it('filter preserves order and does not shift days across month ends', () => {
+    const rows = [e('a', '1', '2026-05-01', 'Food'), e('b', '1', '2026-04-30', 'Food')]
+    expect(filterExpenses(rows, { category: 'all', month: 'all', search: '' }).map((x) => x.id)).toEqual(['a', 'b'])
+    expect(filterExpenses(rows, { category: 'all', month: '2026-04', search: '' }).map((x) => x.id)).toEqual(['b'])
+  })
+
+  it('returns nothing when no row matches', () => {
+    expect(filterExpenses(all, { category: 'Rent', month: 'all', search: '' })).toEqual([])
+  })
+
+  it('formats dates without zero padding and months across a year end', () => {
+    expect(fmtExpenseDate('2026-01-05')).toBe('5 Jan 2026')
+    expect(fmtMonth('2025-12')).toBe('December 2025')
+    expect(monthOptions([e('a', '1', '2025-12-31', 'Food')], '2026-01')).toEqual(['2026-01', '2025-12'])
+  })
+
   it('AC23-26: all clears the filters', () => {
     expect(filterExpenses(all, { category: 'all', month: 'all', search: '' })).toHaveLength(all.length)
   })
