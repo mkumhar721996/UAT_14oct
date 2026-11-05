@@ -15,6 +15,7 @@ import NewEmployeeProfilePage from './routes/NewEmployeeProfilePage'
 import ReportDefectPage from './routes/ReportDefectPage'
 import DefectDetailPage from './routes/DefectDetailPage'
 import DefectEditPage from './routes/DefectEditPage'
+import ExpensesPage from './routes/ExpensesPage'
 import PageInventoryPage from './routes/PageInventoryPage'
 import PendingChangesPage from './routes/PendingChangesPage'
 
@@ -88,6 +89,7 @@ function App() {
         <Route path="/defects/:id" element={<DefectDetailPage />} />
         <Route path="/defects/:id/edit" element={<DefectEditPage />} />
         <Route path="/page-inventory" element={<PageInventoryPage />} />
+        <Route path="/expenses" element={<ExpensesPage />} />
         <Route path="/me" element={<MyProfilePage />} />
         <Route
           path="/pending-changes"

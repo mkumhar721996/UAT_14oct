@@ -15,14 +15,14 @@ describe('CognitoAuthGuard', () => {
     );
     const request: Record<string, unknown> = { headers: { authorization: 'Bearer token' } };
     await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
-    expect(request.user).toEqual({ sub: 'cust-1', tenantId: 'tenant-1', role: 'customer', employeeId: null });
+    expect(request.user).toEqual({ sub: 'cust-1', tenantId: 'tenant-1', role: 'customer', employeeId: null, currency: null });
   });
 
   it('falls back to plain role/tenant_id claims for tokens without the custom: prefix', async () => {
     const guard = new CognitoAuthGuard(verifierFor({ sub: 'emp-1', role: 'employee', tenant_id: 'tenant-1', employee_id: 'e-1' }));
     const request: Record<string, unknown> = { headers: { authorization: 'Bearer token' } };
     await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
-    expect(request.user).toEqual({ sub: 'emp-1', tenantId: 'tenant-1', role: 'employee', employeeId: 'e-1' });
+    expect(request.user).toEqual({ sub: 'emp-1', tenantId: 'tenant-1', role: 'employee', employeeId: 'e-1', currency: null });
   });
 
   it('rejects a token missing the required claims', async () => {

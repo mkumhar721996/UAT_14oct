@@ -28,7 +28,14 @@ export class CognitoAuthGuard implements CanActivate {
     if (typeof sub !== 'string' || typeof tenantId !== 'string' || !ROLES.includes(role as Role)) {
       throw new UnauthorizedException('Token is missing required claims');
     }
-    const user: AuthUser = { sub, tenantId, role: role as Role, employeeId: typeof employeeId === 'string' ? employeeId : null };
+    const currency = claims['custom:currency'] ?? claims.currency;
+    const user: AuthUser = {
+      sub,
+      tenantId,
+      role: role as Role,
+      employeeId: typeof employeeId === 'string' ? employeeId : null,
+      currency: typeof currency === 'string' ? currency : null,
+    };
     request.user = user;
     return true;
   }

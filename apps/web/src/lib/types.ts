@@ -73,3 +73,18 @@ export interface InventoryEntry {
   reviewDate: string | null
   status: ReviewResult | null
 }
+
+export interface Expense {
+  id: string
+  amount: string
+  currency: string
+  spentOn: string
+  merchant: string | null
+  category: 'Food' | 'Travel' | 'Other'
+  note: string | null
+}
+
+export interface ExpenseList {
+  currency: string
+  expenses: Expense[]
+}

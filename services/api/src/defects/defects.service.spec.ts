@@ -14,9 +14,9 @@ describe('DefectsService', () => {
   });
 
   describe('updateDefect', () => {
-    const reporter = { sub: 'rep-1', role: 'reporter' as const, tenantId: 'tenant', employeeId: null };
-    const other = { sub: 'e-9', role: 'employee' as const, tenantId: 'tenant', employeeId: null };
-    const admin = { sub: 'adm-1', role: 'admin' as const, tenantId: 'tenant', employeeId: null };
+    const reporter = { sub: 'rep-1', role: 'reporter' as const, tenantId: 'tenant', employeeId: null, currency: null };
+    const other = { sub: 'e-9', role: 'employee' as const, tenantId: 'tenant', employeeId: null, currency: null };
+    const admin = { sub: 'adm-1', role: 'admin' as const, tenantId: 'tenant', employeeId: null, currency: null };
     const seed = async (status: string) => {
       const ds = new FakeDataSource() as any;
       const svc = new DefectsService(ds);
@@ -71,7 +71,7 @@ describe('DefectsService', () => {
     });
   });
   describe('transitionDefect', () => {
-    const user = (sub: string, role: any) => ({ sub, role, tenantId: 'tenant', employeeId: null });
+    const user = (sub: string, role: any) => ({ sub, role, tenantId: 'tenant', employeeId: null, currency: null });
     const qa = user('qa-1', 'qa_verifier');
     const dev = user('dev-1', 'developer');
     const dev2 = user('dev-2', 'developer');
