@@ -6,6 +6,7 @@ import { useAuth } from './lib/auth'
 import AccountPage from './routes/AccountPage'
 import CustomerAccessDeniedPage from './routes/CustomerAccessDeniedPage'
 import EditEmployeeProfilePage from './routes/EditEmployeeProfilePage'
+import ExpensesPage from './routes/ExpensesPage'
 import LogInPage from './routes/LogInPage'
 import SignUpPage from './routes/SignUpPage'
 import EmployeeDirectoryPage from './routes/EmployeeDirectoryPage'
@@ -88,6 +89,7 @@ function App() {
         <Route path="/defects/:id" element={<DefectDetailPage />} />
         <Route path="/defects/:id/edit" element={<DefectEditPage />} />
         <Route path="/page-inventory" element={<PageInventoryPage />} />
+        <Route path="/expenses" element={<ExpensesPage />} />
         <Route path="/me" element={<MyProfilePage />} />
         <Route
           path="/pending-changes"

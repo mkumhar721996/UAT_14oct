@@ -2,6 +2,8 @@ import 'reflect-metadata';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { Booking } from '../customers/entities/booking.entity';
 import { Defect } from '../defects/entities/defect.entity';
+import { Expense } from '../expenses/entities/expense.entity';
+import { CreateExpensesSchema1700000000007 } from './migrations/1700000000007-create-expenses-schema';
 import { Employee } from '../employees/entities/employee.entity';
 import { EmploymentHistoryEntry } from '../employees/entities/employment-history-entry.entity';
 import { PageReview } from '../inventory/entities/page-review.entity';
@@ -17,7 +19,7 @@ import { UniquePendingChangeRequest1700000000001 } from './migrations/1700000000
 export const dataSourceOptions = (): DataSourceOptions => ({
   type: 'postgres',
   url: process.env.DATABASE_URL,
-  entities: [Employee, EmploymentHistoryEntry, PendingChangeRequest, Defect, Booking, PageReview],
+  entities: [Employee, EmploymentHistoryEntry, PendingChangeRequest, Defect, Booking, PageReview, Expense],
   migrations: [
     CreateEmployeesSchema1700000000000,
     UniquePendingChangeRequest1700000000001,
@@ -26,6 +28,7 @@ export const dataSourceOptions = (): DataSourceOptions => ({
     AddDefectPriorityAssignee1700000000004,
     CreatePageReviewsSchema1700000000005,
     AddDefectWorkflowNotes1700000000006,
+    CreateExpensesSchema1700000000007,
   ],
 });
 
