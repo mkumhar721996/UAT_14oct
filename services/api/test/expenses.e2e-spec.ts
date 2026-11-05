@@ -24,6 +24,11 @@ describe('Expenses (e2e)', () => {
     expect((await http().get('/expenses')).status).toBe(401);
   });
 
+  it('denies a customer token, matching the web route', async () => {
+    const token = tokenFor({ sub: 'user-c', 'custom:role': 'customer' });
+    expect((await http().get('/expenses').set('Authorization', `Bearer ${token}`)).status).toBe(403);
+  });
+
   it('AC13: lists only the signed-in user\'s expenses, within their tenant', async () => {
     await seed([
       { ownerSub: 'user-a', amount: '5.00', expenseDate: '2026-05-01', merchant: 'A-shop', category: 'Food' },
